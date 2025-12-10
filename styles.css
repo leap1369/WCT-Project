@@ -1,0 +1,263 @@
+:root{
+    --white-: #ffffff;
+    --main-color: #85BB65;
+    --secondary-color: #3a5a40;
+    --accent-color: #a3b18a;
+}
+
+* { 
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f7fb;
+}
+
+fieldset {
+    border: none;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--white-);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+form {
+    width: 100%;
+    margin: 0 auto;
+}
+
+label {
+    display: block;
+    margin: 0.2rem 0;
+    color: #333;
+    font-weight: 500;
+}
+
+h1, h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    width: 100%;
+    position: static;
+    transform: none;
+    left: auto;
+    top: auto;
+    color: var(--secondary-color);
+}
+
+h3 {
+    text-align: center;
+    display: block;
+    color: var(--secondary-color);
+    margin: 1rem 0;
+}
+
+input, select, textarea {
+  padding-left: 1rem;
+  width: 100%;
+  max-width: 27.875rem;
+  min-height: 3.13em;
+  background-color: var(--white-);
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--main-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.2);
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+    font-family: Arial, sans-serif;
+}
+
+button {
+    width: 100px;
+    padding: 1em;
+    border: none;
+    border-radius: 10px;
+    color: var(--white-);
+    background-color: var(--main-color);
+    cursor: pointer;
+    display: block;
+    margin: 1.4em auto;
+    font-size: 11px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.social-signin{
+    display: flex;
+    justify-content: center;
+    gap: 55px;
+    margin: 0 auto;
+}
+
+.social-signin img {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+.social-signin img:hover {
+    transform: scale(1.05);
+}
+
+p {
+    display: block;
+    text-align: center;
+    margin-top: 2em;
+    color: #666;
+}
+
+a {
+    color: var(--main-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+a:hover {
+    text-decoration: underline;
+    color: var(--secondary-color);
+}
+
+.btn-container {
+    display: flex;
+    margin: 0 auto;
+    gap: 15px;
+}
+.btn-container button {
+    margin: 0;
+    flex: 1;
+}
+
+.language {
+    margin-top: 2em;
+    text-align: center;
+    position: static;
+    transform: none;
+    left: auto;
+    top: auto;
+    color: #666;
+}
+
+/* Media Queries for Responsive Design */
+@media (min-width: 768px) {
+    body {
+        padding: 40px;
+    }
+    
+    fieldset {
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+    
+    h1.title {
+        font-size: 2.5rem;
+    }
+    
+    .social-signin {
+        gap: 55px;
+    }
+    
+    .social-signin img {
+        width: 61px;
+        height: 57px;
+    }
+    
+    .facebook-signin {
+        width: 57px;
+        height: 53px;
+    }
+    
+    input, select, textarea {
+        min-height: 3.13em;
+    }
+    
+    button {
+        width: 120px;
+        padding: 1.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    fieldset {
+        padding: 15px;
+    }
+    
+    h1.title {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .social-signin img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .social-signin {
+        gap: 25px;
+    }
+    
+    .btn-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-container button {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    input, select, textarea {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* Focus states for accessibility */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: 2px solid var(--main-color);
+    outline-offset: 2px;
+}
