@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head> 
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>JeahLuy</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <style>
-            /* header */
-            header{
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JeahLuy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Header */
+        header {
             background-color: white;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 15px 5%;
@@ -17,22 +17,22 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            
-            }
-            .merchant-profile{
-                align-self: center;
-                font-weight: bold;
-                font-size: 18px;
-                cursor: pointer;
-            }
+        }
+        
+        .merchant-profile {
+            align-self: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+        }
 
-            .user-section {
+        .user-section {
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
-            .profile-pic {
+        .profile-pic {
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -42,6 +42,7 @@
             justify-content: center;
             color: white;
             font-weight: bold;
+            cursor: pointer;
         }
 
         .profile-pic img {
@@ -106,8 +107,8 @@
             padding: 0;
         }
 
- /* Search Section */
- .search-section {
+        /* Search Section */
+        .search-section {
             text-align: center;
             padding: 40px 5% 20px;
             background: linear-gradient(135deg, #85BB65, #85BB65);
@@ -158,41 +159,40 @@
         }
 
         /* Categories Section */
-  /* Categories Section */
-.categories {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 30px;
-}
+        .categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
 
-.category {
-    background-color: rgba(255, 255, 255, 0.2);
-    padding: 15px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    text-align: center;
-    min-width: 100px;
-}
+        .category {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+            min-width: 100px;
+        }
 
-.category img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    display: block;
-}
+        .category img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+        }
 
-.category:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-3px);
-}
+        .category:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
 
         /* Products Section */
         .products-section {
@@ -291,867 +291,1793 @@
             background-color: #3a5a80;
         }
         
-/* Welcome Message Styles */
-.welcome-message {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 500;
-    color: #333;
+        /* Welcome Message */
+        .welcome-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #85BB65;
+        }
+
+        .logout {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .logout:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .product-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            flex-grow: 1;
+        }
+
+        /* Floating Shopping Cart */
+        .floating-cart {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .cart-icon-container {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            background-color: #85BB65;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .cart-icon-container:hover {
+            background-color: #3a5a80;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .cart-icon-container i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Cart Preview Modal */
+        .cart-preview {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 350px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        .cart-preview.show {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        .cart-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #85BB65;
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .cart-preview-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .close-cart-preview {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .cart-items-container {
+            padding: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-cart-message i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
+        .empty-cart-message p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .cart-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+        }
+
+        .cart-item-title {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .cart-item-price {
+            color: #85BB65;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .quantity-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .remove-item {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .cart-preview-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .total-amount {
+            color: #85BB65;
+        }
+
+        .view-cart-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #85BB65;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .view-cart-btn:hover {
+            background-color: #3a5a80;
+        }
+
+        /* Side Profile Panel */
+        .side-profile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .side-profile-overlay.show {
+            display: block;
+        }
+
+        .side-profile {
+            position: fixed;
+            top: 0;
+            left: -400px;
+            width: 350px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 1002;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .side-profile.show {
+            transform: translateX(400px);
+        }
+
+        .side-profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #85BB65, #3a5a80);
+            color: white;
+            position: relative;
+        }
+
+        .close-side-profile {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .user-info-side {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .profile-pic-side {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #85BB65;
+            font-size: 24px;
+        }
+
+        .user-details-side h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .user-details-side p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .side-profile-menu {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .menu-section {
+            margin-bottom: 20px;
+        }
+
+        .menu-section h4 {
+            padding: 0 20px 10px;
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .menu-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background-color: #f8f9fa;
+            border-left-color: #85BB65;
+        }
+
+        .menu-item.active {
+            background-color: #f0f7ff;
+            border-left-color: #85BB65;
+        }
+
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #666;
+        }
+
+        .menu-text {
+            flex-grow: 1;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .menu-badge {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .menu-arrow {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .side-profile-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background-color: #f8f9fa;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .theme-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #85BB65;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .language-selector, .currency-selector {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+        }
+
+        /* Profile Content Area */
+        .profile-content {
+            display: none;
+            padding: 20px;
+            background-color: white;
+            position: absolute;
+            top: 0;
+            left: 350px;
+            width: 350px;
+            height: 100%;
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 1003;
+            overflow-y: auto;
+        }
+
+        .profile-content.show {
+            display: block;
+            animation: slideInLeft 0.3s ease;
+        }
+
+        .content-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .content-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: #85BB65;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Order List specific styles */
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .order-item:hover {
+            border-color: #85BB65;
+        }
+
+        .order-item.selected {
+            border-color: #85BB65;
+            background-color: #f0f7ff;
+        }
+
+        .order-checkbox {
+            margin-right: 15px;
+        }
+
+        .order-item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .order-item-details {
+            flex-grow: 1;
+        }
+
+        .order-item-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .order-item-price {
+            color: #85BB65;
+            font-weight: bold;
+        }
+
+        .order-summary {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #85BB65;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 15px;
+        }
+
+        .checkout-btn:hover {
+            background-color: #3a5a80;
+        }
+
+        /* Form styles for checkout */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Payment section */
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option.selected {
+            border-color: #85BB65;
+            background-color: #f0f7ff;
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            background-color: #f5f5f5;
+            border-radius: 50%;
+            color: #85BB65;
+        }
+
+        /* Review stars */
+        .review-stars {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .review-star {
+            font-size: 24px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .review-star.active {
+            color: #ffc107;
+        }
+
+        .review-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .submit-review-btn {
+            background-color: #85BB65;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Order status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-shipped {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-delivered {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Theme mode: Dark */
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        body.dark-mode .side-profile {
+            background-color: #2d2d2d;
+            color: #ffffff;
+        }
+
+        body.dark-mode .menu-text {
+            color: #ffffff;
+        }
+
+        body.dark-mode .menu-icon {
+            color: #aaaaaa;
+        }
+
+        body.dark-mode .menu-item:hover {
+            background-color: #3a3a3a;
+        }
+
+        body.dark-mode .form-control {
+            background-color: #3a3a3a;
+            border-color: #444;
+            color: #ffffff;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 4px 15px rgba(133, 187, 101, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(133, 187, 101, 0.7);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(133, 187, 101, 0.4);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+/* Add a new animation for left slide-in */
+@keyframes slideInLeft {
+    from { 
+        transform: translateX(-20px); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateX(0); 
+        opacity: 1; 
+    }
 }
 
-.username {
-    font-weight: bold;
-    color: #85BB65;
-}
-
-.logout {
-    background-color: #ff6b6b;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.3s ease;
-}
-
-.logout:hover {
-    background-color: #ff5252;
-    transform: translateY(-2px);
-}
-
-.product-link {
-    text-decoration: none;
-    color: inherit;
+/* Update the profile content show animation for left side */
+.profile-content.show {
     display: block;
-    flex-grow: 1;
+    animation: slideInLeft 0.3s ease; /* Changed from slideInRight to slideInLeft */
 }
 
-/* Floating Shopping Cart */
-.floating-cart {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 1000;
-}
-
-.cart-icon-container {
-    position: relative;
-    width: 60px;
-    height: 60px;
-    background-color: #85BB65;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    animation: pulse 2s infinite;
-}
-
-.cart-icon-container:hover {
-    background-color: #3a5a80;
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.cart-icon-container i {
-    font-size: 24px;
-    color: white;
-}
-
-.cart-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: #ff6b6b;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* Cart Preview Modal */
-.cart-preview {
-    position: absolute;
-    bottom: 70px;
-    right: 0;
-    width: 350px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    display: none;
-    flex-direction: column;
-    max-height: 500px;
-    overflow: hidden;
-}
-
-.cart-preview.show {
-    display: flex;
-    animation: slideUp 0.3s ease;
-}
-
-.cart-preview-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #85BB65;
-    color: white;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-}
-
-.cart-preview-header h3 {
-    margin: 0;
-    font-size: 18px;
-}
-
-.close-cart-preview {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.cart-items-container {
-    padding: 15px;
-    flex-grow: 1;
-    overflow-y: auto;
-    max-height: 300px;
-}
-
-.empty-cart-message {
-    text-align: center;
-    padding: 40px 20px;
-    color: #999;
-}
-
-.empty-cart-message i {
-    font-size: 48px;
-    margin-bottom: 15px;
-    color: #ddd;
-}
-
-.empty-cart-message p {
-    margin: 0;
-    font-size: 16px;
-}
-
-.cart-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.cart-item:last-child {
-    border-bottom: none;
-}
-
-.cart-item-image {
-    width: 60px;
-    height: 60px;
-    border-radius: 5px;
-    overflow: hidden;
-    margin-right: 15px;
-}
-
-.cart-item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.cart-item-details {
-    flex-grow: 1;
-}
-
-.cart-item-title {
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 5px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.cart-item-price {
-    color: #85BB65;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.cart-item-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-.quantity-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: #f0f0f0;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-}
-
-.remove-item {
-    background-color: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.cart-preview-footer {
-    padding: 15px 20px;
-    border-top: 1px solid #eee;
-    background-color: #f9f9f9;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
-
-.cart-total {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.total-amount {
-    color: #85BB65;
-}
-
-.view-cart-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #85BB65;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.view-cart-btn:hover {
-    background-color: #3a5a80;
-}
-
-/* Animations */
-@keyframes pulse {
-    0% {
-        box-shadow: 0 4px 15px rgba(133, 187, 101, 0.4);
-    }
-    50% {
-        box-shadow: 0 4px 20px rgba(133, 187, 101, 0.7);
-    }
-    100% {
-        box-shadow: 0 4px 15px rgba(133, 187, 101, 0.4);
-    }
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .floating-cart {
-        bottom: 20px;
-        right: 20px;
+        /* Responsive */
+        @media (max-width: 768px) {
+    .side-profile {
+        width: 300px;
+        left: -300px; /* Adjusted for mobile */
     }
     
-    .cart-preview {
+    .side-profile.show {
+        transform: translateX(300px); /* Adjusted for mobile */
+    }
+    
+    .profile-content {
         width: 300px;
-        right: -10px;
+        left: 300px; /* Adjusted for mobile */
     }
 }
 
 @media (max-width: 480px) {
-    .cart-preview {
+    .side-profile {
         width: 280px;
-        right: -20px;
+        left: -280px; /* Adjusted for mobile */
+    }
+    
+    .side-profile.show {
+        transform: translateX(280px); /* Adjusted for mobile */
+    }
+    
+    .profile-content {
+        width: 280px;
+        left: 280px; /* Adjusted for mobile */
     }
 }
+    </style>
+</head>
+<body>
 
-.cart-item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background-color: #f5f5f5;
-}
-
-.cart-item-image img:before {
-    content: "No Image";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #f5f5f5;
-    color: #999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-}
-
-        </style>
-    </head>
-    <body>
-
-    <!-- Header Section -->
-    <header>
-        <div class="user-section">
-            <div class="profile-pic">
-                <i class="fas fa-user" style="font-size: 2em;"></i>
-            </div>
-            <div class="auth-buttons">
-                <button class="btn sign-in" onclick="window.location.href='login.html';">Sign In</button>
-                <button class="btn register" onclick="window.location.href='register.html';">Register</button>
-            </div>
+<!-- Header Section -->
+<header>
+    <div class="user-section">
+        <div class="profile-pic" id="profilePic" onclick="handleProfileClick()">
+            <i class="fas fa-user" style="font-size: 2em;"></i>
         </div>
-        <div class="name"><img src="asset/logo.jpeg" alt="All" class="category" width="80" height="80"></div>
-        <div class="merchant-profile" onclick="window.location.href='merchant-register-information.html';">
-            Become Merchant
-            <i class="fa-solid fa-store" style="font-size: 2em;"></i>
-        </div>
-    </header>   
-
-    <!-- Search Section -->
-    <section class="search-section">
-        <div class="search-container">
-            <input type="text" class="search-bar" placeholder="Search for products, brands and more...">
-            <div class="mic-icon">
-                <i class="fas fa-microphone"></i>
-            </div>
-        </div>
-        <div class="discover-text">Discover</div>
-        <div class="categories">
-            <div class="category"><img src="asset/electronics.png" alt="All" class="category" width="50" height="50">Electronics</div>
-            <div class="category"><img src="asset/clothes.png" alt="All" class="category" width="50" height="50">Clothes</div>
-            <div class="category"><img src="asset/kitchen.png" alt="All" class="category" width="50" height="50">Home & Kitchen</div>
-            <div class="category"><img src="asset/beauty.png" alt="All" class="category" width="50" height="50">Beauty</div>
-            <div class="category"><img src="asset/sports.png" alt="All" class="category" width="50" height="50">Sports</div>
-            <div class="category"><img src="asset/book.png" alt="All" class="category" width="50" height="50">Books</div>
-            <div class="category"><img src="asset/toys.png" alt="All" class="category" width="50" height="50">Toys</div>
-        </div>  
-    </section>
-
-    <!-- Products Section -->
-    <section class="products-section">
-        <h2 class="section-title">Featured Products</h2>
-        <div class="products-grid">
-            <!-- Product 1 -->
-            <div class="product-card">
-                <a href="product-details.html?product=1" class="product-link">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Camera">
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Professional DSLR Camera</h3>
-                        <!--might be rating function in the future-->
-                        <div class="product-price">$599.99</div>
-                    </div>
-                </a>
-                <button class="add-to-cart" 
-                        onclick="event.stopPropagation(); addToCart('1', 
-                                  'Professional DSLR Camera', 
-                                  '$599.99', 
-                                  'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60')">
-                    Add to Cart
-                </button>
-            </div>
-
-            <!-- Product 2 -->
-            <div class="product-card">
-                <a href="product-details.html?product=2" class="product-link">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" alt="Smartwatch">
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Smart Watch Series 5</h3>
-                        <!--might be rating function in the future-->
-                        <div class="product-price">$249.99</div>
-                    </div>
-                </a>
-                <button class="add-to-cart" 
-                        onclick="event.stopPropagation(); addToCart('2', 
-                                  'Smart Watch Series 5', 
-                                  '$249.99', 
-                                  'https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60')">
-                    Add to Cart
-                </button>
-            </div>
-
-            <!-- Product 3 -->
-            <div class="product-card">
-                <a href="product-details.html?product=3" class="product-link">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Headphones">
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Wireless Noise Cancelling Headphones</h3>
-                        <!--might be rating function in the future-->
-                        <div class="product-price">$199.99</div>
-                    </div>
-                </a>
-                <button class="add-to-cart" 
-                        onclick="event.stopPropagation(); addToCart('3', 
-                                  'Wireless Noise Cancelling Headphones', 
-                                  '$199.99', 
-                                  'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60')">
-                    Add to Cart
-                </button>
-            </div>
-
-            <!-- Product 4 -->
-            <div class="product-card">
-                <a href="product-details.html?product=4" class="product-link">
-                    <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Sneakers">
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">Running Sneakers - Men's</h3>
-                        <!--might be rating function in the future-->
-                        <div class="product-price">$89.99</div>
-                    </div>
-                </a>
-                <button class="add-to-cart" 
-                        onclick="event.stopPropagation(); addToCart('4', 
-                                  'Running Sneakers - Men\'s', 
-                                  '$89.99', 
-                                  'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60')">
-                    Add to Cart
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Shopping Cart Icon -->
-    <div class="floating-cart">
-        <div class="cart-icon-container" onclick="toggleCartPreview()">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="cart-count">0</span>
-        </div>
-        
-        <!-- Cart Preview Modal -->
-        <div class="cart-preview">
-            <div class="cart-preview-header">
-                <h3>Your Cart</h3>
-                <button class="close-cart-preview" onclick="toggleCartPreview()">&times;</button>
-            </div>
-            <div class="cart-items-container">
-                <!-- Cart items will be dynamically added here -->
-                <div class="empty-cart-message">
-                    <i class="fas fa-shopping-basket"></i>
-                    <p>Your cart is empty</p>
-                </div>
-            </div>
-            <div class="cart-preview-footer">
-                <div class="cart-total">
-                    <span>Total:</span>
-                    <span class="total-amount">$0.00</span>
-                </div>
-                <button class="view-cart-btn" onclick="window.location.href='cart.html'">View Cart</button>
-            </div>
+        <div class="auth-buttons">
+            <button class="btn sign-in" onclick="window.location.href='login.html';">Sign In</button>
+            <button class="btn register" onclick="window.location.href='register.html';">Register</button>
         </div>
     </div>
+    <div class="name"><img src="asset/logo.jpeg" alt="All" class="category" width="80" height="80"></div>
+    <div class="merchant-profile" id="become-merchant-btn" onclick="window.location.href='merchant-register-information.html';">
+        Become Merchant
+        <i class="fa-solid fa-store" style="font-size: 2em;"></i>
+    </div>
+</header>   
 
-    <script>
-        // Check if user is logged in when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            updateHeaderForLoginState();
-            loadCart();
-            
-            // Add bounce animation for cart count
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes bounce {
-                    0%, 20%, 50%, 80%, 100% {
-                        transform: translateY(0);
-                    }
-                    40% {
-                        transform: translateY(-10px);
-                    }
-                    60% {
-                        transform: translateY(-5px);
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-        });
-        
-        // Function to update header based on login state
-        function updateHeaderForLoginState() {
-            const authButtons = document.querySelector('.auth-buttons');
-            const userSection = document.querySelector('.user-section');
-            
-            // Check if user data exists in localStorage (you can use sessionStorage instead)
-            const userData = localStorage.getItem('userData');
-            
-            if (userData) {
-                // User is logged in
-                const user = JSON.parse(userData);
-                
-                // Hide auth buttons
-                authButtons.style.display = 'none';
-                
-                // Create welcome message
-                const welcomeMessage = document.createElement('div');
-                welcomeMessage.className = 'welcome-message';
-                welcomeMessage.innerHTML = `
-                    Welcome, <span class="username">${user.username}</span>!
-                    <button class="btn logout" onclick="logout()">Logout</button>
-                `;
-                
-                // Insert welcome message after profile pic
-                const profilePic = document.querySelector('.profile-pic');
-                userSection.insertBefore(welcomeMessage, authButtons);
-                
-            } else {
-                // User is not logged in - ensure auth buttons are visible
-                authButtons.style.display = 'flex';
-                
-                // Remove any existing welcome message
-                const welcomeMessage = document.querySelector('.welcome-message');
-                if (welcomeMessage) {
-                    welcomeMessage.remove();
-                }
-            }
-        }
-        
-        // Login function (you'll call this from your login form)
-        function login(username) {
-            const userData = {
-                username: username,
-                loginTime: new Date().toISOString()
-            };
-            
-            // Store user data in localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-            
-            // Update header
-            updateHeaderForLoginState();
-        }
-        
-        // Logout function
-        function logout() {
-            // Remove user data from storage
-            localStorage.removeItem('userData');
-            
-            // Update header
-            updateHeaderForLoginState();
-        }
-        
-        // Simulate login (remove this in production - call login() from your actual login form)
-        function simulateLogin() {
-            const username = prompt('Enter username:');
-            if (username) {
-                login(username);
-            }
-        }
-        
-        // Shopping Cart Functions
-        let cart = [];
+<!-- Search Section -->
+<section class="search-section">
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="Search for products, brands and more...">
+        <div class="mic-icon">
+            <i class="fas fa-microphone"></i>
+        </div>
+    </div>
+    <div class="discover-text">Discover</div>
+    <div class="categories">
+        <div class="category"><img src="asset/electronics.png" alt="All" class="category" width="50" height="50">Electronics</div>
+        <div class="category"><img src="asset/clothes.png" alt="All" class="category" width="50" height="50">Clothes</div>
+        <div class="category"><img src="asset/kitchen.png" alt="All" class="category" width="50" height="50">Home & Kitchen</div>
+        <div class="category"><img src="asset/beauty.png" alt="All" class="category" width="50" height="50">Beauty</div>
+        <div class="category"><img src="asset/sports.png" alt="All" class="category" width="50" height="50">Sports</div>
+        <div class="category"><img src="asset/book.png" alt="All" class="category" width="50" height="50">Books</div>
+        <div class="category"><img src="asset/toys.png" alt="All" class="category" width="50" height="50">Toys</div>
+    </div>  
+</section>
 
-        // Load cart from localStorage
-function loadCart() {
-    try {
-        const savedCart = localStorage.getItem('shoppingCart');
-        if (savedCart) {
-            cart = JSON.parse(savedCart) || [];
-            // Validate cart items
-            cart = cart.filter(item => item && item.id);
-        } else {
-            cart = [];
-        }
-    } catch (error) {
-        console.error('Error loading cart from localStorage:', error);
-        cart = [];
-    }
-    updateCartCount();
-    renderCartPreview();
-}
+<!-- Products Section -->
+<section class="products-section">
+    <h2 class="section-title">Featured Products</h2>
+    <div class="products-grid">
+        <!-- Product 1 -->
+        <div class="product-card">
+            <a href="product-details.html?product=1" class="product-link">
+                <div class="product-image">
+                    <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Camera">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Professional DSLR Camera</h3>
+                    <div class="product-price">$599.99</div>
+                </div>
+            </a>
+            <button class="add-to-cart" 
+                    onclick="event.stopPropagation(); addToCart('1', 
+                              'Professional DSLR Camera', 
+                              '$599.99', 
+                              'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60')">
+                Add to Cart
+            </button>
+        </div>
 
-        // Save cart to localStorage
-        function saveCart() {
-            localStorage.setItem('shoppingCart', JSON.stringify(cart));
-        }
+        <!-- Product 2 -->
+        <div class="product-card">
+            <a href="product-details.html?product=2" class="product-link">
+                <div class="product-image">
+                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" alt="Smartwatch">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Smart Watch Series 5</h3>
+                    <div class="product-price">$249.99</div>
+                </div>
+            </a>
+            <button class="add-to-cart" 
+                    onclick="event.stopPropagation(); addToCart('2', 
+                              'Smart Watch Series 5', 
+                              '$249.99', 
+                              'https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60')">
+                Add to Cart
+            </button>
+        </div>
 
-        // Add item to cart
-        // Add item to cart
-function addToCart(productId, productTitle, productPrice, productImage) {
-    // Validate inputs
-    if (!productId || !productTitle) {
-        console.error('Invalid product data');
-        return;
-    }
+        <!-- Product 3 -->
+        <div class="product-card">
+            <a href="product-details.html?product=3" class="product-link">
+                <div class="product-image">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Headphones">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Wireless Noise Cancelling Headphones</h3>
+                    <div class="product-price">$199.99</div>
+                </div>
+            </a>
+            <button class="add-to-cart" 
+                    onclick="event.stopPropagation(); addToCart('3', 
+                              'Wireless Noise Cancelling Headphones', 
+                              '$199.99', 
+                              'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60')">
+                Add to Cart
+            </button>
+        </div>
+
+        <!-- Product 4 -->
+        <div class="product-card">
+            <a href="product-details.html?product=4" class="product-link">
+                <div class="product-image">
+                    <img src="https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Sneakers">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Running Sneakers - Men's</h3>
+                    <div class="product-price">$89.99</div>
+                </div>
+            </a>
+            <button class="add-to-cart" 
+                    onclick="event.stopPropagation(); addToCart('4', 
+                              'Running Sneakers - Men\'s', 
+                              '$89.99', 
+                              'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60')">
+                Add to Cart
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Shopping Cart Icon -->
+<div class="floating-cart">
+    <div class="cart-icon-container" onclick="toggleCartPreview()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count">0</span>
+    </div>
     
-    // Ensure price is a string with $ format
-    let formattedPrice = productPrice;
-    if (typeof productPrice === 'number') {
-        formattedPrice = `$${productPrice.toFixed(2)}`;
-    } else if (!productPrice.includes('$')) {
-        formattedPrice = `$${productPrice}`;
-    }
-    
-    // Find if product already exists in cart
-    const existingItemIndex = cart.findIndex(item => item.id === productId);
-    
-    if (existingItemIndex > -1) {
-        // Update quantity
-        cart[existingItemIndex].quantity += 1;
-    } else {
-        // Add new item
-        cart.push({
-            id: productId,
-            title: productTitle,
-            price: formattedPrice,
-            image: productImage,
-            quantity: 1
-        });
-    }
-    
-    saveCart();
-    updateCartCount();
-    renderCartPreview();
-    showAddedToCartMessage(productTitle);
-    
-    // Show cart preview automatically when adding item
-    const cartPreview = document.querySelector('.cart-preview');
-    if (cartPreview && !cartPreview.classList.contains('show')) {
-        toggleCartPreview();
-    }
-}
-
-        // Remove item from cart
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            saveCart();
-            updateCartCount();
-            renderCartPreview();
-        }
-
-        // Update item quantity
-        function updateQuantity(productId, change) {
-            const itemIndex = cart.findIndex(item => item.id === productId);
-            
-            if (itemIndex > -1) {
-                cart[itemIndex].quantity += change;
-                
-                // Remove item if quantity is 0 or less
-                if (cart[itemIndex].quantity <= 0) {
-                    cart.splice(itemIndex, 1);
-                }
-                
-                saveCart();
-                updateCartCount();
-                renderCartPreview();
-            }
-        }
-
-        // Update cart count badge
-        function updateCartCount() {
-            const cartCountElement = document.querySelector('.cart-count');
-            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-            
-            if (cartCountElement) {
-                cartCountElement.textContent = totalItems;
-                
-                // Add animation when count changes
-                if (totalItems > 0) {
-                    cartCountElement.style.display = 'flex';
-                    cartCountElement.style.animation = 'none';
-                    setTimeout(() => {
-                        cartCountElement.style.animation = 'bounce 0.5s';
-                    }, 10);
-                } else {
-                    cartCountElement.style.display = 'flex';
-                }
-            }
-        }
-
-        // Toggle cart preview visibility
-        function toggleCartPreview() {
-            const cartPreview = document.querySelector('.cart-preview');
-            cartPreview.classList.toggle('show');
-            
-            // Render cart preview if showing
-            if (cartPreview.classList.contains('show')) {
-                renderCartPreview();
-            }
-        }
-
-        // Render cart preview content
-        // Render cart preview content
-function renderCartPreview() {
-    const cartItemsContainer = document.querySelector('.cart-items-container');
-    const cartTotalElement = document.querySelector('.total-amount');
-    
-    if (!cart || cart.length === 0) {
-        cartItemsContainer.innerHTML = `
+    <!-- Cart Preview Modal -->
+    <div class="cart-preview">
+        <div class="cart-preview-header">
+            <h3>Your Cart</h3>
+            <button class="close-cart-preview" onclick="toggleCartPreview()">&times;</button>
+        </div>
+        <div class="cart-items-container">
             <div class="empty-cart-message">
                 <i class="fas fa-shopping-basket"></i>
                 <p>Your cart is empty</p>
             </div>
+        </div>
+        <div class="cart-preview-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span class="total-amount">$0.00</span>
+            </div>
+            <button class="view-cart-btn" onclick="window.location.href='cart.html'">View Cart</button>
+        </div>
+    </div>
+</div>
+
+<!-- Side Profile Overlay -->
+<div class="side-profile-overlay" onclick="closeSideProfile()"></div>
+
+<!-- Side Profile Panel -->
+<div class="side-profile">
+    <div class="side-profile-header">
+        <button class="close-side-profile" onclick="closeSideProfile()">&times;</button>
+        <div class="user-info-side">
+            <div class="profile-pic-side">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details-side">
+                <h3 id="sideUsername">Guest User</h3>
+                <p id="sideEmail">guest@example.com</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="side-profile-menu">
+        <div class="menu-section">
+            <h4>Account</h4>
+            <ul class="menu-items">
+                <li class="menu-item active" onclick="showProfileSection('profile')">
+                    <div class="menu-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="menu-text">Profile</div>
+                    <div class="menu-arrow">›</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('orders')">
+                    <div class="menu-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="menu-text">Order List</div>
+                    <div class="menu-badge" id="cartBadge">0</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('history')">
+                    <div class="menu-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="menu-text">Order History</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="menu-section">
+            <h4>Orders</h4>
+            <ul class="menu-items">
+                <li class="menu-item" onclick="showProfileSection('topay')">
+                    <div class="menu-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="menu-text">To Pay</div>
+                    <div class="menu-badge" id="topayBadge">0</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('toship')">
+                    <div class="menu-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <div class="menu-text">To Ship</div>
+                    <div class="menu-badge" id="toshipBadge">0</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('toreceive')">
+                    <div class="menu-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <div class="menu-text">To Receive</div>
+                    <div class="menu-badge" id="toreceiveBadge">0</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('toreview')">
+                    <div class="menu-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="menu-text">To Review</div>
+                    <div class="menu-badge" id="toreviewBadge">0</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="menu-section">
+            <h4>Settings</h4>
+            <ul class="menu-items">
+                <li class="menu-item" onclick="showProfileSection('settings')">
+                    <div class="menu-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="menu-text">Settings</div>
+                    <div class="menu-arrow">›</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="side-profile-footer">
+        <div class="theme-toggle">
+            <div class="theme-label">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Content Area -->
+<div class="profile-content" id="profileContent"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBKswcE3xGh4feqGZytevh6N-IyrJoJ_7g",
+        authDomain: "jeahluy.firebaseapp.com",
+        projectId: "jeahluy",
+        storageBucket: "jeahluy.firebasestorage.app",
+        messagingSenderId: "308746007810",
+        appId: "1:308746007810:web:c17396303b14d61c3b3e1b",
+        measurementId: "G-3RLD0EB1FT"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth(app);
+    const db = firebase.firestore(app);
+
+    // Add event listener for become-merchant-btn
+    document.getElementById('become-merchant-btn').addEventListener('click', function(event) {
+        if (!auth.currentUser) {
+            alert('Please log in to submit a merchant application');
+            window.location.href = 'login.html';
+            return;
+        }
+        // Redirect to merchant registration page
+        window.location.href = 'merchant-register-information.html';
+    });
+    
+    // Shopping Cart Data
+    let cart = [];
+
+    // Check authentication state when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM loaded, checking auth state...");
+        
+        // Listen for authentication state changes
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log("User is signed in:", user.uid);
+                
+                // Get user data from Firestore
+                db.collection("users").doc(user.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        console.log("User data from Firestore:", userData);
+                        
+                        // Store user data in localStorage for easy access
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            uid: user.uid,
+                            firstName: userData.firstName || '',
+                            lastName: userData.lastName || '',
+                            displayName: userData.displayName || user.displayName || 'User',
+                            email: user.email,
+                            profilePicture: userData.profilePicture || user.photoURL || ''
+                        }));
+                        
+                        // Update UI with user data
+                        updateHeaderForLoginState();
+                        updateSideProfile(userData);
+                    } else {
+                        console.log("No user document found in Firestore!");
+                        // Create a basic user document
+                        createUserDocument(user);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error getting user document:", error);
+                });
+            } else {
+                console.log("User is signed out");
+                localStorage.removeItem('currentUser');
+                updateHeaderForLoginState();
+            }
+        });
+        
+        loadCart();
+        
+        // Add event listener to profile picture
+        const profilePic = document.getElementById('profilePic');
+        if (profilePic) {
+            profilePic.addEventListener('click', handleProfileClick);
+        }
+        
+        // Add bounce animation for cart count
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% {
+                    transform: translateY(0);
+                }
+                40% {
+                    transform: translateY(-10px);
+                }
+                60% {
+                    transform: translateY(-5px);
+                }
+            }
         `;
-        if (cartTotalElement) cartTotalElement.textContent = '$0.00';
+        document.head.appendChild(style);
+    });
+
+    // Function to create user document if it doesn't exist
+    function createUserDocument(user) {
+        const names = user.displayName ? user.displayName.split(' ') : ['User', ''];
+        const userData = {
+            firstName: names[0],
+            lastName: names[1] || '',
+            email: user.email,
+            displayName: user.displayName || user.email.split('@')[0],
+            emailVerified: user.emailVerified || false,
+            role: "user",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            profilePicture: user.photoURL || '',
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        db.collection("users").doc(user.uid).set(userData)
+        .then(() => {
+            console.log("User document created in Firestore");
+            localStorage.setItem('currentUser', JSON.stringify({
+                uid: user.uid,
+                ...userData
+            }));
+            updateHeaderForLoginState();
+            updateSideProfile(userData);
+        })
+        .catch((error) => {
+            console.error("Error creating user document:", error);
+        });
+    }
+
+    // Function to handle profile picture click
+    function handleProfileClick() {
+        console.log("Profile picture clicked");
+        
+        // Check if user is logged in
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const user = auth.currentUser;
+        
+        if (user && currentUser.uid) {
+            console.log("Opening side profile for user:", currentUser.displayName);
+            openSideProfile();
+        } else {
+            console.log("User not logged in, redirecting to login page");
+            window.location.href = 'login.html';
+        }
+    }
+
+    // Update header based on login state
+    function updateHeaderForLoginState() {
+        const authButtons = document.querySelector('.auth-buttons');
+        const profilePic = document.getElementById('profilePic');
+        
+        // Remove any existing welcome message
+        const existingWelcome = document.querySelector('.welcome-message');
+        if (existingWelcome) {
+            existingWelcome.remove();
+        }
+        
+        // Get current user data
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const user = auth.currentUser;
+        
+        console.log("updateHeaderForLoginState - currentUser:", currentUser);
+        console.log("updateHeaderForLoginState - auth.currentUser:", user);
+        
+        if (user && currentUser.uid) {
+            // User is logged in
+            console.log("User is logged in, updating header...");
+            authButtons.style.display = 'none';
+            
+            // Create welcome message
+            const welcomeDiv = document.createElement('div');
+            welcomeDiv.className = 'welcome-message';
+            welcomeDiv.innerHTML = `
+                Welcome, <span class="username">${currentUser.firstName || 'User'}</span>!
+                <button class="btn logout" onclick="logout()">Logout</button>
+            `;
+            
+            // Insert welcome message after profile pic
+            const userSection = document.querySelector('.user-section');
+            if (userSection) {
+                userSection.insertBefore(welcomeDiv, authButtons);
+            }
+            
+            // Update profile picture
+            if (currentUser.profilePicture) {
+                profilePic.innerHTML = `<img src="${currentUser.profilePicture}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else {
+                // Use initials if no profile picture
+                const initials = currentUser.firstName ? 
+                    currentUser.firstName.charAt(0).toUpperCase() : 
+                    currentUser.email ? currentUser.email.charAt(0).toUpperCase() : 'U';
+                profilePic.innerHTML = `<span style="font-size: 1.5em;">${initials}</span>`;
+            }
+            
+            profilePic.style.cursor = 'pointer';
+            profilePic.title = 'Click to view profile';
+            
+        } else {
+            // User is not logged in
+            console.log("User is not logged in, showing auth buttons");
+            authButtons.style.display = 'flex';
+            profilePic.innerHTML = `<i class="fas fa-user" style="font-size: 2em;"></i>`;
+            profilePic.style.cursor = 'default';
+            profilePic.title = '';
+        }
+    }
+
+    // Update side profile with user data
+    function updateSideProfile(userData) {
+        console.log("Updating side profile with:", userData);
+        const username = userData.displayName || `${userData.firstName} ${userData.lastName}`;
+        const email = userData.email || '';
+        
+        document.getElementById('sideUsername').textContent = username || 'User';
+        document.getElementById('sideEmail').textContent = email || 'No email';
+    }
+
+    // Logout function
+    function logout() {
+        console.log("Logging out...");
+        auth.signOut()
+        .then(() => {
+            localStorage.removeItem('currentUser');
+            updateHeaderForLoginState();
+            closeSideProfile();
+            alert('You have been logged out successfully!');
+        })
+        .catch((error) => {
+            console.error("Logout error:", error);
+            alert('Logout failed: ' + error.message);
+        });
+    }
+
+    // Side Profile Functions
+    // Side Profile Functions
+function openSideProfile() {
+    console.log("Opening side profile from LEFT side...");
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const user = auth.currentUser;
+    
+    if (!user) {
+        console.log("No user found, redirecting to login");
+        window.location.href = 'login.html';
         return;
     }
     
-    // Calculate total
-    let total = 0;
-    
-    // Render cart items
-    cartItemsContainer.innerHTML = cart.map(item => {
-        if (!item || !item.price) {
-            console.error('Invalid cart item:', item);
-            return '';
-        }
-        
-        // Safely extract price - handle different price formats
-        let priceValue = 0;
-        if (typeof item.price === 'string') {
-            // Remove any non-numeric characters except decimal point
-            priceValue = parseFloat(item.price.replace(/[^0-9.-]+/g, "")) || 0;
-        } else if (typeof item.price === 'number') {
-            priceValue = item.price;
-        }
-        
-        const itemTotal = priceValue * (item.quantity || 1);
-        total += itemTotal;
-        
-        return `
-            <div class="cart-item" data-product-id="${item.id}">
-                <div class="cart-item-image">
-                    <img src="${item.image || ''}" alt="${item.title || 'Product'}">
-                </div>
-                <div class="cart-item-details">
-                    <div class="cart-item-title">${item.title || 'Unknown Product'}</div>
-                    <div class="cart-item-price">${item.price} × ${item.quantity || 1}</div>
-                    <div class="cart-item-actions">
-                        <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
-                        <span>${item.quantity || 1}</span>
-                        <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
-                        <button class="remove-item" onclick="removeFromCart('${item.id}')">Remove</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    // Update total
-    if (cartTotalElement) {
-        cartTotalElement.textContent = `$${total.toFixed(2)}`;
+    // Update user info in side panel
+    if (currentUser.displayName) {
+        document.getElementById('sideUsername').textContent = currentUser.displayName;
+        document.getElementById('sideEmail').textContent = currentUser.email || user.email;
     }
+    
+    document.querySelector('.side-profile-overlay').classList.add('show');
+    document.querySelector('.side-profile').classList.add('show');
+    
+    updateCartBadge();
+    setActiveMenuItem('profile');
+    showProfileSection('profile');
 }
 
-        // Show added to cart message
-        function showAddedToCartMessage(productTitle) {
-            // Create notification element
-            let notification = document.querySelector('.cart-notification');
+function closeSideProfile() {
+    document.querySelector('.side-profile-overlay').classList.remove('show');
+    document.querySelector('.side-profile').classList.remove('show');
+    document.querySelectorAll('.profile-content').forEach(content => {
+        content.classList.remove('show');
+    });
+}
+
+function closeProfileContent() {
+    document.getElementById('profileContent').classList.remove('show');
+    setActiveMenuItem('profile');
+}
+
+    function setActiveMenuItem(sectionId) {
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        const menuItem = document.querySelector(`[onclick*="${sectionId}"]`);
+        if (menuItem) {
+            menuItem.classList.add('active');
+        }
+    }
+
+    function showProfileSection(sectionId) {
+    setActiveMenuItem(sectionId);
+    
+    const contentDiv = document.getElementById('profileContent');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const user = auth.currentUser;
+    
+    let contentHTML = '';
+    
+    switch(sectionId) {
+        case 'profile':
+            contentHTML = `
+                <div class="content-header">
+                    <h3>Profile</h3>
+                    <button class="back-button" onclick="closeProfileContent()">
+                        Back <i class="fas fa-arrow-right"></i> <!-- Arrow now points right -->
+                    </button>
+                </div>
+                <div class="profile-details">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div class="profile-pic-side" style="width: 100px; height: 100px; margin: 0 auto; background-color: #85BB65;">
+                            ${currentUser.profilePicture ? 
+                                `<img src="${currentUser.profilePicture}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` :
+                                `<i class="fas fa-user" style="font-size: 48px; color: white; line-height: 100px;"></i>`
+                            }
+                        </div>
+                        <h3 id="profileUsername">${currentUser.displayName || 'User'}</h3>
+                        <p id="profileEmail">${currentUser.email || user?.email || 'No email'}</p>
+                        <p><small>Joined: ${new Date().toLocaleDateString()}</small></p>
+                    </div>
+                    
+                    <div style="padding: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <strong>First Name:</strong> ${currentUser.firstName || 'Not set'}
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Last Name:</strong> ${currentUser.lastName || 'Not set'}
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong>Email Verified:</strong> ${user?.emailVerified ? '✓ Verified' : '✗ Not verified'}
+                        </div>
+                    </div>
+                    
+                    <button class="checkout-btn" onclick="editProfile()" style="margin: 20px;">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+            `;
+            break;
             
-            if (!notification) {
-                notification = document.createElement('div');
-                notification.className = 'cart-notification';
-                document.body.appendChild(notification);
-                
-                // Add notification styles
-                const style = document.createElement('style');
-                style.textContent = `
-                    .cart-notification {
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        background-color: #85BB65;
-                        color: white;
-                        padding: 15px 20px;
-                        border-radius: 5px;
-                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                        z-index: 1001;
-                        transform: translateX(150%);
-                        transition: transform 0.3s ease;
-                        max-width: 300px;
-                    }
-                    
-                    .cart-notification.show {
-                        transform: translateX(0);
-                    }
-                    
-                    .cart-notification i {
-                        margin-right: 10px;
-                    }
-                `;
-                document.head.appendChild(style);
+        // Update other sections similarly...
+        default:
+            contentHTML = `
+                <div class="content-header">
+                    <h3>${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}</h3>
+                    <button class="back-button" onclick="closeProfileContent()">
+                        Back <i class="fas fa-arrow-right"></i> <!-- Arrow now points right -->
+                    </button>
+                </div>
+                <div style="padding: 20px; text-align: center;">
+                    <p>Feature coming soon!</p>
+                </div>
+            `;
+    }
+    
+    contentDiv.innerHTML = contentHTML;
+    contentDiv.classList.add('show');
+}
+
+    function closeProfileContent() {
+        document.getElementById('profileContent').classList.remove('show');
+        setActiveMenuItem('profile');
+    }
+
+    // Shopping Cart Functions
+    function loadCart() {
+        try {
+            const savedCart = localStorage.getItem('shoppingCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart) || [];
+                cart = cart.filter(item => item && item.id);
+            } else {
+                cart = [];
+            }
+        } catch (error) {
+            console.error('Error loading cart from localStorage:', error);
+            cart = [];
+        }
+        updateCartCount();
+        renderCartPreview();
+    }
+
+    function saveCart() {
+        localStorage.setItem('shoppingCart', JSON.stringify(cart));
+    }
+
+    function addToCart(productId, productTitle, productPrice, productImage) {
+        if (!productId || !productTitle) {
+            console.error('Invalid product data');
+            return;
+        }
+        
+        let formattedPrice = productPrice;
+        if (typeof productPrice === 'number') {
+            formattedPrice = `$${productPrice.toFixed(2)}`;
+        } else if (!productPrice.includes('$')) {
+            formattedPrice = `$${productPrice}`;
+        }
+        
+        const existingItemIndex = cart.findIndex(item => item.id === productId);
+        
+        if (existingItemIndex > -1) {
+            cart[existingItemIndex].quantity += 1;
+        } else {
+            cart.push({
+                id: productId,
+                title: productTitle,
+                price: formattedPrice,
+                image: productImage,
+                quantity: 1
+            });
+        }
+        
+        saveCart();
+        updateCartCount();
+        renderCartPreview();
+        showAddedToCartMessage(productTitle);
+        
+        const cartPreview = document.querySelector('.cart-preview');
+        if (cartPreview && !cartPreview.classList.contains('show')) {
+            toggleCartPreview();
+        }
+    }
+
+    function removeFromCart(productId) {
+        cart = cart.filter(item => item.id !== productId);
+        saveCart();
+        updateCartCount();
+        renderCartPreview();
+    }
+
+    function updateQuantity(productId, change) {
+        const itemIndex = cart.findIndex(item => item.id === productId);
+        
+        if (itemIndex > -1) {
+            cart[itemIndex].quantity += change;
+            
+            if (cart[itemIndex].quantity <= 0) {
+                cart.splice(itemIndex, 1);
             }
             
-            notification.innerHTML = `
-                <i class="fas fa-check-circle"></i>
-                <strong>Added to cart:</strong> ${productTitle}
-            `;
-            
-            // Show notification
-            notification.classList.add('show');
-            
-            // Hide after 3 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+            saveCart();
+            updateCartCount();
+            renderCartPreview();
         }
+    }
 
-        // Close cart preview when clicking outside
-        document.addEventListener('click', function(event) {
-            const cartPreview = document.querySelector('.cart-preview');
-            const cartIcon = document.querySelector('.cart-icon-container');
+    function updateCartCount() {
+        const cartCountElement = document.querySelector('.cart-count');
+        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+        
+        if (cartCountElement) {
+            cartCountElement.textContent = totalItems;
             
-            if (cartPreview && cartPreview.classList.contains('show') && 
-                !cartPreview.contains(event.target) && 
-                !cartIcon.contains(event.target)) {
+            if (totalItems > 0) {
+                cartCountElement.style.display = 'flex';
+                cartCountElement.style.animation = 'none';
+                setTimeout(() => {
+                    cartCountElement.style.animation = 'bounce 0.5s';
+                }, 10);
+            } else {
+                cartCountElement.style.display = 'flex';
+            }
+        }
+        
+        updateCartBadge();
+    }
+
+    function updateCartBadge() {
+        const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+        const badgeElement = document.getElementById('cartBadge');
+        if (badgeElement) {
+            badgeElement.textContent = cartCount;
+        }
+    }
+
+    function toggleCartPreview() {
+        const cartPreview = document.querySelector('.cart-preview');
+        cartPreview.classList.toggle('show');
+        
+        if (cartPreview.classList.contains('show')) {
+            renderCartPreview();
+        }
+    }
+
+    function renderCartPreview() {
+        const cartItemsContainer = document.querySelector('.cart-items-container');
+        const cartTotalElement = document.querySelector('.total-amount');
+        
+        if (!cart || cart.length === 0) {
+            cartItemsContainer.innerHTML = `
+                <div class="empty-cart-message">
+                    <i class="fas fa-shopping-basket"></i>
+                    <p>Your cart is empty</p>
+                </div>
+            `;
+            if (cartTotalElement) cartTotalElement.textContent = '$0.00';
+            return;
+        }
+        
+        let total = 0;
+        
+        cartItemsContainer.innerHTML = cart.map(item => {
+            if (!item || !item.price) {
+                console.error('Invalid cart item:', item);
+                return '';
+            }
+            
+            let priceValue = 0;
+            if (typeof item.price === 'string') {
+                priceValue = parseFloat(item.price.replace(/[^0-9.-]+/g, "")) || 0;
+            } else if (typeof item.price === 'number') {
+                priceValue = item.price;
+            }
+            
+            const itemTotal = priceValue * (item.quantity || 1);
+            total += itemTotal;
+            
+            return `
+                <div class="cart-item" data-product-id="${item.id}">
+                    <div class="cart-item-image">
+                        <img src="${item.image || ''}" alt="${item.title || 'Product'}">
+                    </div>
+                    <div class="cart-item-details">
+                        <div class="cart-item-title">${item.title || 'Unknown Product'}</div>
+                        <div class="cart-item-price">${item.price} × ${item.quantity || 1}</div>
+                        <div class="cart-item-actions">
+                            <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+                            <span>${item.quantity || 1}</span>
+                            <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+                            <button class="remove-item" onclick="removeFromCart('${item.id}')">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        if (cartTotalElement) {
+            cartTotalElement.textContent = `$${total.toFixed(2)}`;
+        }
+    }
+
+    function showAddedToCartMessage(productTitle) {
+        let notification = document.querySelector('.cart-notification');
+        
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.className = 'cart-notification';
+            document.body.appendChild(notification);
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                .cart-notification {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #85BB65;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                    z-index: 1001;
+                    transform: translateX(150%);
+                    transition: transform 0.3s ease;
+                    max-width: 300px;
+                }
+                
+                .cart-notification.show {
+                    transform: translateX(0);
+                }
+                
+                .cart-notification i {
+                    margin-right: 10px;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        notification.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            <strong>Added to cart:</strong> ${productTitle}
+        `;
+        
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    // Close cart preview when clicking outside
+    document.addEventListener('click', function(event) {
+        const cartPreview = document.querySelector('.cart-preview');
+        const cartIcon = document.querySelector('.cart-icon-container');
+        
+        if (cartPreview && cartPreview.classList.contains('show') && 
+            !cartPreview.contains(event.target) && 
+            !cartIcon.contains(event.target)) {
+            cartPreview.classList.remove('show');
+        }
+    });
+
+    // Close cart preview with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const cartPreview = document.querySelector('.cart-preview');
+            if (cartPreview && cartPreview.classList.contains('show')) {
                 cartPreview.classList.remove('show');
             }
-        });
+        }
+    });
 
-        // Close cart preview with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const cartPreview = document.querySelector('.cart-preview');
-                if (cartPreview && cartPreview.classList.contains('show')) {
-                    cartPreview.classList.remove('show');
-                }
-            }
+    function loadOrderList() {
+        const orderListDiv = document.getElementById('orderListItems');
+        const orderSummaryDiv = document.getElementById('orderSummary');
+        
+        if (!cart || cart.length === 0) {
+            orderListDiv.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Your cart is empty</p>';
+            orderSummaryDiv.style.display = 'none';
+            return;
+        }
+        
+        let orderHTML = '';
+        let subtotal = 0;
+        
+        cart.forEach(item => {
+            const priceValue = parseFloat(item.price.replace(/[^0-9.-]+/g, "")) || 0;
+            const itemTotal = priceValue * item.quantity;
+            subtotal += itemTotal;
+            
+            orderHTML += `
+                <div class="order-item" data-product-id="${item.id}">
+                    <div class="order-checkbox">
+                        <input type="checkbox" class="order-checkbox-input" 
+                               onchange="updateSelectedOrders()" 
+                               data-price="${itemTotal}" checked>
+                    </div>
+                    <div class="order-item-image">
+                        <img src="${item.image}" alt="${item.title}">
+                    </div>
+                    <div class="order-item-details">
+                        <div class="order-item-title">${item.title}</div>
+                        <div class="order-item-price">${item.price} × ${item.quantity}</div>
+                    </div>
+                </div>
+            `;
         });
-    </script>
-    </body>
+        
+        orderListDiv.innerHTML = orderHTML;
+        orderSummaryDiv.style.display = 'block';
+        
+        // Update summary
+        document.getElementById('orderSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById('orderTotal').textContent = `$${subtotal.toFixed(2)}`;
+    }
+
+    function proceedToCheckout() {
+        alert('Checkout feature coming soon!');
+    }
+
+    function editProfile() {
+        alert('Edit profile feature coming soon!');
+    }
+</script>
+</script>
+<script></script>
+</body>
 </html>

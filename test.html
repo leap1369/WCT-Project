@@ -1,0 +1,17 @@
+<button id="facebook-btn">Login with Facebook</button>
+<script>import { auth } from "./firebase.js";
+    import { FacebookAuthProvider, signInWithPopup } 
+     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    
+    const provider = new FacebookAuthProvider();
+    
+    document.getElementById("facebook-btn").addEventListener("click", () => {
+      signInWithPopup(auth, provider)
+        .then(() => {
+          alert("Facebook login successful");
+          window.location = "dashboard.html";
+        })
+        .catch((err) => alert(err.message));
+    });
+    
+    </script>

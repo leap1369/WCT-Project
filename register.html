@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Shopping</title>
+    <title>E-Shopping - Register</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <h1 class="title"> Register</h1>
+    <h1 class="title">Register</h1>
 
 <fieldset>
 
-    <form method="post" action="">
-
-
+    <form id="registerForm">
         <label for="first-name">First Name:</label>
         <input type="text" id="first-name" name="first-name" required placeholder="Enter your first name"><br>
 
@@ -25,26 +23,230 @@
         <input type="email" id="email" name="email" required placeholder="Enter your email"><br>
 
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required placeholder="Enter your password"><br>
+        <input type="password" id="password" name="password" required placeholder="Enter your password (min. 6 characters)"><br>
 
-        <label for="password">Confirm password:</label>
-        <input type="password" id="password" name="password" required placeholder="Enter your password"><br>
+        <label for="confirm-password">Confirm password:</label>
+        <input type="password" id="confirm-password" name="confirm-password" required placeholder="Confirm your password"><br>
 
-<div class="btn-container">
-    <button onclick="window.location.href='login.html';">Back</button>
-    <button type="submit">Next</button>
-</div>
-
-    </form>
-            <h3>OR</h3>
-
-        <div class="social-signin">
-       <img src="asset/google.png" alt="Google Sign-In" class="google-signin" width="61" height="57">
-       <img src="asset/facebook.png" alt="Facebook Sign-In" class="facebook-signin" width="57" height="53">
+        <div class="btn-container">
+            <button type="button" onclick="window.location.href='login.html';">Back</button>
+            <button type="button" id="registerBtn">Register</button>
         </div>
+    </form>
+    
+    <div id="verificationMessage" style="display: none; text-align: center; padding: 20px; background-color: #f0f8f0; border-radius: 10px; margin: 20px 0;">
+        <h3>✅ Registration Successful!</h3>
+        <p><strong>Verification email sent to: <span id="registeredEmail"></span></strong></p>
+        <p>Please check your email (and spam folder) for the verification link.</p>
+        <p>After verifying your email, you can <a href="login.html">Sign In here</a>.</p>
+        <p><button type="button" id="resendBtn" style="margin-top: 10px;">Resend Verification Email</button></p>
+    </div>
 
-    <p><strong>Change Language</strong></p>
+    <h3>OR</h3>
+
+    <div class="social-signin">
+        <img src="asset/google.png" alt="Google Sign-In" class="google-signin" width="61" height="57" onclick="googleRegister()">
+        <img src="asset/facebook.png" alt="Facebook Sign-In" class="facebook-signin" width="57" height="53" onclick="alert('Facebook login requires additional setup. Please use Google or Email registration.')">
+    </div>
+
+    <p><strong>Already have an account? <a href="login.html">Sign In</a></strong></p>
 </fieldset>
 
+<!-- Load Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBKswcE3xGh4feqGZytevh6N-IyrJoJ_7g",
+        authDomain: "jeahluy.firebaseapp.com",
+        projectId: "jeahluy",
+        storageBucket: "jeahluy.firebasestorage.app",
+        messagingSenderId: "308746007810",
+        appId: "1:308746007810:web:c17396303b14d61c3b3e1b",
+        measurementId: "G-3RLD0EB1FT"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth(app);
+    const db = firebase.firestore(app);
+
+    // Registration with email verification
+    document.getElementById('registerBtn').addEventListener('click', function() {
+        const firstName = document.getElementById("first-name").value.trim();
+        const lastName = document.getElementById("last-name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirm-password").value;
+
+        console.log("Registration attempt with:", { firstName, lastName, email });
+
+        // Validation
+        if (!firstName || !lastName || !email || !password || !confirmPassword) {
+            alert('Please fill all fields');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+        
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters');
+            return;
+        }
+
+        // Show loading state
+        const registerBtn = document.getElementById('registerBtn');
+        registerBtn.disabled = true;
+        registerBtn.textContent = 'Registering...';
+
+        // Create user with email and password
+        auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log("✅ User created:", user.uid);
+            
+            // Update user profile with display name
+            return user.updateProfile({
+                displayName: `${firstName} ${lastName}`
+            }).then(() => {
+                console.log("✅ Profile updated");
+                // Send email verification
+                return user.sendEmailVerification();
+            }).then(() => {
+                console.log("✅ Verification email sent");
+                // Save additional user data to Firestore
+                return db.collection("users").doc(user.uid).set({
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    displayName: `${firstName} ${lastName}`,
+                    emailVerified: false,
+                    role: "user",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    profilePicture: "",
+                    lastLogin: null
+                });
+            });
+        })
+        .then(() => {
+            console.log("✅ User data saved to Firestore");
+            
+            // Hide the form and show success message
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('registeredEmail').textContent = email;
+            document.getElementById('verificationMessage').style.display = 'block';
+            
+            // Sign out the user (they need to verify email first)
+            auth.signOut().then(() => {
+                console.log("User signed out until email verification");
+            });
+        })
+        .catch((error) => {
+            console.error("❌ Registration error:", error);
+            let errorMessage = error.message;
+            
+            // User-friendly error messages
+            if (error.code === 'auth/email-already-in-use') {
+                errorMessage = 'This email is already registered. Please use a different email or try logging in.';
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = 'Please enter a valid email address.';
+            } else if (error.code === 'auth/weak-password') {
+                errorMessage = 'Password is too weak. Please use at least 6 characters.';
+            } else if (error.code === 'auth/operation-not-allowed') {
+                errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+            }
+            
+            alert(errorMessage);
+        })
+        .finally(() => {
+            // Reset button state
+            registerBtn.disabled = false;
+            registerBtn.textContent = 'Register';
+        });
+    });
+
+    // Resend verification email
+    document.getElementById('resendBtn')?.addEventListener('click', function() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        if (!email || !password) {
+            alert('Please re-enter your email and password');
+            return;
+        }
+        
+        // Sign in to resend verification
+        auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            return userCredential.user.sendEmailVerification();
+        })
+        .then(() => {
+            alert('Verification email resent! Please check your inbox.');
+            auth.signOut(); // Sign out again
+        })
+        .catch((error) => {
+            alert('Error: ' + error.message);
+        });
+    });
+
+    // Google Registration
+    function googleRegister() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        
+        auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            console.log("✅ Google user:", user.uid);
+            
+            // Check if user exists in Firestore
+            return db.collection("users").doc(user.uid).get()
+            .then((doc) => {
+                if (!doc.exists) {
+                    // New user - create document
+                    const names = user.displayName ? user.displayName.split(' ') : ['User', ''];
+                    return db.collection("users").doc(user.uid).set({
+                        firstName: names[0],
+                        lastName: names[1] || '',
+                        email: user.email,
+                        displayName: user.displayName,
+                        emailVerified: true, // Google users are already verified
+                        role: "user",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        profilePicture: user.photoURL,
+                        provider: "google",
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    // Existing user - update last login
+                    return db.collection("users").doc(user.uid).update({
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            });
+        })
+        .then(() => {
+            alert("✅ Google Registration Successful!");
+            window.location.href = "homepage.html";
+        })
+        .catch((error) => {
+            console.error("❌ Google sign-in error:", error);
+            
+            let errorMessage = error.message;
+            if (error.code === 'auth/popup-closed-by-user') {
+                errorMessage = 'Sign-in popup was closed. Please try again.';
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                errorMessage = 'Sign-in was cancelled. Please try again.';
+            }
+            
+            alert(errorMessage);
+        });
+    }
+</script>
 </body>
 </html>

@@ -84,6 +84,26 @@
 
     </form>
 </fieldset>
-
+<script>
+    // Store business information in sessionStorage
+document.getElementById('businessInfoForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const businessInfo = {
+        businessName: document.getElementById('business-name').value,
+        businessType: document.getElementById('businessType').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('province').value,
+        zipcode: document.getElementById('zipcode').value,
+        businessDescription: document.getElementById('business-description').value
+    };
+    
+    // Store in sessionStorage
+    sessionStorage.setItem('businessInfo', JSON.stringify(businessInfo));
+    
+    // Redirect to next page
+    window.location.href = 'merchant-register-contact.html';
+});
+</script>
 </body>
 </html>

@@ -211,6 +211,62 @@
             backUploadBox.style.backgroundColor = '#f9f9f9';
         }
     });
+
+    // Store owner information in sessionStorage
+document.getElementById('ownerInfoForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const ownerInfo = {
+        firstName: document.getElementById('first-name').value,
+        lastName: document.getElementById('last-name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        emergencyPhone: document.getElementById('emergency-phone').value
+    };
+    
+    // Store in sessionStorage
+    sessionStorage.setItem('ownerInfo', JSON.stringify(ownerInfo));
+    
+    // Upload ID files if they exist
+    const idFrontFile = document.getElementById('id-front').files[0];
+    const idBackFile = document.getElementById('id-back').files[0];
+    
+    if (idFrontFile && idBackFile) {
+        // Show loading state
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Uploading files...';
+        submitBtn.disabled = true;
+        
+        try {
+            // Upload both files
+            const frontResult = await uploadFile(idFrontFile, 'merchant_documents/national_ids');
+            const backResult = await uploadFile(idBackFile, 'merchant_documents/national_ids');
+            
+            if (frontResult.success && backResult.success) {
+                ownerInfo.nationalIdFrontUrl = frontResult.url;
+                ownerInfo.nationalIdBackUrl = backResult.url;
+                
+                // Update sessionStorage
+                sessionStorage.setItem('ownerInfo', JSON.stringify(ownerInfo));
+                
+                // Redirect to next page
+                window.location.href = 'merchant-register-details.html';
+            } else {
+                alert('Failed to upload ID documents. Please try again.');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            alert('Error uploading files: ' + error.message);
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    } else {
+        // If no files, just redirect
+        window.location.href = 'merchant-register-details.html';
+    }
+});
 </script>
 
 </body>
