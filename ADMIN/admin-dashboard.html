@@ -1,0 +1,528 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Dashboard - Ecommerce Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; background:#f7f8fb; }
+    header, nav, section { max-width: 1200px; margin: 0 auto; }
+    header { padding: 20px; display:flex; align-items:center; justify-content:space-between; }
+    .pill { background:#eef3ff; border:1px solid #d8e3fe; padding:6px 10px; border-radius:999px; font-size:12px; color:#2c7ef8; }
+    nav ul { display:flex; gap:10px; padding:0; list-style:none; }
+    nav a { padding:8px 12px; border-radius:8px; text-decoration:none; color:#333; background:#fff; border:1px solid #eee; }
+    h2 { margin:18px 0 10px; }
+    .grid4 { display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; }
+    .card { background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; }
+    .big { font-size:26px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; font-size:13px; vertical-align:top; }
+    thead th { background:#f8f9fc; font-weight:600; }
+    .actions button { margin-right:6px; padding:6px 10px; font-size:12px; border:1px solid #ddd; border-radius:6px; cursor:pointer; background:#fff; }
+    .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid #ddd; background:#fff; cursor:pointer; }
+    .btn-primary { background:#2c7ef8; color:#fff; border-color:#2c7ef8; }
+    .filters { display:flex; gap:8px; margin-bottom:10px; }
+    .flex { display:flex; align-items:center; gap:8px; }
+    .muted { color:#777; font-size:12px; }
+    .form-row { display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+    .form-row input, .form-row select { padding:8px; border:1px solid #ddd; border-radius:8px; }
+    .chip { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #ddd; }
+    .chip.true { background:#e9f9ed; color:#2f9e44; border-color:#b8e4c2; }
+    .chip.false { background:#fff4f4; color:#c53b3b; border-color:#f0caca; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="flex">
+      <span class="pill">Admin Panel</span>
+      
+    </div>
+    <div class="flex">
+      <div id="adminName" class="muted">Admin</div>
+      <button id="logoutBtn" class="btn">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Overview -->
+    <section id="dashboard" class="card">
+      <h2>Admin Dashboard</h2>
+      <div class="flex"><button id="refreshOverview" class="btn">Refresh Data</button></div>
+      <div class="grid4" style="margin-top:12px;">
+        <div class="card"><div class="big" id="totalUsers">0</div><div class="muted">Total Users</div></div>
+        <div class="card"><div class="big" id="activeMerchants">0</div><div class="muted">Active Merchants</div></div>
+        <div class="card"><div class="big" id="totalOrders">0</div><div class="muted">Total Orders</div></div>
+        <div class="card"><div class="big" id="platformRevenue">$0</div><div class="muted">Platform Revenue</div></div>
+      </div>
+    </section>
+
+    <!-- Users -->
+    <section id="users" class="card">
+      <h2>User Management</h2>
+      <div class="filters">
+        <select id="userRoleFilter">
+          <option value="">All Roles</option>
+          <option value="user">user</option>
+          <option value="merchant">merchant</option>
+          <option value="ADMINISTRATOR">ADMINISTRATOR</option>
+        </select>
+        <button id="refreshUsers" class="btn">Refresh</button>
+      </div>
+
+      <!-- Create user doc -->
+      <div class="form-row">
+        <input id="firstName" placeholder="First name" />
+        <input id="lastName" placeholder="Last name" />
+        <input id="displayName" placeholder="Display name" />
+        <input id="email" type="email" placeholder="Email" />
+        <input id="profilePicture" placeholder="Profile picture URL (optional)" />
+        <select id="role">
+          <option value="user">user</option>
+          <option value="merchant">merchant</option>
+          <option value="ADMINISTRATOR">ADMINISTRATOR</option>
+        </select>
+        <button id="createUserBtn" class="btn-primary">Create User Doc</button>
+      </div>
+
+      <table id="usersTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Email Verified</th>
+            <th>Last Login</th>
+            <th>Created At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Merchant Applications -->
+    <section id="applications" class="card">
+      <h2>Merchant Applications</h2>
+      <div class="filters">
+        <select id="appStatusFilter">
+          <option value="">All Status</option>
+          <option value="Pending Review">Pending Review</option>
+          <option value="Under Review">Under Review</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+        <button id="refreshApps" class="btn">Refresh</button>
+      </div>
+      <!-- Admin-side quick save (optional) -->
+      <div class="form-row">
+        <input id="appBusinessName" placeholder="Business Name" />
+        <select id="appBusinessType">
+          <option value="Retail">Retail</option><option value="Wholesale">Wholesale</option>
+          <option value="Manufacturing">Manufacturing</option><option value="Service">Service</option>
+          <option value="Technology">Technology</option><option value="Agriculture">Agriculture</option>
+          <option value="Construction">Construction</option><option value="Hospitality">Hospitality</option>
+          <option value="Transportation">Transportation</option><option value="Finance">Finance</option>
+          <option value="Healthcare">Healthcare</option><option value="Education">Education</option>
+          <option value="Real Estate">Real Estate</option><option value="Entertainment">Entertainment</option>
+          <option value="Nonprofit">Nonprofit</option>
+        </select>
+        <input id="appAddress" placeholder="Address" />
+        <select id="appCity">
+          <option value="Phnom Penh">Phnom Penh</option><option value="Banteay Meanchey">Banteay Meanchey</option>
+          <option value="Battambang">Battambang</option><option value="Kampong Cham">Kampong Cham</option>
+          <option value="Kampong Chhnang">Kampong Chhnang</option><option value="Kampong Speu">Kampong Speu</option>
+          <option value="Kampong Thom">Kampong Thom</option><option value="Kampot">Kampot</option>
+          <option value="Kandal">Kandal</option><option value="Kep">Kep</option>
+          <option value="Koh Kong">Koh Kong</option><option value="Kratie">Kratie</option>
+          <option value="Mondulkiri">Mondulkiri</option><option value="Oddar Meanchey">Oddar Meanchey</option>
+          <option value="Pailin">Pailin</option><option value="Preah Sihanouk">Preah Sihanouk</option>
+          <option value="Preah Vihear">Preah Vihear</option><option value="Pursat">Pursat</option>
+          <option value="Ratanakiri">Ratanakiri</option><option value="Siem Reap">Siem Reap</option>
+          <option value="Stung Treng">Stung Treng</option><option value="Svay Rieng">Svay Rieng</option>
+          <option value="Takeo">Takeo</option><option value="Tboung Khmum">Tboung Khmum</option>
+        </select>
+        <input id="appZipcode" placeholder="Zipcode" />
+        <input id="appDescription" placeholder="Business Description" />
+        <button id="createAppBtn" class="btn-primary">Save Application</button>
+      </div>
+
+      <table id="merchantAppsTable">
+        <thead>
+          <tr><th>Application ID</th><th>Business Name</th><th>Type</th><th>City</th><th>Applied Date</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Verified (Active) Merchants -->
+    <section id="merchants" class="card">
+      <h2>Active Merchants</h2>
+      <div class="filters"><button id="refreshMerchants" class="btn">Refresh</button></div>
+      <table id="merchantsTable">
+        <thead>
+          <tr><th>ID</th><th>Store</th><th>Owner</th><th>City</th><th>Joined</th><th>Status</th><th>Verification</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- (Orders & Products can be wired later as needed) -->
+    <section id="orders" class="card"><h2>Order Management</h2><div class="muted">Coming soon…</div></section>
+    <section id="products" class="card"><h2>Product Management</h2><div class="muted">Coming soon…</div></section>
+
+    <section id="analytics" class="card"><h2>Platform Analytics</h2><div class="muted">Coming soon…</div></section>
+    <section id="settings" class="card"><h2>Admin Settings</h2><div class="muted">Coming soon…</div></section>
+  </main>
+
+  <!-- Firebase ESM via CDN (v10.7.1) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getAuth, setPersistence, browserSessionPersistence, onAuthStateChanged, signOut
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs,
+      updateDoc, deleteDoc, query, where, orderBy, limit
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKswcE3xGh4feqGZytevh6N-IyrJoJ_7g",
+      authDomain: "jeahluy.firebaseapp.com",
+      projectId: "jeahluy",
+      storageBucket: "jeahluy.firebasestorage.app",
+      messagingSenderId: "308746007810",
+      appId: "1:308746007810:web:c17396303b14d61c3b3e1b",
+      measurementId: "G-3RLD0EB1FT"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    await setPersistence(auth, browserSessionPersistence); // persists within tab; clears on close
+    const ADMIN_UID = "zYSujcmGisVdCNPYCfwb7tbpG3D2";
+
+    const ROLES = { USER: "user", MERCHANT: "merchant", ADMIN: "ADMINISTRATOR" };
+    const normalizeRole = (val) => {
+      if (val === "" || val == null) return "";           // IMPORTANT: keep empty when "All Roles"
+      const s = String(val).trim().toLowerCase();
+      if (s === "user") return ROLES.USER;
+      if (s === "merchant") return ROLES.MERCHANT;
+      if (s.startsWith("admin")) return ROLES.ADMIN;
+      return ROLES.USER;
+    };
+
+    const fmtDate = (v, withTime=false) => {
+      if (!v) return "-";
+      const d = v?.toDate ? v.toDate() : (typeof v === "string" ? new Date(v) : new Date(v));
+      return withTime ? d.toLocaleString() : d.toLocaleDateString();
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user || user.uid !== ADMIN_UID) {
+        location.href = "admin-login.html";
+        return;
+      }
+      document.getElementById("adminName").textContent = `Admin (${user.email || ADMIN_UID})`;
+
+      // Wire buttons
+      document.getElementById("logoutBtn").addEventListener("click", async () => { await signOut(auth); location.href = "admin-login.html"; });
+      document.getElementById("refreshOverview").addEventListener("click", initOverview);
+      document.getElementById("refreshUsers").addEventListener("click", loadUsers);
+      document.getElementById("userRoleFilter").addEventListener("change", loadUsers);
+      document.getElementById("createUserBtn").addEventListener("click", createUserDoc);
+      document.getElementById("refreshApps").addEventListener("click", loadMerchantApplications);
+      document.getElementById("createAppBtn").addEventListener("click", createApplication);
+      document.getElementById("refreshMerchants").addEventListener("click", loadVerifiedMerchants);
+
+      // Initial data
+      initOverview();
+      loadUsers();
+      loadMerchantApplications();
+      loadVerifiedMerchants();
+    });
+
+    // ---------- Overview ----------
+    async function initOverview() {
+      const users    = await getDocs(collection(db, "users"));
+      const verified = await getDocs(collection(db, "verifiedMerchants"));
+      document.getElementById("totalUsers").textContent       = users.size;
+      document.getElementById("activeMerchants").textContent  = verified.size;
+      document.getElementById("totalOrders").textContent      = 0;
+      document.getElementById("platformRevenue").textContent  = "$0.00";
+    }
+
+    // ---------- Users (filter fixed + actions working) ----------
+    async function createUserDoc() {
+      const firstName      = document.getElementById("firstName").value.trim();
+      const lastName       = document.getElementById("lastName").value.trim();
+      const displayName    = document.getElementById("displayName").value.trim();
+      const email          = document.getElementById("email").value.trim();
+      const profilePicture = document.getElementById("profilePicture").value.trim();
+      const role           = normalizeRole(document.getElementById("role").value);
+
+      if (!email || (!firstName && !displayName)) {
+        return alert("Provide at least Email and First/Display name.");
+      }
+
+      await addDoc(collection(db, "users"), {
+        createdAt: new Date(),
+        displayName: displayName || `${firstName || ""} ${lastName || ""}`.trim(),
+        email,
+        emailVerified: false,
+        firstName: firstName || "",
+        lastName: lastName || "",
+        lastLogin: null,
+        profilePicture: profilePicture || "",
+        role
+      });
+
+      ["firstName","lastName","displayName","email","profilePicture"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("role").value = ROLES.USER;
+      await loadUsers(); await initOverview();
+    }
+
+    async function loadUsers() {
+      const tbody = document.querySelector("#usersTable tbody");
+      tbody.innerHTML = "";
+
+      const roleFilter = normalizeRole(document.getElementById("userRoleFilter").value || "");
+      const base = collection(db, "users");
+
+      let q;
+      if (roleFilter) {
+        // Avoid composite index requirement: filter only (no orderBy)
+        q = query(base, where("role", "==", roleFilter));
+      } else {
+        // All roles: try orderBy(createdAt) otherwise fallback
+        try { q = query(base, orderBy("createdAt", "desc")); }
+        catch { q = base; }
+      }
+
+      let snap;
+      try { snap = await getDocs(q); }
+      catch { snap = roleFilter ? await getDocs(query(base, where("role","==", roleFilter))) : await getDocs(base); }
+
+      const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+      // Client-side sort by createdAt desc (works for both filtered/unfiltered)
+      docs.sort((a, b) => {
+        const aj = a.data.createdAt ? (a.data.createdAt?.toDate ? a.data.createdAt.toDate() : new Date(a.data.createdAt)) : 0;
+        const bj = b.data.createdAt ? (b.data.createdAt?.toDate ? b.data.createdAt.toDate() : new Date(b.data.createdAt)) : 0;
+        return bj - aj;
+      });
+
+      if (!docs.length) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="8" class="muted">No users found.</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      docs.forEach(({ id, data: d }) => {
+        const dp = d.profilePicture ? `${d.profilePicture}` : "";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${id}</td>
+          <td>
+            <div class="flex">
+              ${dp}
+              <div>
+                <div>${d.displayName || `${d.firstName || "-"} ${d.lastName || ""}`.trim()}</div>
+                <div class="muted">${d.firstName || "-"} ${d.lastName || ""}</div>
+              </div>
+            </div>
+          </td>
+          <td>${d.email || "-"}</td>
+          <td>${d.role || "-"}</td>
+          <td><span class="chip ${d.emailVerified ? "true" : "false"}">${d.emailVerified ? "true" : "false"}</span></td>
+          <td>${fmtDate(d.lastLogin, true)}</td>
+          <td>${fmtDate(d.createdAt, true)}</td>
+          <td class="actions">
+            <button data-action="set-role" data-id="${id}" data-role="user">Role: user</button>
+            <button data-action="set-role" data-id="${id}" data-role="merchant">Role: merchant</button>
+            <button data-action="set-role" data-id="${id}" data-role="ADMINISTRATOR">Role: ADMIN</button>
+            <button data-action="verify-email" data-id="${id}">Verify email</button>
+            <button data-action="delete" data-id="${id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Delegated actions
+      tbody.onclick = async (e) => {
+        const btn = e.target.closest("button[data-action]"); if (!btn) return;
+        const id  = btn.dataset.id; const action = btn.dataset.action;
+        try {
+          if (action === "set-role") {
+            const role = normalizeRole(btn.dataset.role);
+            await updateDoc(doc(db, "users", id), { role });
+          } else if (action === "verify-email") {
+            await updateDoc(doc(db, "users", id), { emailVerified: true });
+          } else if (action === "delete") {
+            await deleteDoc(doc(db, "users", id));
+          }
+          await loadUsers(); await initOverview();
+        } catch (err) { alert(err?.message || "Action failed"); }
+      };
+    }
+
+    // ---------- Merchant Applications ----------
+    async function createApplication() {
+      const businessName = document.getElementById("appBusinessName").value.trim();
+      const businessType = document.getElementById("appBusinessType").value;
+      const address      = document.getElementById("appAddress").value.trim();
+      const city         = document.getElementById("appCity").value;
+      const zipcode      = document.getElementById("appZipcode").value.trim();
+      const description  = document.getElementById("appDescription").value.trim();
+
+      if (!businessName || !businessType || !city) {
+        return alert("Business Name, Type and City are required.");
+      }
+
+      await addDoc(collection(db, "merchantApplications"), {
+        businessName, businessType, address, city, zipcode, description,
+        status: "Pending Review", createdAt: new Date()
+      });
+
+      ["appBusinessName","appAddress","appZipcode","appDescription"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("appBusinessType").value = "Retail";
+      document.getElementById("appCity").value = "Phnom Penh";
+
+      await loadMerchantApplications();
+    }
+
+    async function loadMerchantApplications() {
+      const status = document.getElementById("appStatusFilter").value;
+      const base   = collection(db, "merchantApplications");
+
+      let q = status ? query(base, where("status","==",status)) : base;
+      // Try orderBy(createdAt) to show latest first; fallback if index missing
+      try { q = query(q, orderBy("createdAt","desc"), limit(100)); } catch(_) {}
+
+      let snap;
+      try { snap = await getDocs(q); }
+      catch { snap = status ? await getDocs(query(base, where("status","==",status))) : await getDocs(base); }
+
+      const tbody  = document.querySelector("#merchantAppsTable tbody");
+      tbody.innerHTML = "";
+
+      if (snap.empty) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="7" class="muted">No applications.</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${docSnap.id}</td>
+          <td>${d.businessName || "-"}</td>
+          <td>${d.businessType || "-"}</td>
+          <td>${d.city || "-"}</td>
+          <td>${fmtDate(d.createdAt, true)}</td>
+          <td>${d.status}</td>
+          <td class="actions">
+            <button data-action="approve" data-id="${docSnap.id}">Approve</button>
+            <button data-action="reject"  data-id="${docSnap.id}">Reject</button>
+            <button data-action="delete"  data-id="${docSnap.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Approve moves to verifiedMerchants; reject/delete removes application
+      tbody.onclick = async (e) => {
+        const btn = e.target.closest("button[data-action]"); if (!btn) return;
+        const id  = btn.dataset.id; const action = btn.dataset.action;
+        try {
+          if (action === "approve") {
+            const appRef = doc(db, "merchantApplications", id);
+            const app    = (await getDoc(appRef)).data();
+
+            // Create in verifiedMerchants
+            await addDoc(collection(db, "verifiedMerchants"), {
+              store: app.businessName,
+              owner: app.owner || app.businessName,
+              city: app.city,
+              status: "Active",
+              verification: "Verified",
+              joined: new Date(),
+              applicationId: id,
+              businessType: app.businessType,
+              address: app.address || "",
+              zipcode: app.zipcode || "",
+              description: app.description || ""
+            });
+            await deleteDoc(appRef);
+          } else if (action === "reject" || action === "delete") {
+            await deleteDoc(doc(db, "merchantApplications", id));
+          }
+          await loadMerchantApplications(); await loadVerifiedMerchants(); await initOverview();
+        } catch (err) { alert(err?.message || "Action failed"); }
+      };
+    }
+
+    // ---------- Active Merchants (from verifiedMerchants) ----------
+    async function loadVerifiedMerchants() {
+      const tbody = document.querySelector("#merchantsTable tbody");
+      tbody.innerHTML = "";
+
+      let q;
+      try { q = query(collection(db, "verifiedMerchants"), orderBy("joined","desc")); }
+      catch { q = collection(db, "verifiedMerchants"); }
+
+      let snap;
+      try { snap = await getDocs(q); }
+      catch { snap = await getDocs(collection(db, "verifiedMerchants")); }
+
+      if (snap.empty) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="8" class="muted">No verified merchants.</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${docSnap.id}</td>
+          <td>${d.store || "-"}</td>
+          <td>${d.owner || "-"}</td>
+          <td>${d.city || "-"}</td>
+          <td>${fmtDate(d.joined)}</td>
+          <td>${d.status || "Active"}</td>
+          <td>${d.verification || "Verified"}</td>
+          <td class="actions">
+            <button data-action="activate" data-id="${docSnap.id}">Activate</button>
+            <button data-action="suspend" data-id="${docSnap.id}">Suspend</button>
+            <button data-action="delete"  data-id="${docSnap.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Manage Active Merchants
+      tbody.onclick = async (e) => {
+        const btn = e.target.closest("button[data-action]"); if (!btn) return;
+        const id  = btn.dataset.id; const action = btn.dataset.action;
+        try {
+          const ref = doc(db, "verifiedMerchants", id);
+          if (action === "activate") {
+            await updateDoc(ref, { status: "Active" });
+          } else if (action === "suspend") {
+            await updateDoc(ref, { status: "Suspended" });
+          } else if (action === "delete") {
+            await deleteDoc(ref);
+          }
+          await loadVerifiedMerchants(); await initOverview();
+        } catch (err) { alert(err?.message || "Action failed"); }
+      };
+    }
+  </script>
+</body>
+</html>
