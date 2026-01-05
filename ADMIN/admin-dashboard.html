@@ -6,15 +6,17 @@
   <title>Admin Dashboard - Ecommerce Management</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, Arial, sans-serif; background:#f7f8fb; }
-    header, nav, section { max-width: 1200px; margin: 0 auto; }
-    header { padding: 20px; display:flex; align-items:center; justify-content:space-between; }
+    /* ===== Styling ===== */
+    :root { color-scheme: light; }
+    body { font-family: system-ui, Arial, sans-serif; background:#f7f8fb; margin:0; }
+    header { max-width: 1200px; margin: 0 auto; padding: 16px; display:flex; align-items:center; justify-content:space-between; background:#fff; border-bottom:1px solid #eee; }
     .pill { background:#eef3ff; border:1px solid #d8e3fe; padding:6px 10px; border-radius:999px; font-size:12px; color:#2c7ef8; }
-    nav ul { display:flex; gap:10px; padding:0; list-style:none; }
+    nav ul { display:flex; gap:10px; padding:0; list-style:none; margin:0 0 0 12px; }
     nav a { padding:8px 12px; border-radius:8px; text-decoration:none; color:#333; background:#fff; border:1px solid #eee; }
+    main { max-width: 1200px; margin: 0 auto; padding: 16px 0 40px; }
     h2 { margin:18px 0 10px; }
     .grid4 { display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; }
-    .card { background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; }
+    .card { background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; margin:12px 0; }
     .big { font-size:26px; font-weight:700; }
     table { width:100%; border-collapse:collapse; }
     th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; font-size:13px; vertical-align:top; }
@@ -22,21 +24,34 @@
     .actions button { margin-right:6px; padding:6px 10px; font-size:12px; border:1px solid #ddd; border-radius:6px; cursor:pointer; background:#fff; }
     .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid #ddd; background:#fff; cursor:pointer; }
     .btn-primary { background:#2c7ef8; color:#fff; border-color:#2c7ef8; }
-    .filters { display:flex; gap:8px; margin-bottom:10px; }
+    .filters { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+    .search { flex:1; min-width:220px; padding:8px; border:1px solid #ddd; border-radius:8px; }
     .flex { display:flex; align-items:center; gap:8px; }
     .muted { color:#777; font-size:12px; }
     .form-row { display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
-    .form-row input, .form-row select { padding:8px; border:1px solid #ddd; border-radius:8px; }
+    .form-row input, .form-row select, .form-row textarea { padding:8px; border:1px solid #ddd; border-radius:8px; }
     .chip { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #ddd; }
     .chip.true { background:#e9f9ed; color:#2f9e44; border-color:#b8e4c2; }
     .chip.false { background:#fff4f4; color:#c53b3b; border-color:#f0caca; }
+    .id-note { font-size:12px; color:#555; margin-top:6px; }
+    .link { color:#2c7ef8; text-decoration:none; }
+    .link:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
   <header>
     <div class="flex">
       <span class="pill">Admin Panel</span>
-      
+      <nav>
+        <ul>
+          <li><a href="#dashboard">Dashboard</a></li>
+          <li><a href="#users">Users</a></li>
+          <li><a href="#applications">Merchant Applications</a></li>
+          <li><a href="#merchants">Active Merchants</a></li>
+          <li><a href="#orders">Orders</a></li>
+          <li><a href="#products">Products</a></li>
+        </ul>
+      </nav>
     </div>
     <div class="flex">
       <div id="adminName" class="muted">Admin</div>
@@ -45,7 +60,7 @@
   </header>
 
   <main>
-    <!-- Overview -->
+    <!-- ===== Overview ===== -->
     <section id="dashboard" class="card">
       <h2>Admin Dashboard</h2>
       <div class="flex"><button id="refreshOverview" class="btn">Refresh Data</button></div>
@@ -57,7 +72,7 @@
       </div>
     </section>
 
-    <!-- Users -->
+    <!-- ===== Users ===== -->
     <section id="users" class="card">
       <h2>User Management</h2>
       <div class="filters">
@@ -67,10 +82,10 @@
           <option value="merchant">merchant</option>
           <option value="ADMINISTRATOR">ADMINISTRATOR</option>
         </select>
+        <input id="userSearch" class="search" placeholder="Search users (ID, name, email, role)..." />
         <button id="refreshUsers" class="btn">Refresh</button>
       </div>
 
-      <!-- Create user doc -->
       <div class="form-row">
         <input id="firstName" placeholder="First name" />
         <input id="lastName" placeholder="Last name" />
@@ -88,21 +103,15 @@
       <table id="usersTable">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Email Verified</th>
-            <th>Last Login</th>
-            <th>Created At</th>
-            <th>Actions</th>
+            <th>ID</th><th>User</th><th>Email</th><th>Role</th><th>Email Verified</th><th>Last Login</th><th>Created At</th><th>Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
+      <div class="id-note">Tip: ID search matches the **document ID** shown in the leftmost column.</div>
     </section>
 
-    <!-- Merchant Applications -->
+    <!-- ===== Merchant Applications ===== -->
     <section id="applications" class="card">
       <h2>Merchant Applications</h2>
       <div class="filters">
@@ -113,9 +122,11 @@
           <option value="Approved">Approved</option>
           <option value="Rejected">Rejected</option>
         </select>
+        <input id="appSearch" class="search" placeholder="Search applications (ID, business, type, city, email)..." />
         <button id="refreshApps" class="btn">Refresh</button>
       </div>
-      <!-- Admin-side quick save (optional) -->
+
+      <!-- Optional admin-side quick create -->
       <div class="form-row">
         <input id="appBusinessName" placeholder="Business Name" />
         <select id="appBusinessType">
@@ -130,58 +141,54 @@
         </select>
         <input id="appAddress" placeholder="Address" />
         <select id="appCity">
-          <option value="Phnom Penh">Phnom Penh</option><option value="Banteay Meanchey">Banteay Meanchey</option>
-          <option value="Battambang">Battambang</option><option value="Kampong Cham">Kampong Cham</option>
-          <option value="Kampong Chhnang">Kampong Chhnang</option><option value="Kampong Speu">Kampong Speu</option>
-          <option value="Kampong Thom">Kampong Thom</option><option value="Kampot">Kampot</option>
-          <option value="Kandal">Kandal</option><option value="Kep">Kep</option>
-          <option value="Koh Kong">Koh Kong</option><option value="Kratie">Kratie</option>
-          <option value="Mondulkiri">Mondulkiri</option><option value="Oddar Meanchey">Oddar Meanchey</option>
-          <option value="Pailin">Pailin</option><option value="Preah Sihanouk">Preah Sihanouk</option>
-          <option value="Preah Vihear">Preah Vihear</option><option value="Pursat">Pursat</option>
-          <option value="Ratanakiri">Ratanakiri</option><option value="Siem Reap">Siem Reap</option>
-          <option value="Stung Treng">Stung Treng</option><option value="Svay Rieng">Svay Rieng</option>
-          <option value="Takeo">Takeo</option><option value="Tboung Khmum">Tboung Khmum</option>
+          <option value="Phnom Penh">Phnom Penh</option><option value="Siem Reap">Siem Reap</option>
         </select>
         <input id="appZipcode" placeholder="Zipcode" />
         <input id="appDescription" placeholder="Business Description" />
+        <input id="appApplicantEmail" placeholder="Applicant Email (optional)" />
         <button id="createAppBtn" class="btn-primary">Save Application</button>
       </div>
 
       <table id="merchantAppsTable">
         <thead>
-          <tr><th>Application ID</th><th>Business Name</th><th>Type</th><th>City</th><th>Applied Date</th><th>Status</th><th>Actions</th></tr>
+          <tr>
+            <th>Application ID</th><th>Business Name</th><th>Type</th><th>City</th>
+            <th>Applicant Email</th><th>Business Doc</th><th>Identity Doc</th>
+            <th>Applied Date</th><th>Status</th><th>Actions</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
+      <div class="id-note">Note: Application IDs match the **user’s doc ID** (set by the registration form).</div>
     </section>
 
-    <!-- Verified (Active) Merchants -->
+    <!-- ===== Verified (Active) Merchants ===== -->
     <section id="merchants" class="card">
       <h2>Active Merchants</h2>
-      <div class="filters"><button id="refreshMerchants" class="btn">Refresh</button></div>
+      <div class="filters">
+        <input id="merchantSearch" class="search" placeholder="Search merchants (ID, store, owner, city, email)..." />
+        <button id="refreshMerchants" class="btn">Refresh</button>
+      </div>
       <table id="merchantsTable">
         <thead>
-          <tr><th>ID</th><th>Store</th><th>Owner</th><th>City</th><th>Joined</th><th>Status</th><th>Verification</th><th>Actions</th></tr>
+          <tr><th>ID</th><th>Store</th><th>Owner</th><th>City</th><th>Email</th><th>Docs</th><th>Joined</th><th>Status</th><th>Verification</th><th>Actions</th></tr>
         </thead>
         <tbody></tbody>
       </table>
     </section>
 
-    <!-- (Orders & Products can be wired later as needed) -->
     <section id="orders" class="card"><h2>Order Management</h2><div class="muted">Coming soon…</div></section>
     <section id="products" class="card"><h2>Product Management</h2><div class="muted">Coming soon…</div></section>
-
-    <section id="analytics" class="card"><h2>Platform Analytics</h2><div class="muted">Coming soon…</div></section>
-    <section id="settings" class="card"><h2>Admin Settings</h2><div class="muted">Coming soon…</div></section>
   </main>
 
-  <!-- Firebase ESM via CDN (v10.7.1) -->
+  <!-- ===== Firebase ESM via CDN (v10.7.1) ===== -->
   <script type="module">
+    /* IMPORTANT:
+       Do NOT call setPersistence() here—keep it ONLY in admin-login.html with browserSessionPersistence.
+       That keeps refresh in the same tab, and clears on tab close (expected behavior).
+    */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import {
-      getAuth, setPersistence, browserSessionPersistence, onAuthStateChanged, signOut
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import {
       getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs,
       updateDoc, deleteDoc, query, where, orderBy, limit
@@ -201,60 +208,70 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    await setPersistence(auth, browserSessionPersistence); // persists within tab; clears on close
     const ADMIN_UID = "zYSujcmGisVdCNPYCfwb7tbpG3D2";
-
     const ROLES = { USER: "user", MERCHANT: "merchant", ADMIN: "ADMINISTRATOR" };
-    const normalizeRole = (val) => {
-      if (val === "" || val == null) return "";           // IMPORTANT: keep empty when "All Roles"
-      const s = String(val).trim().toLowerCase();
-      if (s === "user") return ROLES.USER;
-      if (s === "merchant") return ROLES.MERCHANT;
-      if (s.startsWith("admin")) return ROLES.ADMIN;
-      return ROLES.USER;
-    };
+    const normalizeRole = (val) => { if (!val) return ""; const s = String(val).trim().toLowerCase(); if (s==="user") return ROLES.USER; if (s==="merchant") return ROLES.MERCHANT; if (s.startsWith("admin")) return ROLES.ADMIN; return ROLES.USER; };
+    const fmtDate = (v, withTime=false) => { if (!v) return "-"; const d = v?.toDate ? v.toDate() : (typeof v==="string" ? new Date(v) : new Date(v)); return withTime ? d.toLocaleString() : d.toLocaleDateString(); };
+    const debounce = (fn, ms=250) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
 
-    const fmtDate = (v, withTime=false) => {
-      if (!v) return "-";
-      const d = v?.toDate ? v.toDate() : (typeof v === "string" ? new Date(v) : new Date(v));
-      return withTime ? d.toLocaleString() : d.toLocaleDateString();
-    };
+    let bootstrapped = false;
 
     onAuthStateChanged(auth, async (user) => {
       if (!user || user.uid !== ADMIN_UID) {
-        location.href = "admin-login.html";
+        if (!/admin-login\.html$/i.test(location.pathname)) location.replace("admin-login.html");
         return;
       }
+      if (bootstrapped) return;
+      bootstrapped = true;
+
       document.getElementById("adminName").textContent = `Admin (${user.email || ADMIN_UID})`;
 
-      // Wire buttons
-      document.getElementById("logoutBtn").addEventListener("click", async () => { await signOut(auth); location.href = "admin-login.html"; });
+      // Logout (safe redirect: replace history)
+      document.getElementById("logoutBtn").addEventListener("click", async () => {
+        try { await signOut(auth); } catch(_) {}
+        location.replace("admin-login.html");
+      });
+
+      // Overview
       document.getElementById("refreshOverview").addEventListener("click", initOverview);
-      document.getElementById("refreshUsers").addEventListener("click", loadUsers);
+
+      // Users
+      const onUserSearch = debounce(loadUsers, 200);
       document.getElementById("userRoleFilter").addEventListener("change", loadUsers);
+      document.getElementById("userSearch").addEventListener("input", onUserSearch);
+      document.getElementById("refreshUsers").addEventListener("click", loadUsers);
       document.getElementById("createUserBtn").addEventListener("click", createUserDoc);
+
+      // Applications
+      const onAppSearch = debounce(loadMerchantApplications, 200);
+      document.getElementById("appStatusFilter").addEventListener("change", loadMerchantApplications);
+      document.getElementById("appSearch").addEventListener("input", onAppSearch);
       document.getElementById("refreshApps").addEventListener("click", loadMerchantApplications);
-      document.getElementById("createAppBtn").addEventListener("click", createApplication);
+      document.getElementById("createAppBtn").addEventListener("click", createApplicationFromAdmin);
+
+      // Verified merchants
+      const onMerchantSearch = debounce(loadVerifiedMerchants, 200);
+      document.getElementById("merchantSearch").addEventListener("input", onMerchantSearch);
       document.getElementById("refreshMerchants").addEventListener("click", loadVerifiedMerchants);
 
-      // Initial data
+      // Initial load
       initOverview();
       loadUsers();
       loadMerchantApplications();
       loadVerifiedMerchants();
     });
 
-    // ---------- Overview ----------
+    /* ===== Overview ===== */
     async function initOverview() {
       const users    = await getDocs(collection(db, "users"));
       const verified = await getDocs(collection(db, "verifiedMerchants"));
-      document.getElementById("totalUsers").textContent       = users.size;
-      document.getElementById("activeMerchants").textContent  = verified.size;
-      document.getElementById("totalOrders").textContent      = 0;
-      document.getElementById("platformRevenue").textContent  = "$0.00";
+      document.getElementById("totalUsers").textContent      = users.size;
+      document.getElementById("activeMerchants").textContent = verified.size;
+      document.getElementById("totalOrders").textContent     = 0;
+      document.getElementById("platformRevenue").textContent = "$0.00";
     }
 
-    // ---------- Users (filter fixed + actions working) ----------
+    /* ===== Users ===== */
     async function createUserDoc() {
       const firstName      = document.getElementById("firstName").value.trim();
       const lastName       = document.getElementById("lastName").value.trim();
@@ -262,78 +279,52 @@
       const email          = document.getElementById("email").value.trim();
       const profilePicture = document.getElementById("profilePicture").value.trim();
       const role           = normalizeRole(document.getElementById("role").value);
-
-      if (!email || (!firstName && !displayName)) {
-        return alert("Provide at least Email and First/Display name.");
-      }
-
+      if (!email || (!firstName && !displayName)) return alert("Provide Email and First/Display name.");
       await addDoc(collection(db, "users"), {
         createdAt: new Date(),
         displayName: displayName || `${firstName || ""} ${lastName || ""}`.trim(),
-        email,
-        emailVerified: false,
-        firstName: firstName || "",
-        lastName: lastName || "",
-        lastLogin: null,
-        profilePicture: profilePicture || "",
-        role
+        email, emailVerified: false,
+        firstName: firstName || "", lastName: lastName || "",
+        lastLogin: null, profilePicture: profilePicture || "", role
       });
-
       ["firstName","lastName","displayName","email","profilePicture"].forEach(id => document.getElementById(id).value = "");
       document.getElementById("role").value = ROLES.USER;
       await loadUsers(); await initOverview();
     }
 
     async function loadUsers() {
-      const tbody = document.querySelector("#usersTable tbody");
-      tbody.innerHTML = "";
-
+      const tbody = document.querySelector("#usersTable tbody"); tbody.innerHTML = "";
       const roleFilter = normalizeRole(document.getElementById("userRoleFilter").value || "");
+      const qText = (document.getElementById("userSearch").value || "").toLowerCase();
       const base = collection(db, "users");
 
       let q;
-      if (roleFilter) {
-        // Avoid composite index requirement: filter only (no orderBy)
-        q = query(base, where("role", "==", roleFilter));
-      } else {
-        // All roles: try orderBy(createdAt) otherwise fallback
-        try { q = query(base, orderBy("createdAt", "desc")); }
-        catch { q = base; }
-      }
+      if (roleFilter) { q = query(base, where("role", "==", roleFilter)); }
+      else { try { q = query(base, orderBy("createdAt","desc")); } catch { q = base; } }
 
-      let snap;
-      try { snap = await getDocs(q); }
+      let snap; try { snap = await getDocs(q); }
       catch { snap = roleFilter ? await getDocs(query(base, where("role","==", roleFilter))) : await getDocs(base); }
 
-      const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
-      // Client-side sort by createdAt desc (works for both filtered/unfiltered)
-      docs.sort((a, b) => {
-        const aj = a.data.createdAt ? (a.data.createdAt?.toDate ? a.data.createdAt.toDate() : new Date(a.data.createdAt)) : 0;
-        const bj = b.data.createdAt ? (b.data.createdAt?.toDate ? b.data.createdAt.toDate() : new Date(b.data.createdAt)) : 0;
-        return bj - aj;
-      });
+      const matches = snap.docs.map(d => ({ id: d.id, data: d.data() }))
+        .filter(({id, data:u}) => {
+          if (!qText) return true;
+          const hay = [id, u.displayName, u.firstName, u.lastName, u.email, u.role]
+            .map(x => String(x || "").toLowerCase()).join(" ");
+          return hay.includes(qText);
+        })
+        .sort((a,b) => {
+          const aj = a.data.createdAt ? (a.data.createdAt?.toDate ? a.data.createdAt.toDate() : new Date(a.data.createdAt)) : 0;
+          const bj = b.data.createdAt ? (b.data.createdAt?.toDate ? b.data.createdAt.toDate() : new Date(b.data.createdAt)) : 0;
+          return bj - aj;
+        });
 
-      if (!docs.length) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="8" class="muted">No users found.</td>`;
-        tbody.appendChild(tr);
-        return;
-      }
+      if (!matches.length) { const tr = document.createElement("tr"); tr.innerHTML = `<td colspan="8" class="muted">No users found.</td>`; tbody.appendChild(tr); return; }
 
-      docs.forEach(({ id, data: d }) => {
-        const dp = d.profilePicture ? `${d.profilePicture}` : "";
+      matches.forEach(({ id, data: d }) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${id}</td>
-          <td>
-            <div class="flex">
-              ${dp}
-              <div>
-                <div>${d.displayName || `${d.firstName || "-"} ${d.lastName || ""}`.trim()}</div>
-                <div class="muted">${d.firstName || "-"} ${d.lastName || ""}</div>
-              </div>
-            </div>
-          </td>
+          <td><div>${d.displayName || `${d.firstName || "-"} ${d.lastName || ""}`.trim()}</div></td>
           <td>${d.email || "-"}</td>
           <td>${d.role || "-"}</td>
           <td><span class="chip ${d.emailVerified ? "true" : "false"}">${d.emailVerified ? "true" : "false"}</span></td>
@@ -350,104 +341,119 @@
         tbody.appendChild(tr);
       });
 
-      // Delegated actions
       tbody.onclick = async (e) => {
         const btn = e.target.closest("button[data-action]"); if (!btn) return;
         const id  = btn.dataset.id; const action = btn.dataset.action;
         try {
-          if (action === "set-role") {
-            const role = normalizeRole(btn.dataset.role);
-            await updateDoc(doc(db, "users", id), { role });
-          } else if (action === "verify-email") {
-            await updateDoc(doc(db, "users", id), { emailVerified: true });
-          } else if (action === "delete") {
-            await deleteDoc(doc(db, "users", id));
-          }
+          if (action === "set-role") { await updateDoc(doc(db, "users", id), { role: normalizeRole(btn.dataset.role) }); }
+          else if (action === "verify-email") { await updateDoc(doc(db, "users", id), { emailVerified: true }); }
+          else if (action === "delete") { await deleteDoc(doc(db, "users", id)); }
           await loadUsers(); await initOverview();
         } catch (err) { alert(err?.message || "Action failed"); }
       };
     }
 
-    // ---------- Merchant Applications ----------
-    async function createApplication() {
-      const businessName = document.getElementById("appBusinessName").value.trim();
-      const businessType = document.getElementById("appBusinessType").value;
-      const address      = document.getElementById("appAddress").value.trim();
-      const city         = document.getElementById("appCity").value;
-      const zipcode      = document.getElementById("appZipcode").value.trim();
-      const description  = document.getElementById("appDescription").value.trim();
+    /* ===== Merchant Applications ===== */
+    async function createApplicationFromAdmin() {
+      const businessName   = document.getElementById("appBusinessName").value.trim();
+      const businessType   = document.getElementById("appBusinessType").value;
+      const address        = document.getElementById("appAddress").value.trim();
+      const city           = document.getElementById("appCity").value;
+      const zipcode        = document.getElementById("appZipcode").value.trim();
+      const description    = document.getElementById("appDescription").value.trim();
+      const applicantEmail = (document.getElementById("appApplicantEmail").value || "").trim();
+      if (!businessName || !businessType || !city) return alert("Business Name, Type, City required.");
 
-      if (!businessName || !businessType || !city) {
-        return alert("Business Name, Type and City are required.");
+      // If email given, try to create under that user's doc ID; else auto-ID.
+      let applicantUserId = null;
+      if (applicantEmail) {
+        const q = query(collection(db, "users"), where("email","==", applicantEmail));
+        const s = await getDocs(q);
+        if (!s.empty) applicantUserId = s.docs[0].id;
       }
 
-      await addDoc(collection(db, "merchantApplications"), {
-        businessName, businessType, address, city, zipcode, description,
-        status: "Pending Review", createdAt: new Date()
-      });
+      if (applicantUserId) {
+        await setDoc(doc(db, "merchantApplications", applicantUserId), {
+          applicantUserId, applicantEmail,
+          businessName, businessType, address, city, zipcode, description,
+          status: "Pending Review", createdAt: new Date()
+        }, { merge:true });
+      } else {
+        await addDoc(collection(db, "merchantApplications"), {
+          applicantUserId: null, applicantEmail,
+          businessName, businessType, address, city, zipcode, description,
+          status: "Pending Review", createdAt: new Date()
+        });
+      }
 
-      ["appBusinessName","appAddress","appZipcode","appDescription"].forEach(id => document.getElementById(id).value = "");
-      document.getElementById("appBusinessType").value = "Retail";
-      document.getElementById("appCity").value = "Phnom Penh";
-
+      ["appBusinessName","appAddress","appZipcode","appDescription","appApplicantEmail"].forEach(id => document.getElementById(id).value = "");
       await loadMerchantApplications();
     }
 
     async function loadMerchantApplications() {
       const status = document.getElementById("appStatusFilter").value;
+      const term   = (document.getElementById("appSearch").value || "").toLowerCase();
       const base   = collection(db, "merchantApplications");
 
       let q = status ? query(base, where("status","==",status)) : base;
-      // Try orderBy(createdAt) to show latest first; fallback if index missing
-      try { q = query(q, orderBy("createdAt","desc"), limit(100)); } catch(_) {}
+      try { q = query(q, orderBy("createdAt","desc"), limit(200)); } catch(_) {}
 
-      let snap;
-      try { snap = await getDocs(q); }
+      let snap; try { snap = await getDocs(q); }
       catch { snap = status ? await getDocs(query(base, where("status","==",status))) : await getDocs(base); }
 
       const tbody  = document.querySelector("#merchantAppsTable tbody");
       tbody.innerHTML = "";
 
-      if (snap.empty) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="7" class="muted">No applications.</td>`;
-        tbody.appendChild(tr);
-        return;
-      }
+      const matches = snap.docs.map(d => ({ id: d.id, data: d.data() }))
+        .filter(({id, data:a}) => {
+          if (!term) return true;
+          const hay = [id, a.businessName, a.businessType, a.city, a.applicantEmail]
+            .map(x => String(x || "").toLowerCase()).join(" ");
+          return hay.includes(term);
+        });
 
-      snap.forEach((docSnap) => {
-        const d = docSnap.data();
+      if (!matches.length) { const tr = document.createElement("tr"); tr.innerHTML = `<td colspan="10" class="muted">No applications.</td>`; tbody.appendChild(tr); return; }
+
+      matches.forEach(({ id, data: d }) => {
+        const businessLink = d.businessDocUrl
+          ? `<a class="link" href="${d.businessDocUrl}" target="_blank" rel="noopener">Open</a>` : "-";
+        const identityLink = d.identityDocUrl
+          ? `<a class="link" href="${d.identityDocUrl}" target="_blank" rel="noopener">Open</a>` : "-";
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${docSnap.id}</td>
+          <td>${id}</td>
           <td>${d.businessName || "-"}</td>
           <td>${d.businessType || "-"}</td>
           <td>${d.city || "-"}</td>
+          <td>${d.applicantEmail || "-"}</td>
+          <td>${businessLink}</td>
+          <td>${identityLink}</td>
           <td>${fmtDate(d.createdAt, true)}</td>
           <td>${d.status}</td>
           <td class="actions">
-            <button data-action="approve" data-id="${docSnap.id}">Approve</button>
-            <button data-action="reject"  data-id="${docSnap.id}">Reject</button>
-            <button data-action="delete"  data-id="${docSnap.id}">Delete</button>
+            <button data-action="approve" data-id="${id}">Approve</button>
+            <button data-action="reject" data-id="${id}">Reject</button>
+            <button data-action="delete"  data-id="${id}">Delete</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
 
-      // Approve moves to verifiedMerchants; reject/delete removes application
       tbody.onclick = async (e) => {
         const btn = e.target.closest("button[data-action]"); if (!btn) return;
         const id  = btn.dataset.id; const action = btn.dataset.action;
         try {
+          const appRef = doc(db, "merchantApplications", id);
           if (action === "approve") {
-            const appRef = doc(db, "merchantApplications", id);
-            const app    = (await getDoc(appRef)).data();
-
-            // Create in verifiedMerchants
-            await addDoc(collection(db, "verifiedMerchants"), {
+            const app = (await getDoc(appRef)).data();
+            // SAME ID in verifiedMerchants + carry doc URLs
+            await setDoc(doc(db, "verifiedMerchants", id), {
               store: app.businessName,
               owner: app.owner || app.businessName,
               city: app.city,
+              email: app.applicantEmail || "",
+              businessDocUrl: app.businessDocUrl || null,
+              identityDocUrl: app.identityDocUrl || null,
               status: "Active",
               verification: "Verified",
               joined: new Date(),
@@ -456,69 +462,74 @@
               address: app.address || "",
               zipcode: app.zipcode || "",
               description: app.description || ""
-            });
+            }, { merge:true });
             await deleteDoc(appRef);
-          } else if (action === "reject" || action === "delete") {
-            await deleteDoc(doc(db, "merchantApplications", id));
+          } else if (action === "reject") {
+            await updateDoc(appRef, { status: "Rejected", rejectedAt: new Date() });
+          } else if (action === "delete") {
+            await deleteDoc(appRef);
           }
           await loadMerchantApplications(); await loadVerifiedMerchants(); await initOverview();
         } catch (err) { alert(err?.message || "Action failed"); }
       };
     }
 
-    // ---------- Active Merchants (from verifiedMerchants) ----------
+    /* ===== Active Merchants ===== */
     async function loadVerifiedMerchants() {
       const tbody = document.querySelector("#merchantsTable tbody");
+      const term  = (document.getElementById("merchantSearch").value || "").toLowerCase();
       tbody.innerHTML = "";
 
-      let q;
-      try { q = query(collection(db, "verifiedMerchants"), orderBy("joined","desc")); }
+      let q; try { q = query(collection(db, "verifiedMerchants"), orderBy("joined","desc")); }
       catch { q = collection(db, "verifiedMerchants"); }
 
-      let snap;
-      try { snap = await getDocs(q); }
+      let snap; try { snap = await getDocs(q); }
       catch { snap = await getDocs(collection(db, "verifiedMerchants")); }
 
-      if (snap.empty) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="8" class="muted">No verified merchants.</td>`;
-        tbody.appendChild(tr);
-        return;
-      }
+      const matches = snap.docs.map(d => ({ id: d.id, data: d.data() }))
+        .filter(({id, data:m}) => {
+          if (!term) return true;
+          const hay = [id, m.store, m.owner, m.city, m.email]
+            .map(x => String(x || "").toLowerCase()).join(" ");
+          return hay.includes(term);
+        });
 
-      snap.forEach((docSnap) => {
-        const d = docSnap.data();
+      if (!matches.length) { const tr = document.createElement("tr"); tr.innerHTML = `<td colspan="10" class="muted">No verified merchants.</td>`; tbody.appendChild(tr); return; }
+
+      matches.forEach(({ id, data: d }) => {
+        const docsHTML = [
+          d.businessDocUrl ? `<a class="link" href="${d.businessDocUrl}" target="_blank" rel="noopener">BizDoc</a>` : null,
+          d.identityDocUrl ? `<a class="link" href="${d.identityDocUrl}" target="_blank" rel="noopener">IDDoc</a>` : null
+        ].filter(Boolean).join(" | ") || "-";
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${docSnap.id}</td>
+          <td>${id}</td>
           <td>${d.store || "-"}</td>
           <td>${d.owner || "-"}</td>
           <td>${d.city || "-"}</td>
+          <td>${d.email || "-"}</td>
+          <td>${docsHTML}</td>
           <td>${fmtDate(d.joined)}</td>
           <td>${d.status || "Active"}</td>
           <td>${d.verification || "Verified"}</td>
           <td class="actions">
-            <button data-action="activate" data-id="${docSnap.id}">Activate</button>
-            <button data-action="suspend" data-id="${docSnap.id}">Suspend</button>
-            <button data-action="delete"  data-id="${docSnap.id}">Delete</button>
+            <button data-action="activate" data-id="${id}">Activate</button>
+            <button data-action="suspend"  data-id="${id}">Suspend</button>
+            <button data-action="delete"   data-id="${id}">Delete</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
 
-      // Manage Active Merchants
       tbody.onclick = async (e) => {
         const btn = e.target.closest("button[data-action]"); if (!btn) return;
         const id  = btn.dataset.id; const action = btn.dataset.action;
         try {
           const ref = doc(db, "verifiedMerchants", id);
-          if (action === "activate") {
-            await updateDoc(ref, { status: "Active" });
-          } else if (action === "suspend") {
-            await updateDoc(ref, { status: "Suspended" });
-          } else if (action === "delete") {
-            await deleteDoc(ref);
-          }
+          if (action === "activate") { await updateDoc(ref, { status: "Active" }); }
+          else if (action === "suspend") { await updateDoc(ref, { status: "Suspended" }); }
+          else if (action === "delete")  { await deleteDoc(ref); }
           await loadVerifiedMerchants(); await initOverview();
         } catch (err) { alert(err?.message || "Action failed"); }
       };

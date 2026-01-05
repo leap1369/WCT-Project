@@ -6,22 +6,28 @@
   <title>JeahLuy – Merchant Registration</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, Arial, sans-serif; background:#f7f8fb; }
+    body { font-family: system-ui, Arial, sans-serif; background:#f7f8fb; margin:0; }
     .wrap { max-width: 720px; margin: 30px auto; background:#fff; border:1px solid #eee; border-radius:12px; padding:20px; }
     h1 { margin:0 0 10px; }
+    .hint { font-size:12px; color:#777; margin-bottom:12px; }
     .row { display:flex; gap:10px; margin-bottom:10px; }
     .row input, .row select, .row textarea { flex:1; padding:10px; border:1px solid #ddd; border-radius:8px; }
+    .small { font-size:12px; color:#555; }
+    .preview { font-size:12px; color:#555; margin-top:4px; }
+    .error { color:#c53b3b; }
+    .success { color:#2f9e44; }
     button { padding:10px 16px; border:1px solid #2c7ef8; background:#2c7ef8; color:#fff; border-radius:8px; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
     .msg { margin-top:10px; font-size:13px; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Merchant Registration</h1>
+    <div id="authHint" class="hint">Checking sign‑in…</div>
+
     <form id="merchantForm">
-      <div class="row">
-        <input id="businessName" placeholder="Business Name" required />
-      </div>
+      <div class="row"><input id="businessName" placeholder="Business Name" required /></div>
       <div class="row">
         <select id="businessType" required>
           <option value="">Select business type</option>
@@ -35,9 +41,7 @@
           <option value="Nonprofit">Nonprofit</option>
         </select>
       </div>
-      <div class="row">
-        <input id="address" placeholder="Address" />
-      </div>
+      <div class="row"><input id="address" placeholder="Address" /></div>
       <div class="row">
         <select id="city" required>
           <option value="">Select a province</option>
@@ -56,10 +60,27 @@
         </select>
         <input id="zipcode" placeholder="Zipcode" />
       </div>
+      <div class="row"><textarea id="description" placeholder="Business Description"></textarea></div>
+
+      <!-- Applicant email (read-only) + hidden user doc ID -->
+      <div class="row"><input id="applicantEmail" type="email" placeholder="Your Email" readonly required /></div>
+      <input id="userDocId" type="hidden" />
+
+      <!-- Uploads: max 1MB, images only -->
       <div class="row">
-        <textarea id="description" placeholder="Business Description"></textarea>
+        <div style="flex:1;">
+          <label class="small"><b>Business Registration/Related Photo</b> (image, ≤ 1 MB)</label>
+          <input id="businessDoc" type="file" accept="image/*" />
+          <div id="businessDocInfo" class="preview"></div>
+        </div>
+        <div style="flex:1;">
+          <label class="small"><b>Identity Card/Passport Photo</b> (image, ≤ 1 MB)</label>
+          <input id="identityDoc" type="file" accept="image/*" />
+          <div id="identityDocInfo" class="preview"></div>
+        </div>
       </div>
-      <button type="submit">Submit Application</button>
+
+      <button id="submitBtn" type="submit" disabled>Submit Application</button>
       <div id="message" class="msg"></div>
     </form>
   </div>
@@ -67,7 +88,13 @@
   <!-- Firebase ESM via CDN (v10.7.1) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, setDoc, getDoc, query, where, getDocs
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import {
+      getStorage, ref, uploadBytes, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBKswcE3xGh4feqGZytevh6N-IyrJoJ_7g",
@@ -80,14 +107,114 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db  = getFirestore(app);
+    const storage = getStorage(app);
 
-    const form = document.getElementById("merchantForm");
-    const msg  = document.getElementById("message");
+    const hint = document.getElementById("authHint");
+    const emailInput = document.getElementById("applicantEmail");
+    const userIdInput= document.getElementById("userDocId");
+    const submitBtn  = document.getElementById("submitBtn");
+    const form       = document.getElementById("merchantForm");
+    const msg        = document.getElementById("message");
+    const businessDocInput = document.getElementById("businessDoc");
+    const identityDocInput = document.getElementById("identityDoc");
+    const businessDocInfo = document.getElementById("businessDocInfo");
+    const identityDocInfo = document.getElementById("identityDocInfo");
+
+    const MAX_BYTES = 1024 * 1024; // 1MB
+
+    function describeFile(file) {
+      if (!file) return "";
+      const sizeKB = (file.size / 1024).toFixed(1);
+      return `${file.name} — ${sizeKB} KB — ${file.type || "unknown type"}`;
+    }
+
+    function validateImage(file, label) {
+      if (!file) return { ok: true };
+      if (!file.type.startsWith("image/")) {
+        return { ok:false, err: `${label}: file must be an image.` };
+      }
+      if (file.size > MAX_BYTES) {
+        return { ok:false, err: `${label}: file exceeds 1MB. Please compress or choose a smaller image.` };
+      }
+      return { ok:true };
+    }
+
+    async function uploadImageIfAny(file, path) {
+      if (!file) return null;
+      const storageRef = ref(storage, path);
+      const snap = await uploadBytes(storageRef, file, { contentType: file.type });
+      return await getDownloadURL(snap.ref);
+    }
+
+    async function fetchUserDocByEmail(email) {
+      const q = query(collection(db, "users"), where("email", "==", email));
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      return snap.docs[0];
+    }
+
+    async function checkExistingApplication(userDocId) {
+      const appRef = doc(db, "merchantApplications", userDocId);
+      const appSnap = await getDoc(appRef);
+      if (!appSnap.exists()) return { exists:false };
+      const status = appSnap.data().status || "Pending Review";
+      return { exists:true, status, data: appSnap.data() };
+    }
+
+    // Show selected file info
+    businessDocInput.addEventListener("change", () => {
+      businessDocInfo.textContent = describeFile(businessDocInput.files[0]);
+    });
+    identityDocInput.addEventListener("change", () => {
+      identityDocInfo.textContent = describeFile(identityDocInput.files[0]);
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      try {
+        if (!user?.email) {
+          hint.textContent = "You must be signed in to apply.";
+          submitBtn.disabled = true;
+          return;
+        }
+        emailInput.value = user.email;
+
+        const userDoc = await fetchUserDocByEmail(user.email);
+        if (!userDoc) {
+          hint.textContent = "No user profile found. Ask support to create your user record.";
+          submitBtn.disabled = true;
+          return;
+        }
+        const userData = userDoc.data();
+        const role = (userData.role || "").toLowerCase();
+        if (role === "merchant") {
+          hint.textContent = "You are already a merchant. Registration is not available.";
+          submitBtn.disabled = true;
+          return;
+        }
+
+        userIdInput.value = userDoc.id;
+
+        const ex = await checkExistingApplication(userDoc.id);
+        if (ex.exists && ex.status !== "Rejected") {
+          hint.innerHTML = `You already have an application with status: <b>${ex.status}</b>. You can reapply only after it's rejected.`;
+          submitBtn.disabled = true;
+          return;
+        }
+
+        hint.textContent = `Signed in as: ${user.email}`;
+        submitBtn.disabled = false;
+      } catch (err) {
+        hint.textContent = "Error checking account. Please try again later.";
+        submitBtn.disabled = true;
+      }
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       msg.textContent = "";
+      msg.className = "msg";
 
       const businessName = document.getElementById("businessName").value.trim();
       const businessType = document.getElementById("businessType").value;
@@ -95,24 +222,75 @@
       const city         = document.getElementById("city").value;
       const zipcode      = document.getElementById("zipcode").value.trim();
       const description  = document.getElementById("description").value.trim();
+      const applicantEmail = emailInput.value.trim();
+      const userDocId    = userIdInput.value;
 
-      if (!businessName || !businessType || !city) {
-        msg.textContent = "Please fill Business Name, Type and City.";
-        msg.style.color = "#c53b3b";
+      if (!businessName || !businessType || !city || !applicantEmail || !userDocId) {
+        msg.textContent = "Please fill Business Name, Type, City, and ensure you're signed in.";
+        msg.className = "msg error";
         return;
       }
 
+      // Validate images
+      const bizFile = businessDocInput.files[0] || null;
+      const idFile  = identityDocInput.files[0] || null;
+
+      const v1 = validateImage(bizFile, "Business registration/related photo");
+      if (!v1.ok) { msg.textContent = v1.err; msg.className = "msg error"; return; }
+
+      const v2 = validateImage(idFile, "Identity card/passport photo");
+      if (!v2.ok) { msg.textContent = v2.err; msg.className = "msg error"; return; }
+
       try {
-        await addDoc(collection(db, "merchantApplications"), {
+        // Use userDocId as application ID
+        const appRef = doc(db, "merchantApplications", userDocId);
+
+        // If doc exists and not Rejected, block
+        const ex = await getDoc(appRef);
+        if (ex.exists() && ex.data().status !== "Rejected") {
+          msg.textContent = `You already have an application with status: ${ex.data().status}.`;
+          msg.className = "msg error";
+          return;
+        }
+
+        // Upload images (if present)
+        msg.textContent = "Uploading images…";
+        let businessDocUrl = null;
+        let identityDocUrl = null;
+
+        if (bizFile) {
+          businessDocUrl = await uploadImageIfAny(
+            bizFile,
+            `applications/${userDocId}/businessDoc-${Date.now()}.${(bizFile.type.split('/')[1] || 'jpg')}`
+          );
+        }
+        if (idFile) {
+          identityDocUrl = await uploadImageIfAny(
+            idFile,
+            `applications/${userDocId}/identityDoc-${Date.now()}.${(idFile.type.split('/')[1] || 'jpg')}`
+          );
+        }
+
+        // Save application doc
+        msg.textContent = "Saving application…";
+        await setDoc(appRef, {
+          applicantUserId: userDocId,
+          applicantEmail,
           businessName, businessType, address, city, zipcode, description,
-          status: "Pending Review", createdAt: new Date()
-        });
+          businessDocUrl: businessDocUrl || null,
+          identityDocUrl: identityDocUrl || null,
+          status: "Pending Review",
+          createdAt: new Date()
+        }, { merge: true });
+
         msg.textContent = "Application submitted successfully!";
-        msg.style.color = "#2f9e44";
+        msg.className = "msg success";
         form.reset();
+        businessDocInfo.textContent = "";
+        identityDocInfo.textContent = "";
       } catch (err) {
         msg.textContent = err?.message || "Submission failed.";
-        msg.style.color = "#c53b3b";
+        msg.className = "msg error";
       }
     });
   </script>
