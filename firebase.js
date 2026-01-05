@@ -15,6 +15,29 @@ const app = firebase.initializeApp(firebaseConfig);
 // Initialize services
 const auth = firebase.auth(app);
 const db = firebase.firestore(app);
+
+// After: const db = firebase.firestore(app);
+try {
+  db.settings({
+    experimentalForceLongPolling: true, // prefer long‑polling over WebChannel Listen
+    useFetchStreams: false              // avoid fetch streams that some blockers flag
+  });
+} catch (e) {
+  console.warn('Firestore settings not applied:', e);
+}
+
+
+// --- Anti-blocker settings for Firestore (compat API) ---
+try {
+  db.settings({
+    experimentalForceLongPolling: true, // prefer long-polling over WebChannel
+    useFetchStreams: false              // avoid fetch streams some blockers flag
+  });
+  // firebase.firestore.setLogLevel('error'); // optional: quiet logs
+} catch (e) {
+  console.warn('Firestore settings not applied:', e);
+}
+
 const storage = firebase.storage(app);
 
 // Export for use
@@ -148,6 +171,136 @@ window.uploadFile = async function(file, path) {
         return { success: true, url: downloadURL };
     } catch (error) {
         console.error("Error uploading file: ", error);
+        return { success: false, error: error.message };
+    }
+};
+// Add to existing firebase.js after other functions:
+
+// Product Management Functions
+window.getMerchantProducts = async function(merchantId) {
+    try {
+        const querySnapshot = await db.collection("product_list")
+            .where("merchantId", "==", merchantId)
+            .orderBy("createdAt", "desc")
+            .get();
+        
+        const products = [];
+        querySnapshot.forEach((doc) => {
+            products.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        return { success: true, data: products };
+    } catch (error) {
+        console.error("Error getting products: ", error);
+        return { success: false, error: error.message };
+    }
+};
+
+window.addProduct = async function(productData, merchantId) {
+    try {
+        // Add merchant ID and timestamps
+        productData.merchantId = merchantId;
+        productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        productData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        productData.status = "active";
+        
+        const docRef = await db.collection("product_list").add(productData);
+        console.log("Product added with ID: ", docRef.id);
+        return { success: true, id: docRef.id };
+    } catch (error) {
+        console.error("Error adding product: ", error);
+        return { success: false, error: error.message };
+    }
+};
+
+window.updateProduct = async function(productId, productData, merchantId) {
+    try {
+        // First verify product belongs to merchant
+        const productDoc = await db.collection("product_list").doc(productId).get();
+        
+        if (!productDoc.exists) {
+            return { success: false, error: "Product not found" };
+        }
+        
+        const existingProduct = productDoc.data();
+        if (existingProduct.merchantId !== merchantId) {
+            return { success: false, error: "Unauthorized to edit this product" };
+        }
+        
+        // Update product
+        productData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        await db.collection("product_list").doc(productId).update(productData);
+        
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating product: ", error);
+        return { success: false, error: error.message };
+    }
+};
+
+window.deleteProduct = async function(productId, merchantId) {
+    try {
+        // First verify product belongs to merchant
+        const productDoc = await db.collection("product_list").doc(productId).get();
+        
+        if (!productDoc.exists) {
+            return { success: false, error: "Product not found" };
+        }
+        
+        const productData = productDoc.data();
+        if (productData.merchantId !== merchantId) {
+            return { success: false, error: "Unauthorized to delete this product" };
+        }
+        
+        // Delete product
+        await db.collection("product_list").doc(productId).delete();
+        
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting product: ", error);
+        return { success: false, error: error.message };
+    }
+};
+
+// Get merchant info from verifiedMerchant
+window.getMerchantInfo = async function(email) {
+    try {
+        // Check verifiedMerchant collection
+        const merchantQuery = await db.collection("verifiedMerchant")
+            .where("email", "==", email)
+            .limit(1)
+            .get();
+        
+        if (!merchantQuery.empty) {
+            const merchantDoc = merchantQuery.docs[0];
+            return { 
+                success: true, 
+                data: merchantDoc.data(),
+                id: merchantDoc.id
+            };
+        }
+        
+        // Check active_merchants collection
+        const activeMerchantQuery = await db.collection("active_merchants")
+            .where("email", "==", email)
+            .limit(1)
+            .get();
+        
+        if (!activeMerchantQuery.empty) {
+            const merchantDoc = activeMerchantQuery.docs[0];
+            return { 
+                success: true, 
+                data: merchantDoc.data(),
+                id: merchantDoc.id
+            };
+        }
+        
+        return { success: false, error: "Merchant not found" };
+    } catch (error) {
+        console.error("Error getting merchant info: ", error);
         return { success: false, error: error.message };
     }
 };

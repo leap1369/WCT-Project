@@ -72,477 +72,451 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBKswcE3xGh4feqGZytevh6N-IyrJoJ_7g",
-            authDomain: "jeahluy.firebaseapp.com",
-            projectId: "jeahluy",
-            storageBucket: "jeahluy.firebasestorage.app",
-            messagingSenderId: "308746007810",
-            appId: "1:308746007810:web:c17396303b14d61c3b3e1b",
-            measurementId: "G-3RLD0EB1FT"
-        };
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBKswcE3xGh4feqGZytevh6N-IyrJoJ_7g",
+        authDomain: "jeahluy.firebaseapp.com",
+        projectId: "jeahluy",
+        storageBucket: "jeahluy.firebasestorage.app",
+        messagingSenderId: "308746007810",
+        appId: "1:308746007810:web:c17396303b14d61c3b3e1b",
+        measurementId: "G-3RLD0EB1FT"
+    };
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(app);
-        const db = firebase.firestore(app);
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth(app);
+    const db = firebase.firestore(app);
 
-        // Check if email exists in both collections
-        async function checkEmailInCollections(email) {
-            try {
-                console.log("Checking email in collections:", email);
+    let isCheckingRole = false;
+
+    // Get user role from Firestore
+    async function getUserRole(userId, email) {
+        try {
+            console.log("Getting role for user:", userId);
+            
+            // First check users collection
+            const userDoc = await db.collection("users").doc(userId).get();
+            
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                console.log("User found in users collection:", userData);
                 
-                let isMerchant = false;
-                let isUser = false;
-                let merchantData = null;
-                let merchantId = null;
-                let userData = null;
-                
-                // Check verifiedMerchant collection
-                const merchantQuery = await db.collection("verifiedMerchant")
-                    .where("email", "==", email)
-                    .limit(1)
-                    .get();
-                
-                if (!merchantQuery.empty) {
-                    isMerchant = true;
-                    const merchantDoc = merchantQuery.docs[0];
-                    merchantData = merchantDoc.data();
-                    merchantId = merchantDoc.id;
-                    console.log("Email found in verifiedMerchant:", merchantData);
-                }
-                
-                // Check active_merchants collection
-                const activeMerchantQuery = await db.collection("active_merchants")
-                    .where("email", "==", email)
-                    .limit(1)
-                    .get();
-                
-                if (!activeMerchantQuery.empty) {
-                    isMerchant = true;
-                    const merchantDoc = activeMerchantQuery.docs[0];
-                    merchantData = merchantDoc.data();
-                    merchantId = merchantDoc.id;
-                    console.log("Email found in active_merchants:", merchantData);
-                }
-                
-                // Check users collection (by email)
-                const userQuery = await db.collection("users")
-                    .where("email", "==", email)
-                    .limit(1)
-                    .get();
-                
-                if (!userQuery.empty) {
-                    isUser = true;
-                    const userDoc = userQuery.docs[0];
-                    userData = userDoc.data();
-                    console.log("Email found in users:", userData);
-                }
-                
+                // Return the role from user document
                 return {
-                    existsInBoth: isMerchant && isUser,
-                    isMerchant: isMerchant,
-                    isUser: isUser,
-                    merchantData: merchantData,
-                    merchantId: merchantId,
-                    userData: userData
-                };
-                
-            } catch (error) {
-                console.error("Error checking email in collections:", error);
-                return {
-                    existsInBoth: false,
-                    isMerchant: false,
-                    isUser: false,
-                    error: error.message
+                    role: userData.role || "user",
+                    merchantId: userData.merchantId || null
                 };
             }
+            
+            // If user doesn't exist in users collection, check if they exist as merchant
+            const merchantCheck = await checkIfMerchant(email);
+            if (merchantCheck.isMerchant) {
+                return {
+                    role: "merchant",
+                    merchantId: merchantCheck.merchantId
+                };
+            }
+            
+            // Default to user role
+            return { role: "user" };
+            
+        } catch (error) {
+            console.error("Error getting user role:", error);
+            return { role: "user", error: error.message };
         }
+    }
 
-        // Get user role after authentication
-        async function determineUserRole(userId, email) {
-            try {
-                console.log("Determining role for user:", userId, email);
-                
-                // First check all collections
-                const emailCheck = await checkEmailInCollections(email);
-                
-                // Priority: Merchant access takes precedence
-                if (emailCheck.isMerchant) {
-                    console.log("User has merchant access");
-                    
-                    // Update or create user document with merchant role
-                    const userDocRef = db.collection("users").doc(userId);
-                    const userDoc = await userDocRef.get();
-                    
-                    if (userDoc.exists) {
-                        // Update existing user with merchant role
-                        await userDocRef.update({
-                            role: "merchant",
-                            merchantId: emailCheck.merchantId,
-                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    } else {
-                        // Create new user document with merchant role
-                        const names = email.split('@')[0];
-                        await userDocRef.set({
-                            firstName: names,
-                            lastName: '',
-                            email: email,
-                            displayName: names,
-                            emailVerified: true,
-                            role: "merchant",
-                            merchantId: emailCheck.merchantId,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    }
-                    
-                    return {
-                        role: "merchant",
-                        merchantId: emailCheck.merchantId,
-                        merchantData: emailCheck.merchantData,
-                        existsInBoth: emailCheck.existsInBoth
-                    };
-                }
-                
-                // Regular user (not a merchant)
-                console.log("User is a regular customer");
-                
-                const userDocRef = db.collection("users").doc(userId);
-                const userDoc = await userDocRef.get();
-                
-                let userRole = "user";
-                
-                if (userDoc.exists) {
-                    const existingData = userDoc.data();
-                    userRole = existingData.role || "user";
-                    
-                    // Update last login
-                    await userDocRef.update({
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } else {
-                    // Create new user document
-                    const names = email.split('@')[0];
-                    await userDocRef.set({
-                        firstName: names,
-                        lastName: '',
-                        email: email,
-                        displayName: names,
-                        emailVerified: true,
-                        role: "user",
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
+    // Check if email exists as merchant
+    async function checkIfMerchant(email) {
+        try {
+            console.log("Checking if email is merchant:", email);
+            
+            // Check verifiedMerchant collection
+            const merchantQuery = await db.collection("verifiedMerchant")
+                .where("email", "==", email)
+                .limit(1)
+                .get();
+            
+            if (!merchantQuery.empty) {
+                const merchantDoc = merchantQuery.docs[0];
+                console.log("Email found in verifiedMerchant");
                 return {
-                    role: userRole,
-                    existsInBoth: false
-                };
-                
-            } catch (error) {
-                console.error("Error determining user role:", error);
-                return {
-                    role: "user",
-                    error: error.message
+                    isMerchant: true,
+                    merchantId: merchantDoc.id,
+                    merchantData: merchantDoc.data()
                 };
             }
+            
+            // Check active_merchants collection
+            const activeMerchantQuery = await db.collection("active_merchants")
+                .where("email", "==", email)
+                .limit(1)
+                .get();
+            
+            if (!activeMerchantQuery.empty) {
+                const merchantDoc = activeMerchantQuery.docs[0];
+                console.log("Email found in active_merchants");
+                return {
+                    isMerchant: true,
+                    merchantId: merchantDoc.id,
+                    merchantData: merchantDoc.data()
+                };
+            }
+            
+            return { isMerchant: false };
+            
+        } catch (error) {
+            console.error("Error checking merchant:", error);
+            return { isMerchant: false, error: error.message };
         }
+    }
 
-        // Email input event listener for checking account type
-        document.getElementById('email').addEventListener('blur', async function() {
-            const email = this.value.trim();
-            const checkMessage = document.getElementById('emailCheckMessage');
+    // Check email input for account type
+    document.getElementById('email').addEventListener('blur', async function() {
+        const email = this.value.trim();
+        const checkMessage = document.getElementById('emailCheckMessage');
+        
+        if (!email) {
+            checkMessage.textContent = '';
+            checkMessage.style.color = '#666';
+            return;
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            checkMessage.textContent = 'Please enter a valid email address';
+            checkMessage.style.color = '#ff6b6b';
+            return;
+        }
+        
+        checkMessage.textContent = 'Checking account type...';
+        checkMessage.style.color = '#4a90e2';
+        
+        try {
+            // Check if email exists as merchant
+            const merchantCheck = await checkIfMerchant(email);
             
-            if (!email) {
-                checkMessage.textContent = '';
-                checkMessage.style.color = '#666';
-                return;
+            if (merchantCheck.isMerchant) {
+                checkMessage.innerHTML = '<i class="fas fa-store"></i> Merchant account detected';
+                checkMessage.style.color = '#3a5a40';
+            } else {
+                checkMessage.textContent = 'Regular user account';
+                checkMessage.style.color = '#4361ee';
             }
             
-            // Validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                checkMessage.textContent = 'Please enter a valid email address';
-                checkMessage.style.color = '#ff6b6b';
-                return;
-            }
-            
-            checkMessage.textContent = 'Checking account type...';
-            checkMessage.style.color = '#4a90e2';
-            
-            try {
-                // Check email in collections
-                const emailCheck = await checkEmailInCollections(email);
-                
-                if (emailCheck.existsInBoth) {
-                    checkMessage.innerHTML = '<i class="fas fa-store"></i> Merchant & User account detected';
-                    checkMessage.style.color = '#3a5a40';
-                } else if (emailCheck.isMerchant) {
-                    checkMessage.innerHTML = '<i class="fas fa-store"></i> Merchant account detected';
-                    checkMessage.style.color = '#3a5a40';
-                } else if (emailCheck.isUser) {
-                    checkMessage.innerHTML = '<i class="fas fa-user"></i> User account detected';
-                    checkMessage.style.color = '#4361ee';
-                } else {
-                    checkMessage.textContent = 'New user - Please register first';
-                    checkMessage.style.color = '#f72585';
-                }
-                
-            } catch (error) {
-                console.error("Error checking email:", error);
-                checkMessage.textContent = 'Error checking account';
-                checkMessage.style.color = '#ff6b6b';
-            }
-        });
+        } catch (error) {
+            console.error("Error checking email:", error);
+            checkMessage.textContent = 'Error checking account';
+            checkMessage.style.color = '#ff6b6b';
+        }
+    });
 
-        // Email login
-        document.getElementById('loginBtn').addEventListener('click', async function() {
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value;
+    // Email login
+    document.getElementById('loginBtn').addEventListener('click', async function() {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        
+        if (!email || !password) {
+            alert('Please fill email and password');
+            return;
+        }
+        
+        // Show loading state
+        const loginBtn = document.getElementById('loginBtn');
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Logging in...';
+        
+        // Update role info
+        const roleInfo = document.getElementById('roleInfo');
+        const roleText = document.getElementById('roleText');
+        roleInfo.style.display = 'block';
+        roleInfo.style.backgroundColor = '#fff8e1';
+        roleText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+        
+        try {
+            // Sign in with Firebase Auth
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+            console.log("✅ User signed in:", user.uid);
             
-            if (!email || !password) {
-                alert('Please fill email and password');
-                return;
+            // Check if email is verified
+            if (!user.emailVerified) {
+                // Show verification message
+                document.getElementById('emailNotVerified').style.display = 'block';
+                document.getElementById('loginForm').style.opacity = '0.5';
+                
+                // Sign out the user
+                await auth.signOut();
+                throw new Error('EMAIL_NOT_VERIFIED');
             }
-            
-            // Show loading state
-            const loginBtn = document.getElementById('loginBtn');
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Logging in...';
             
             // Update role info
+            roleInfo.style.backgroundColor = '#e8f5e9';
+            roleText.innerHTML = '<i class="fas fa-check-circle"></i> Email verified! Determining account type...';
+            
+            // Get user role from Firestore
+            const userRole = await getUserRole(user.uid, email);
+            console.log("User role determined:", userRole);
+            
+            // Update or create user document if needed
+            await updateOrCreateUserDocument(user, userRole);
+            
+            // Redirect based on role
+            if (userRole.role === "merchant") {
+                roleInfo.style.backgroundColor = '#e3f2fd';
+                roleText.innerHTML = '<i class="fas fa-store"></i> Merchant account - Redirecting to merchant dashboard...';
+                
+                // Redirect to merchant.html
+                setTimeout(() => {
+                    alert('✅ Login Successful!\nWelcome Merchant!');
+                    window.location.href = "merchant.html";
+                }, 1500);
+            } else {
+                roleInfo.style.backgroundColor = '#f3e5f5';
+                roleText.innerHTML = '<i class="fas fa-user"></i> Customer account - Redirecting to homepage...';
+                
+                // Redirect to homepage.html
+                setTimeout(() => {
+                    alert('✅ Login Successful!\nWelcome Customer!');
+                    window.location.href = "homepage.html";
+                }, 1500);
+            }
+            
+        } catch (error) {
+            console.error("❌ Login error:", error);
+            
+            // Hide role info on error
+            roleInfo.style.display = 'none';
+            
+            if (error.message === 'EMAIL_NOT_VERIFIED') {
+                // Already handled by showing message
+                return;
+            }
+            
+            let errorMessage = error.message;
+            
+            if (error.code === 'auth/user-not-found') {
+                errorMessage = 'No account found with this email. Please register first.';
+            } else if (error.code === 'auth/wrong-password') {
+                errorMessage = 'Incorrect password. Please try again.';
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = 'Please enter a valid email address.';
+            } else if (error.code === 'auth/user-disabled') {
+                errorMessage = 'This account has been disabled. Please contact support.';
+            } else if (error.code === 'auth/too-many-requests') {
+                errorMessage = 'Too many failed login attempts. Please try again later.';
+            }
+            
+            alert(errorMessage);
+        } finally {
+            // Reset button state
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Login';
+        }
+    });
+
+    // Update or create user document in Firestore
+    async function updateOrCreateUserDocument(user, userRole) {
+        try {
+            const userDocRef = db.collection("users").doc(user.uid);
+            const userDoc = await userDocRef.get();
+            
+            if (userDoc.exists) {
+                // Update existing user document with role
+                await userDocRef.update({
+                    role: userRole.role,
+                    merchantId: userRole.merchantId || null,
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                // Create new user document
+                const names = user.email.split('@')[0];
+                await userDocRef.set({
+                    firstName: names,
+                    lastName: '',
+                    email: user.email,
+                    displayName: names,
+                    emailVerified: true,
+                    role: userRole.role,
+                    merchantId: userRole.merchantId || null,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+        } catch (error) {
+            console.error("Error updating user document:", error);
+        }
+    }
+    
+    // Resend verification email
+    async function resendVerification() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        
+        if (!email || !password) {
+            alert('Please enter your email and password');
+            return;
+        }
+        
+        try {
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            await userCredential.user.sendEmailVerification();
+            
+            alert('✅ Verification email resent! Please check your inbox and spam folder.');
+            document.getElementById('emailNotVerified').style.display = 'none';
+            document.getElementById('loginForm').style.opacity = '1';
+            
+            await auth.signOut(); // Sign out again
+        } catch (error) {
+            alert('❌ Error: ' + error.message);
+        }
+    }
+    
+    // Google Login with role detection
+    async function googleLogin() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        
+        try {
+            const result = await auth.signInWithPopup(provider);
+            const user = result.user;
+            console.log("✅ Google user signed in:", user.uid, user.email);
+            
+            // Show role detection
             const roleInfo = document.getElementById('roleInfo');
             const roleText = document.getElementById('roleText');
             roleInfo.style.display = 'block';
             roleInfo.style.backgroundColor = '#fff8e1';
-            roleText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+            roleText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking account type...';
             
-            try {
-                // Sign in with Firebase Auth
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                console.log("✅ User signed in:", user.uid);
-                
-                // Check if email is verified
-                if (!user.emailVerified) {
-                    // Show verification message
-                    document.getElementById('emailNotVerified').style.display = 'block';
-                    document.getElementById('loginForm').style.opacity = '0.5';
-                    
-                    // Sign out the user
-                    await auth.signOut();
-                    throw new Error('EMAIL_NOT_VERIFIED');
-                }
-                
-                // Update role info
-                roleInfo.style.backgroundColor = '#e8f5e9';
-                roleText.innerHTML = '<i class="fas fa-check-circle"></i> Email verified! Determining account type...';
-                
-                // Determine user role
-                const roleResult = await determineUserRole(user.uid, email);
-                console.log("Role determination result:", roleResult);
-                
-                // Update role info with final result
-                if (roleResult.role === "merchant") {
-                    roleInfo.style.backgroundColor = '#e3f2fd';
-                    
-                    if (roleResult.existsInBoth) {
-                        roleText.innerHTML = '<i class="fas fa-store"></i> <i class="fas fa-user"></i> Merchant account (also has user access) - Redirecting to merchant dashboard...';
-                    } else {
-                        roleText.innerHTML = '<i class="fas fa-store"></i> Merchant account - Redirecting to merchant dashboard...';
-                    }
-                } else {
-                    roleInfo.style.backgroundColor = '#f3e5f5';
-                    roleText.innerHTML = '<i class="fas fa-user"></i> Customer account - Redirecting to homepage...';
-                }
-                
-                // Show success message
-                setTimeout(() => {
-                    if (roleResult.role === "merchant") {
-                        let message = '✅ Login Successful!\nWelcome Merchant!';
-                        if (roleResult.existsInBoth) {
-                            message += '\n(You also have user account access)';
-                        }
-                        alert(message);
-                        window.location.href = "merchant.html";
-                    } else {
-                        alert('✅ Login Successful!\nWelcome Customer!');
-                        window.location.href = "homepage.html";
-                    }
-                }, 1500);
-                
-            } catch (error) {
-                console.error("❌ Login error:", error);
-                
-                // Hide role info on error
-                roleInfo.style.display = 'none';
-                
-                if (error.message === 'EMAIL_NOT_VERIFIED') {
-                    // Already handled by showing message
-                    return;
-                }
-                
-                let errorMessage = error.message;
-                
-                if (error.code === 'auth/user-not-found') {
-                    errorMessage = 'No account found with this email. Please register first.';
-                } else if (error.code === 'auth/wrong-password') {
-                    errorMessage = 'Incorrect password. Please try again.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'Please enter a valid email address.';
-                } else if (error.code === 'auth/user-disabled') {
-                    errorMessage = 'This account has been disabled. Please contact support.';
-                } else if (error.code === 'auth/too-many-requests') {
-                    errorMessage = 'Too many failed login attempts. Please try again later.';
-                }
-                
-                alert(errorMessage);
-            } finally {
-                // Reset button state
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Login';
-            }
-        });
-        
-        // Resend verification email
-        async function resendVerification() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+            // Check if user is a merchant
+            const merchantCheck = await checkIfMerchant(user.email);
             
-            if (!email || !password) {
-                alert('Please enter your email and password');
-                return;
-            }
-            
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                await userCredential.user.sendEmailVerification();
-                
-                alert('✅ Verification email resent! Please check your inbox and spam folder.');
-                document.getElementById('emailNotVerified').style.display = 'none';
-                document.getElementById('loginForm').style.opacity = '1';
-                
-                await auth.signOut(); // Sign out again
-            } catch (error) {
-                alert('❌ Error: ' + error.message);
-            }
-        }
-        
-        // Google Login with role detection
-        async function googleLogin() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            
-            try {
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
-                console.log("✅ Google user signed in:", user.uid, user.email);
-                
-                // Show role detection
-                const roleInfo = document.getElementById('roleInfo');
-                const roleText = document.getElementById('roleText');
-                roleInfo.style.display = 'block';
-                roleInfo.style.backgroundColor = '#fff8e1';
-                roleText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking account type...';
-                
-                // Determine user role
-                const roleResult = await determineUserRole(user.uid, user.email);
-                
-                // Get or create user document
-                const userDocRef = db.collection("users").doc(user.uid);
-                const userDoc = await userDocRef.get();
-                
-                let userData = {
-                    email: user.email,
-                    displayName: user.displayName,
-                    emailVerified: true,
-                    profilePicture: user.photoURL,
-                    provider: "google",
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    role: roleResult.role
+            // Determine user role
+            let userRole = { role: "user" };
+            if (merchantCheck.isMerchant) {
+                userRole = { 
+                    role: "merchant",
+                    merchantId: merchantCheck.merchantId
                 };
+            }
+            
+            // Create or update user document
+            const userDocRef = db.collection("users").doc(user.uid);
+            const userDoc = await userDocRef.get();
+            
+            let userData = {
+                email: user.email,
+                displayName: user.displayName,
+                emailVerified: true,
+                profilePicture: user.photoURL,
+                provider: "google",
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                role: userRole.role
+            };
+            
+            // Add merchantId if user is a merchant
+            if (userRole.role === "merchant") {
+                userData.merchantId = merchantCheck.merchantId;
+            }
+            
+            if (!userDoc.exists) {
+                // New user - create document
+                const names = user.displayName ? user.displayName.split(' ') : ['User', ''];
+                userData.firstName = names[0];
+                userData.lastName = names[1] || '';
+                userData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
                 
-                // Add merchantId if user is a merchant
-                if (roleResult.role === "merchant" && roleResult.merchantId) {
-                    userData.merchantId = roleResult.merchantId;
-                }
+                await userDocRef.set(userData);
+            } else {
+                // Update existing user
+                await userDocRef.update(userData);
+            }
+            
+            // Update role info with final result
+            if (userRole.role === "merchant") {
+                roleInfo.style.backgroundColor = '#e3f2fd';
+                roleText.innerHTML = '<i class="fas fa-store"></i> Merchant account - Redirecting to merchant dashboard...';
                 
-                if (!userDoc.exists) {
-                    // New user - create document
-                    const names = user.displayName ? user.displayName.split(' ') : ['User', ''];
-                    userData.firstName = names[0];
-                    userData.lastName = names[1] || '';
-                    userData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                    
-                    await userDocRef.set(userData);
-                } else {
-                    // Update existing user
-                    await userDocRef.update(userData);
-                }
-                
-                // Update role info with final result
-                if (roleResult.role === "merchant") {
-                    roleInfo.style.backgroundColor = '#e3f2fd';
-                    
-                    if (roleResult.existsInBoth) {
-                        roleText.innerHTML = '<i class="fas fa-store"></i> <i class="fas fa-user"></i> Merchant account (also has user access) - Redirecting to merchant dashboard...';
-                    } else {
-                        roleText.innerHTML = '<i class="fas fa-store"></i> Merchant account - Redirecting to merchant dashboard...';
-                    }
-                } else {
-                    roleInfo.style.backgroundColor = '#f3e5f5';
-                    roleText.innerHTML = '<i class="fas fa-user"></i> Customer account - Redirecting to homepage...';
-                }
-                
-                // Show success message
+                // Redirect to merchant.html
                 setTimeout(() => {
-                    if (roleResult.role === "merchant") {
-                        let message = '✅ Google Login Success!\nWelcome Merchant!';
-                        if (roleResult.existsInBoth) {
-                            message += '\n(You also have user account access)';
-                        }
-                        alert(message);
-                        window.location.href = "merchant.html";
-                    } else {
-                        alert('✅ Google Login Success!\nWelcome Customer!');
-                        window.location.href = "homepage.html";
-                    }
+                    alert('✅ Google Login Success!\nWelcome Merchant!');
+                    window.location.href = "merchant.html";
                 }, 1500);
+            } else {
+                roleInfo.style.backgroundColor = '#f3e5f5';
+                roleText.innerHTML = '<i class="fas fa-user"></i> Customer account - Redirecting to homepage...';
                 
-            } catch (error) {
-                console.error("❌ Google login error:", error);
-                
-                // Hide role info on error
-                document.getElementById('roleInfo').style.display = 'none';
-                
-                alert("Google login failed. Please try again.");
-            }
-        }
-
-        // Check if user is already logged in and redirect
-        auth.onAuthStateChanged(async (user) => {
-            if (user && user.emailVerified) {
-                console.log("User already logged in:", user.email);
-                
-                try {
-                    // Determine role and redirect
-                    const roleResult = await determineUserRole(user.uid, user.email);
-                    
-                    if (roleResult.role === "merchant") {
-                        window.location.href = "merchant.html";
-                    } else {
-                        window.location.href = "homepage.html";
-                    }
-                } catch (error) {
-                    console.error("Error determining role for logged-in user:", error);
-                    // Default to homepage on error
+                // Redirect to homepage.html
+                setTimeout(() => {
+                    alert('✅ Google Login Success!\nWelcome Customer!');
                     window.location.href = "homepage.html";
-                }
+                }, 1500);
             }
-        });
-    </script>
+            
+        } catch (error) {
+            console.error("❌ Google login error:", error);
+            
+            // Hide role info on error
+            document.getElementById('roleInfo').style.display = 'none';
+            
+            alert("Google login failed. Please try again.");
+        }
+    }
+
+    // Check if user is already logged in
+    // Check if user is already logged in - NO AUTO REDIRECT FOR MERCHANTS
+auth.onAuthStateChanged(async (user) => {
+    if (isCheckingRole) return; // Prevent loops
+    isCheckingRole = true;
+    
+    try {
+        if (user && user.emailVerified) {
+            console.log("User already logged in:", user.email);
+            
+            // Get user role
+            const userRole = await getUserRole(user.uid, user.email);
+            
+            // REGULAR USERS - Auto-login is OK
+            if (userRole.role === "user") {
+                console.log("Regular user detected - redirecting to homepage");
+                window.location.href = "homepage.html";
+            } 
+            // MERCHANTS - Do NOT auto-redirect, let them click login
+            else if (userRole.role === "merchant") {
+                console.log("Merchant detected - NOT auto-redirecting");
+                
+                // Pre-fill email for convenience
+                document.getElementById('email').value = user.email;
+                
+                // Show merchant info
+                const checkMessage = document.getElementById('emailCheckMessage');
+                checkMessage.innerHTML = '<i class="fas fa-store"></i> Merchant account detected - Please click Login';
+                checkMessage.style.color = '#3a5a40';
+                
+                // Don't redirect - let merchant click login button
+                // Sign them out to prevent auto-redirect
+                await auth.signOut();
+            }
+        } else if (user && !user.emailVerified) {
+            // User is logged in but not verified
+            console.log("User logged in but email not verified");
+            await auth.signOut(); // Sign them out
+        }
+    } catch (error) {
+        console.error("Error checking user role on auto-login:", error);
+        // Sign out to be safe
+        try {
+            await auth.signOut();
+        } catch (signOutError) {
+            console.error("Error signing out:", signOutError);
+        }
+    } finally {
+        isCheckingRole = false;
+    }
+});
+</script>
 </body>
 </html>
