@@ -16,72 +16,150 @@
         body {
             background-color: #f5f7fb;
             color: #333;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
+        /* Header Styles */
         header {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #85BB65 0%, #6da851 100%);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(133, 187, 101, 0.2);
             margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
         }
 
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ffd166, #85BB65, #06d6a0);
+        }
+
+        .logo img {
+            width: 50px; /* Adjust as needed */
+            height: 50px; /* Adjust as needed */
+            border-radius: 12px;
+            object-fit: cover;
+        }
+        
         .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #85BB65;
+            font-size: 26px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            font-size: 32px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 12px;
         }
 
         .merchant-info {
             text-align: right;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
         }
 
         .merchant-info h2 {
-            color: #333;
+            color: white;
             margin-bottom: 5px;
+            font-size: 22px;
         }
 
         .merchant-info p {
-            color: #666;
+            color: rgba(255, 255, 255, 0.9);
             font-size: 14px;
         }
 
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Tabs Navigation */
         .tabs {
             display: flex;
             background: white;
-            border-radius: 10px;
+            border-radius: 15px;
             margin-bottom: 30px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            position: relative;
         }
 
         .tab {
-            padding: 15px 30px;
+            padding: 18px 35px;
             cursor: pointer;
             transition: all 0.3s;
-            border-bottom: 3px solid transparent;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .tab i {
+            font-size: 18px;
         }
 
         .tab:hover {
             background: #f8f9fa;
+            color: #85BB65;
         }
 
         .tab.active {
-            border-bottom: 3px solid #85BB65;
-            background: #f8f9fa;
             color: #85BB65;
             font-weight: 600;
         }
 
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 3px;
+            background: #85BB65;
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Content Sections */
         .content {
             display: none;
         }
@@ -92,140 +170,412 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .products-header {
+        /* Section Headers */
+        .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
+        .section-header h2 {
+            color: #333;
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header h2 i {
+            color: #85BB65;
+        }
+
+        /* Button Styles */
         .btn {
-            padding: 10px 20px;
-            background: #85BB65;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #85BB65 0%, #74a85a 100%);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(133, 187, 101, 0.3);
         }
 
         .btn:hover {
-            background: #74a85a;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(133, 187, 101, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
         }
 
         .btn-danger {
-            background: #ff6b6b;
+            background: linear-gradient(135deg, #ff6b6b 0%, #e55a5a 100%);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
         }
 
         .btn-danger:hover {
-            background: #e55a5a;
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
         }
 
+        /* Products Grid */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
         }
 
         .product-card {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
 
         .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            border-color: #85BB65;
         }
 
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: #85BB65;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-active { background: #d4edda; color: #155724; }
+        .badge-inactive { background: #f8d7da; color: #721c24; }
+        .badge-out_of_stock { background: #fff3cd; color: #856404; }
+
         .product-image {
-            height: 150px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            height: 160px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
-            font-size: 40px;
+            margin-bottom: 20px;
+            font-size: 48px;
             color: #85BB65;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .product-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(133, 187, 101, 0.1) 100%);
         }
 
         .product-title {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
             margin-bottom: 10px;
             color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-title span {
+            font-size: 14px;
+            color: #85BB65;
+            background: rgba(133, 187, 101, 0.1);
+            padding: 4px 12px;
+            border-radius: 15px;
         }
 
         .product-desc {
             color: #666;
             font-size: 14px;
-            margin-bottom: 15px;
-            line-height: 1.4;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .product-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
         }
 
         .product-price {
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 24px;
+            font-weight: 800;
             color: #85BB65;
         }
 
         .product-stock {
-            font-size: 12px;
-            padding: 3px 10px;
-            border-radius: 20px;
-            background: #f0f9ff;
-            color: #0066cc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
         }
+
+        .stock-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .stock-high { background: #28a745; }
+        .stock-medium { background: #ffc107; }
+        .stock-low { background: #dc3545; }
 
         .product-actions {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .action-btn {
             flex: 1;
-            padding: 8px;
+            padding: 10px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .edit-btn {
-            background: #e3f2fd;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             color: #1976d2;
         }
 
         .edit-btn:hover {
-            background: #bbdefb;
+            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+            transform: translateY(-2px);
         }
 
         .delete-btn {
-            background: #ffebee;
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
             color: #d32f2f;
         }
 
         .delete-btn:hover {
-            background: #ffcdd2;
+            background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
+            transform: translateY(-2px);
         }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #85BB65, #06d6a0);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: rgba(133, 187, 101, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: #85BB65;
+            font-size: 24px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .trend-up { color: #28a745; }
+        .trend-down { color: #dc3545; }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .quick-actions h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .action-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-item:hover {
+            background: #85BB65;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .action-item i {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Orders Table */
+        .orders-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            padding: 20px;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #eee;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s;
+        }
+
+        .table-row:hover {
+            background: #f8f9fa;
+        }
+
+        .order-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-processing { background: #cce5ff; color: #004085; }
+        .status-shipped { background: #d4edda; color: #155724; }
+        .status-delivered { background: #d1ecf1; color: #0c5460; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
 
         /* Modal Styles */
         .modal {
@@ -239,6 +589,8 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
         }
 
         .modal.active {
@@ -247,76 +599,114 @@
 
         .modal-content {
             background: white;
-            border-radius: 10px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 40px;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .modal-title {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 700;
             color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .close-btn {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
             color: #666;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: #f8f9fa;
+            color: #333;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
+            margin-bottom: 8px;
+            font-weight: 600;
             color: #333;
+            font-size: 14px;
         }
 
         .form-control {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
             font-size: 14px;
+            transition: all 0.3s;
         }
 
         .form-control:focus {
             outline: none;
             border-color: #85BB65;
-            box-shadow: 0 0 0 2px rgba(133, 187, 101, 0.2);
+            box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
         .modal-footer {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
         }
 
+        /* Loading States */
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 60px;
             color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .loading i {
             animation: spin 1s linear infinite;
-            margin-right: 10px;
+            font-size: 40px;
+            color: #85BB65;
         }
 
         @keyframes spin {
@@ -324,93 +714,211 @@
             100% { transform: rotate(360deg); }
         }
 
+        .loading p {
+            font-size: 16px;
+        }
+
+        /* Empty States */
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 40px;
             color: #666;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
         }
 
         .empty-state i {
-            font-size: 48px;
+            font-size: 64px;
             margin-bottom: 20px;
-            color: #ddd;
+            color: #dee2e6;
+            opacity: 0.5;
         }
 
-        /* Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(133, 187, 101, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            color: #85BB65;
-            font-size: 20px;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
+        .empty-state h3 {
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 24px;
         }
 
-        .stat-label {
-            color: #666;
-            font-size: 14px;
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 30px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
+        /* Login Prompt */
         .login-prompt {
             text-align: center;
-            padding: 40px;
+            padding: 80px 40px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
             margin-top: 50px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .login-prompt h2 {
             color: #333;
             margin-bottom: 20px;
+            font-size: 28px;
         }
 
         .login-prompt p {
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            font-size: 16px;
+            line-height: 1.6;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .merchant-info {
+                text-align: center;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header,
+            .table-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        /* Product Status Badges */
+        .product-status {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            z-index: 10;
+            letter-spacing: 0.5px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            margin-bottom: 25px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #85BB65;
+            box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.2);
+        }
+
+        /* Filter Buttons */
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #85BB65;
+            color: white;
+            border-color: #85BB65;
+        }
+
+        /* Category Tags */
+        .category-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(133, 187, 101, 0.1);
+            color: #85BB65;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="logo">
-                <i class="fas fa-store"></i> Merchant Dashboard
+                <img src="/asset/logo.jpeg" alt="">
+                <div>
+                    <div>Merchant Dashboard</div>
+                    <div style="font-size: 14px; opacity: 0.9; font-weight: 400;">Manage your store with ease</div>
+                </div>
             </div>
             <div class="merchant-info">
                 <h2 id="merchantName">Loading...</h2>
                 <p id="merchantStore">Store: Loading...</p>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
         </header>
 
         <div id="loginPrompt" class="login-prompt" style="display: none;">
-            <h2>Merchant Access Required</h2>
-            <p>Please log in with your merchant account to access this dashboard.</p>
+            <h2><i class="fas fa-lock"></i> Merchant Access Required</h2>
+            <p>Please log in with your merchant account to access the dashboard and manage your products.</p>
             <button class="btn" id="goToLoginBtn">
                 <i class="fas fa-sign-in-alt"></i> Go to Login
             </button>
@@ -418,42 +926,136 @@
 
         <div id="dashboardContent" style="display: none;">
             <div class="tabs">
-                <div class="tab active" data-tab="dashboard">Dashboard</div>
-                <div class="tab" data-tab="products">Products</div>
-                <div class="tab" data-tab="orders">Orders</div>
+                <div class="tab active" data-tab="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </div>
+                <div class="tab" data-tab="products">
+                    <i class="fas fa-box"></i> Products
+                </div>
+                <div class="tab" data-tab="orders">
+                    <i class="fas fa-shopping-cart"></i> Orders
+                </div>
+                <div class="tab" data-tab="analytics">
+                    <i class="fas fa-chart-line"></i> Analytics
+                </div>
             </div>
 
             <!-- Dashboard Tab -->
             <div class="content active" id="dashboard">
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <div class="actions-grid">
+                        <div class="action-item" onclick="openAddProductModal()">
+                            <i class="fas fa-plus-circle"></i>
+                            <div>Add Product</div>
+                        </div>
+                        <div class="action-item" onclick="loadProducts()">
+                            <i class="fas fa-sync-alt"></i>
+                            <div>Refresh Products</div>
+                        </div>
+                        <div class="action-item" onclick="exportProducts()">
+                            <i class="fas fa-download"></i>
+                            <div>Export Data</div>
+                        </div>
+                        <div class="action-item" onclick="window.print()">
+                            <i class="fas fa-print"></i>
+                            <div>Print Report</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
                 <div class="stats-grid" id="statsGrid">
                     <div class="loading">
-                        <i class="fas fa-spinner fa-spin"></i> Loading statistics...
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading statistics...</p>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="quick-actions">
+                    <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                    <div style="color: #666; padding: 20px; text-align: center;">
+                        <i class="fas fa-clock" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;"></i>
+                        <p>Activity log will appear here</p>
                     </div>
                 </div>
             </div>
 
             <!-- Products Tab -->
             <div class="content" id="products">
-                <div class="products-header">
-                    <h2>My Products</h2>
+                <div class="section-header">
+                    <h2><i class="fas fa-box"></i> Product Management</h2>
                     <button class="btn" id="addProductBtn">
-                        <i class="fas fa-plus"></i> Add Product
+                        <i class="fas fa-plus"></i> Add New Product
                     </button>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="productSearch" placeholder="Search products by name, category, or description...">
+                </div>
+
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All Products</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="inactive">Inactive</button>
+                    <button class="filter-btn" data-filter="low_stock">Low Stock</button>
+                    <button class="filter-btn" data-filter="out_of_stock">Out of Stock</button>
                 </div>
                 
                 <div class="products-grid" id="productsGrid">
                     <div class="loading">
-                        <i class="fas fa-spinner fa-spin"></i> Loading products...
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading products...</p>
                     </div>
                 </div>
             </div>
 
             <!-- Orders Tab -->
             <div class="content" id="orders">
-                <h2>Recent Orders</h2>
-                <div style="text-align: center; padding: 40px; color: #666;">
-                    <i class="fas fa-shopping-cart" style="font-size: 48px; margin-bottom: 20px;"></i>
-                    <p>No orders yet</p>
+                <div class="section-header">
+                    <h2><i class="fas fa-shopping-cart"></i> Order Management</h2>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export Orders
+                    </button>
+                </div>
+
+                <div class="orders-table">
+                    <div class="table-header">
+                        <div>Order ID & Items</div>
+                        <div>Customer</div>
+                        <div>Date</div>
+                        <div>Total</div>
+                        <div>Status</div>
+                    </div>
+                    <div style="text-align: center; padding: 60px; color: #666;">
+                        <i class="fas fa-shopping-cart" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+                        <h3>No Orders Yet</h3>
+                        <p>Orders from customers will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div class="content" id="analytics">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Sales Analytics</h2>
+                    <div>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-calendar-alt"></i> This Month
+                        </button>
+                        <button class="btn">
+                            <i class="fas fa-download"></i> Export Report
+                        </button>
+                    </div>
+                </div>
+
+                <div style="background: white; border-radius: 15px; padding: 40px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.08);">
+                    <i class="fas fa-chart-bar" style="font-size: 64px; margin-bottom: 20px; color: #85BB65; opacity: 0.5;"></i>
+                    <h3 style="color: #333; margin-bottom: 10px;">Analytics Coming Soon</h3>
+                    <p style="color: #666; max-width: 400px; margin: 0 auto;">Detailed sales analytics and reports will be available in the next update.</p>
                 </div>
             </div>
         </div>
@@ -463,60 +1065,105 @@
     <div class="modal" id="productModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Add Product</h3>
+                <h3 class="modal-title" id="modalTitle">
+                    <i class="fas fa-box"></i> Add New Product
+                </h3>
                 <button class="close-btn" id="closeModal">&times;</button>
             </div>
             <form id="productForm">
-                <div class="form-group">
-                    <label for="name">Product Name</label>
-                    <input type="text" id="name" class="form-control" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name"><i class="fas fa-tag"></i> Product Name *</label>
+                        <input type="text" id="name" class="form-control" required placeholder="Enter product name">
+                    </div>
+                    <div class="form-group">
+                        <label for="category"><i class="fas fa-folder"></i> Category *</label>
+                        <select id="category" class="form-control" required>
+                            <option value="">Select Category</option>
+                            <option value="Electronics">Electronics & Gadgets</option>
+                            <option value="Clothing">Clothing & Fashion</option>
+                            <option value="Footwear">Footwear & Shoes</option>
+                            <option value="Home & Garden">Home & Garden</option>
+                            <option value="Kitchen">Kitchen & Dining</option>
+                            <option value="Furniture">Furniture & Decor</option>
+                            <option value="Sports">Sports & Outdoors</option>
+                            <option value="Books">Books & Stationery</option>
+                            <option value="Health">Health & Beauty</option>
+                            <option value="Toys">Toys & Games</option>
+                            <option value="Automotive">Automotive Parts</option>
+                            <option value="Jewelry">Jewelry & Accessories</option>
+                            <option value="Food">Food & Beverages</option>
+                            <option value="Pet">Pet Supplies</option>
+                            <option value="Office">Office Supplies</option>
+                            <option value="Tools">Tools & Hardware</option>
+                            <option value="Baby">Baby & Kids</option>
+                            <option value="Art">Art & Crafts</option>
+                            <option value="Musical">Musical Instruments</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" class="form-control" rows="3"></textarea>
+                    <label for="description"><i class="fas fa-align-left"></i> Description</label>
+                    <textarea id="description" class="form-control" rows="4" placeholder="Describe your product (features, specifications, etc.)"></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="price">Price ($)</label>
-                    <input type="number" id="price" class="form-control" step="0.01" min="0" required>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price"><i class="fas fa-dollar-sign"></i> Price ($) *</label>
+                        <input type="number" id="price" class="form-control" step="0.01" min="0" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="stockQty"><i class="fas fa-cubes"></i> Stock Quantity *</label>
+                        <input type="number" id="stockQty" class="form-control" min="0" required placeholder="Enter quantity">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="stockQty">Stock Quantity</label>
-                    <input type="number" id="stockQty" class="form-control" min="0" required>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sku"><i class="fas fa-barcode"></i> SKU (Optional)</label>
+                        <input type="text" id="sku" class="form-control" placeholder="Product SKU">
+                    </div>
+                    <div class="form-group">
+                        <label for="brand"><i class="fas fa-trademark"></i> Brand (Optional)</label>
+                        <input type="text" id="brand" class="form-control" placeholder="Brand name">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category" class="form-control" required>
-                        <option value="">Select Category</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Clothing">Clothing</option>
-                        <option value="Home & Garden">Home & Garden</option>
-                        <option value="Sports">Sports</option>
-                        <option value="Books">Books</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="status">Status</label>
-                    <select id="status" class="form-control" required>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="out_of_stock">Out of Stock</option>
-                    </select>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status"><i class="fas fa-toggle-on"></i> Status *</label>
+                        <select id="status" class="form-control" required>
+                            <option value="active">Active (Available for Sale)</option>
+                            <option value="inactive">Inactive (Hidden from Store)</option>
+                            <option value="out_of_stock">Out of Stock</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight"><i class="fas fa-weight-hanging"></i> Weight (kg) (Optional)</label>
+                        <input type="number" id="weight" class="form-control" step="0.1" min="0" placeholder="0.0">
+                    </div>
                 </div>
             </form>
             <div class="modal-footer">
-                <button class="btn" id="cancelBtn">Cancel</button>
-                <button class="btn" id="saveBtn">Save Product</button>
+                <button class="btn btn-secondary" id="cancelBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn" id="saveBtn">
+                    <i class="fas fa-save"></i> Save Product
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Firebase SDK -->
- <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-        <script>
+    <script>
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBKswcE3xGh4feqGZytevh6N-IyrJoJ_7g",
@@ -539,263 +1186,149 @@
         let editingProductId = null;
         let products = [];
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log("🚀 Merchant dashboard loading...");
-            console.log("Checking auth state...");
-            
-            // Wait for auth state
-            const unsubscribe = auth.onAuthStateChanged(async (user) => {
-                unsubscribe(); // Stop listening after first check
-                
-                if (!user) {
-                    console.log("❌ No user logged in - showing login prompt");
-                    showLoginPrompt();
-                    return;
-                }
-                
-                console.log("✅ User logged in:", user.email, user.uid);
-                console.log("User UID:", user.uid);
-                
-                // Try to find merchant data
-                await findMerchantData(user);
-            });
-            
-            setupEventListeners();
-        });
+        // ==================== CORE FUNCTIONS ====================
 
-        // Find merchant data for logged-in user
+        // Function to find merchant data
         async function findMerchantData(user) {
+            console.log("🔍 Finding merchant data for user:", user.email, user.uid);
+            
             try {
-                console.log("🔍 Step 1: Checking users collection for user:", user.uid);
-                
-                // 1. First check users collection
-                const userDoc = await db.collection("users").doc(user.uid).get();
-                
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    console.log("📄 User document found:", userData);
-                    
-                    // Check if user has merchantId
-                    if (userData.merchantId) {
-                        console.log("✅ Found merchantId in user document:", userData.merchantId);
-                        await loadMerchantById(userData.merchantId);
-                        return;
-                    }
-                    
-                    // Check user role
-                    if (userData.role === "merchant") {
-                        console.log("✅ User has merchant role");
-                        // Try to find merchant by email
-                        await searchMerchantByEmail(user.email);
-                        return;
-                    }
-                    
-                    console.log("❌ User is not a merchant (role:", userData.role, ")");
-                    showLoginPrompt("Access denied. Merchant account required.");
+                // First, check if user already has merchantId in their auth profile
+                if (user.merchantId) {
+                    console.log("✅ Found merchantId in user profile:", user.merchantId);
+                    await loadMerchantById(user.merchantId);
                     return;
                 }
                 
-                console.log("📄 User document doesn't exist, checking merchant collections...");
-                
-                // 2. User doesn't exist in users collection, check merchant collections
+                // Search for merchant by email in merchants collection
                 await searchMerchantByEmail(user.email);
                 
             } catch (error) {
                 console.error("❌ Error finding merchant data:", error);
-                showLoginPrompt("Error: " + error.message);
+                showLoginPrompt("Error accessing merchant account. Please contact support.");
             }
         }
 
-        // Search for merchant by email in merchant collections
+        // Function to search merchant by email
         async function searchMerchantByEmail(email) {
-            console.log("🔍 Step 2: Searching for merchant with email:", email);
+            console.log("📧 Searching merchant by email:", email);
             
-            // Check verifiedMerchants collection
             try {
-                console.log("🔍 Checking verifiedMerchants collection...");
-                const merchantQuery = await db.collection("verifiedMerchants")
+                const merchantsRef = db.collection("verifiedMerchants");
+                const querySnapshot = await merchantsRef
                     .where("email", "==", email)
                     .limit(1)
                     .get();
                 
-                if (!merchantQuery.empty) {
-                    console.log("✅ Found in verifiedMerchants collection");
-                    const merchantDoc = merchantQuery.docs[0];
-                    currentMerchantId = merchantDoc.id;
-                    currentMerchantData = merchantDoc.data();
-                    
-                    // Also update user document with merchantId
-                    await updateUserWithMerchantId(email, merchantDoc.id);
-                    
-                    initializeDashboard();
+                if (querySnapshot.empty) {
+                    console.log("❌ No merchant found with email:", email);
+                    showLoginPrompt("No merchant account found for " + email + ". Please contact support.");
                     return;
                 }
                 
-                console.log("❌ Not found in verifiedMerchants");
-                
-                // Check active_merchants collection
-                console.log("🔍 Checking active_merchants collection...");
-                const activeMerchantQuery = await db.collection("active_merchants")
-                    .where("email", "==", email)
-                    .limit(1)
-                    .get();
-                
-                if (!activeMerchantQuery.empty) {
-                    console.log("✅ Found in active_merchants collection");
-                    const merchantDoc = activeMerchantQuery.docs[0];
-                    currentMerchantId = merchantDoc.id;
-                    currentMerchantData = merchantDoc.data();
+                // Found merchant
+                querySnapshot.forEach(doc => {
+                    console.log("✅ Found merchant:", doc.id);
+                    const merchantData = doc.data();
+                    loadMerchantById(doc.id, merchantData);
                     
-                    await updateUserWithMerchantId(email, merchantDoc.id);
-                    initializeDashboard();
-                    return;
-                }
-                
-                console.log("❌ Not found in any merchant collection");
-                showLoginPrompt("No merchant account found for email: " + email);
+                    // Update user profile with merchantId
+                    updateUserWithMerchantId(doc.id);
+                });
                 
             } catch (error) {
-                console.error("❌ Error searching merchant collections:", error);
-                showLoginPrompt("Database error: " + error.message);
+                console.error("❌ Error searching merchant:", error);
+                showLoginPrompt("Error searching merchant account. Please try again.");
             }
         }
 
-        // Load merchant by ID
-        async function loadMerchantById(merchantId) {
-            console.log("🔍 Step 3: Loading merchant by ID:", merchantId);
+        // Function to load merchant by ID
+        async function loadMerchantById(merchantId, merchantData = null) {
+            console.log("📋 Loading merchant by ID:", merchantId);
             
             try {
-                // Try verifiedMerchants first
-                const merchantDoc = await db.collection("verifiedMerchants").doc(merchantId).get();
-                
-                if (merchantDoc.exists) {
-                    console.log("✅ Found merchant in verifiedMerchants");
-                    currentMerchantId = merchantId;
-                    currentMerchantData = merchantDoc.data();
-                    initializeDashboard();
-                    return;
+                if (!merchantData) {
+                    const doc = await db.collection("verifiedMerchants").doc(merchantId).get();
+                    if (!doc.exists) {
+                        console.log("❌ Merchant document not found:", merchantId);
+                        showLoginPrompt("Merchant account not found.");
+                        return;
+                    }
+                    merchantData = doc.data();
                 }
                 
-                // Try active_merchants
-                const activeMerchantDoc = await db.collection("active_merchants").doc(merchantId).get();
+                // Store merchant data globally
+                currentMerchantId = merchantId;
+                currentMerchantData = merchantData;
                 
-                if (activeMerchantDoc.exists) {
-                    console.log("✅ Found merchant in active_merchants");
-                    currentMerchantId = merchantId;
-                    currentMerchantData = activeMerchantDoc.data();
-                    initializeDashboard();
-                    return;
-                }
+                console.log("✅ Merchant loaded successfully:", merchantData);
                 
-                console.log("❌ Merchant not found with ID:", merchantId);
-                showLoginPrompt("Merchant account not found.");
+                // Show dashboard
+                showDashboard(merchantData);
+                
+                // Load initial data
+                loadProducts();
+                loadStatistics();
                 
             } catch (error) {
                 console.error("❌ Error loading merchant:", error);
-                showLoginPrompt("Error loading merchant: " + error.message);
+                showLoginPrompt("Error loading merchant data. Please try again.");
             }
         }
 
-        // Update user document with merchantId
-        async function updateUserWithMerchantId(email, merchantId) {
+        // Function to update user with merchantId
+        async function updateUserWithMerchantId(merchantId) {
             try {
+                // Update the user's custom claims or profile if needed
                 const user = auth.currentUser;
-                if (!user) return;
-                
-                const userDocRef = db.collection("users").doc(user.uid);
-                const userDoc = await userDocRef.get();
-                
-                if (userDoc.exists) {
-                    // Update existing user
-                    await userDocRef.update({
-                        merchantId: merchantId,
-                        role: "merchant",
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    console.log("✅ Updated user with merchantId");
-                } else {
-                    // Create new user document
-                    const names = email.split('@')[0];
-                    await userDocRef.set({
-                        firstName: names,
-                        lastName: '',
-                        email: email,
-                        displayName: names,
-                        emailVerified: true,
-                        role: "merchant",
-                        merchantId: merchantId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    console.log("✅ Created new user document with merchantId");
+                if (user) {
+                    console.log("🔄 Updating user with merchantId:", merchantId);
                 }
             } catch (error) {
-                console.warn("⚠️ Could not update user document:", error);
-                // Non-critical error, continue anyway
+                console.error("⚠️ Could not update user profile:", error);
             }
         }
 
-        // Show login prompt
-        function showLoginPrompt(message = "Please log in with your merchant account.") {
-            console.log("Showing login prompt:", message);
-            document.getElementById('loginPrompt').style.display = 'block';
-            document.getElementById('dashboardContent').style.display = 'none';
+        // Function to show login prompt
+        function showLoginPrompt(message = "Please log in with your merchant account to access the dashboard.") {
+            console.log("🔒 Showing login prompt");
             
-            // Update message if provided
-            if (message && message !== "Please log in with your merchant account.") {
-                document.querySelector('#loginPrompt p').textContent = message;
+            const loginPrompt = document.getElementById('loginPrompt');
+            const dashboardContent = document.getElementById('dashboardContent');
+            
+            if (loginPrompt) {
+                loginPrompt.style.display = 'block';
+                if (message) {
+                    loginPrompt.querySelector('p').textContent = message;
+                }
+            }
+            
+            if (dashboardContent) {
+                dashboardContent.style.display = 'none';
             }
         }
 
-        // Show dashboard content
-        function showDashboard() {
-            console.log("Showing dashboard");
-            document.getElementById('loginPrompt').style.display = 'none';
-            document.getElementById('dashboardContent').style.display = 'block';
+        // Function to show dashboard
+        function showDashboard(merchantData) {
+            console.log("🎯 Showing dashboard for:", merchantData);
+            
+            const loginPrompt = document.getElementById('loginPrompt');
+            const dashboardContent = document.getElementById('dashboardContent');
+            
+            if (loginPrompt) loginPrompt.style.display = 'none';
+            if (dashboardContent) dashboardContent.style.display = 'block';
+            
+            // Update merchant info in header
+            document.getElementById('merchantName').textContent = merchantData.name || merchantData.email;
+            document.getElementById('merchantStore').textContent = `Store: ${merchantData.storeName || "My Store"}`;
+            
+            // Initialize tabs
+            initializeDashboard();
         }
 
-        // Initialize dashboard
+        // Function to initialize dashboard tabs
         function initializeDashboard() {
-            if (!currentMerchantData) {
-                console.log("❌ No merchant data available");
-                showLoginPrompt();
-                return;
-            }
-            
-            console.log("✅ Initializing dashboard with merchant data:", currentMerchantData);
-            
-            showDashboard();
-            
-            // Update UI with merchant info
-            const merchantName = currentMerchantData.owner || 
-                                currentMerchantData.storeName || 
-                                currentMerchantData.businessName || 
-                                'Merchant';
-            const storeName = currentMerchantData.storeName || 
-                            currentMerchantData.businessName || 
-                            currentMerchantData.store || 
-                            'No store name';
-            
-            document.getElementById('merchantName').textContent = merchantName;
-            document.getElementById('merchantStore').textContent = `Store: ${storeName}`;
-            
-            // Load initial data
-            loadProducts();
-            loadStatistics();
-            
-            // Log success
-            console.log("🎉 Dashboard initialized successfully!");
-            console.log("Merchant ID:", currentMerchantId);
-            console.log("Merchant Data:", currentMerchantData);
-        }
-
-        // Setup event listeners
-        function setupEventListeners() {
-            // Go to login button
-            document.getElementById('goToLoginBtn').addEventListener('click', function() {
-                window.location.href = 'login.html';
-            });
+            console.log("📊 Initializing dashboard tabs");
             
             // Tab switching
             document.querySelectorAll('.tab').forEach(tab => {
@@ -806,60 +1339,359 @@
                     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Update active content
+                    // Show corresponding content
                     document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
                     document.getElementById(tabId).classList.add('active');
-                    
-                    // Load data if needed
-                    if (tabId === 'products') {
-                        loadProducts();
-                    } else if (tabId === 'dashboard') {
-                        loadStatistics();
-                    }
                 });
             });
-            
-            // Product modal
-            document.getElementById('addProductBtn').addEventListener('click', openAddProductModal);
-            document.getElementById('closeModal').addEventListener('click', closeModal);
-            document.getElementById('cancelBtn').addEventListener('click', closeModal);
-            document.getElementById('saveBtn').addEventListener('click', saveProduct);
         }
 
-        // Load products
+        // Function to setup event listeners
+        function setupEventListeners() {
+            console.log("🔗 Setting up event listeners");
+            
+            // Modal close button
+            document.getElementById('closeModal')?.addEventListener('click', closeModal);
+            document.getElementById('cancelBtn')?.addEventListener('click', closeModal);
+            
+            // Save product button
+            document.getElementById('saveBtn')?.addEventListener('click', async function(e) {
+                e.preventDefault();
+                await saveProduct();
+            });
+            
+            // Add product button
+            document.getElementById('addProductBtn')?.addEventListener('click', openAddProductModal);
+            
+            // Form submission
+            document.getElementById('productForm')?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await saveProduct();
+            });
+            
+            // Go to login button
+            document.getElementById('goToLoginBtn')?.addEventListener('click', function() {
+                window.location.href = 'login.html';
+            });
+            
+            // Logout button
+            document.getElementById('logoutBtn')?.addEventListener('click', async function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    try {
+                        await auth.signOut();
+                        window.location.href = 'login.html';
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                        alert('Error during logout: ' + error.message);
+                    }
+                }
+            });
+        }
+
+        // Function to load products
         async function loadProducts() {
-            if (!currentMerchantId) {
-                console.log("❌ No merchant ID, cannot load products");
-                return;
-            }
+            console.log("📦 Loading products for merchant:", currentMerchantId);
             
             const productsGrid = document.getElementById('productsGrid');
-            productsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading products...</div>';
+            if (!productsGrid) return;
+            
+            // Show loading state
+            productsGrid.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading products...</p>
+                </div>
+            `;
             
             try {
-                console.log("📦 Loading products for merchant:", currentMerchantId);
-                const snapshot = await db.collection("product_list")
-                    .where("merchantId", "==", currentMerchantId)
-                    .get();
+                // First try to get all products for this merchant
+                let querySnapshot;
                 
+                try {
+                    // Try the ordered query first
+                    querySnapshot = await db.collection("product_list")
+                        .where("merchantId", "==", currentMerchantId)
+                        .orderBy("createdAt", "desc")
+                        .get();
+                } catch (indexError) {
+                    console.log("⚠️ Index error, trying without ordering...");
+                    
+                    // Fallback: get products without ordering
+                    querySnapshot = await db.collection("product_list")
+                        .where("merchantId", "==", currentMerchantId)
+                        .get();
+                    
+                    // Sort manually on the client side
+                    products = [];
+                    querySnapshot.forEach(doc => {
+                        products.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    // Sort by createdAt (newest first)
+                    products.sort((a, b) => {
+                        const timeA = a.createdAt?.toDate?.() || new Date(0);
+                        const timeB = b.createdAt?.toDate?.() || new Date(0);
+                        return timeB - timeA; // Descending
+                    });
+                    
+                    console.log(`✅ Loaded ${products.length} products (manual sort)`);
+                    renderProducts();
+                    return;
+                }
+                
+                // If we get here, the ordered query worked
                 products = [];
-                snapshot.forEach(doc => {
+                querySnapshot.forEach(doc => {
                     products.push({
                         id: doc.id,
                         ...doc.data()
                     });
                 });
                 
-                console.log("✅ Loaded", products.length, "products");
+                console.log(`✅ Loaded ${products.length} products`);
                 renderProducts();
                 
             } catch (error) {
                 console.error("❌ Error loading products:", error);
-                productsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading products</p></div>';
+                
+                // Check if it's an index error
+                if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                    productsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-cogs"></i>
+                            <h3>Database Index Required</h3>
+                            <p>Please create a Firestore index to enable product sorting.</p>
+                            <p><small>Error: ${error.message}</small></p>
+                            <div style="margin-top: 20px;">
+                                <button class="btn" onclick="window.location.reload()">
+                                    <i class="fas fa-redo"></i> Retry
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    productsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Error Loading Products</h3>
+                            <p>${error.message}</p>
+                            <button class="btn" onclick="loadProducts()" style="margin-top: 20px;">
+                                <i class="fas fa-redo"></i> Try Again
+                            </button>
+                        </div>
+                    `;
+                }
             }
         }
 
-        // Render products
+        // Function to load statistics
+        async function loadStatistics() {
+            console.log("📊 Loading statistics for merchant:", currentMerchantId);
+            
+            const statsGrid = document.getElementById('statsGrid');
+            if (!statsGrid) return;
+            
+            try {
+                // Get total products
+                const productsSnapshot = await db.collection("product_list")
+                    .where("merchantId", "==", currentMerchantId)
+                    .get();
+                const totalProducts = productsSnapshot.size;
+                
+                // Calculate total stock value
+                let totalStockValue = 0;
+                let lowStockCount = 0;
+                let outOfStockCount = 0;
+                
+                productsSnapshot.forEach(doc => {
+                    const product = doc.data();
+                    totalStockValue += (product.price || 0) * (product.stockQty || 0);
+                    
+                    if (product.stockQty === 0) {
+                        outOfStockCount++;
+                    } else if (product.stockQty < 10) {
+                        lowStockCount++;
+                    }
+                });
+                
+                // Get active products
+                const activeProductsSnapshot = await db.collection("product_list")
+                    .where("merchantId", "==", currentMerchantId)
+                    .where("status", "==", "active")
+                    .get();
+                const activeProducts = activeProductsSnapshot.size;
+                
+                // Render statistics
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-value">${totalProducts}</div>
+                        <div class="stat-label">Total Products</div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i> ${activeProducts} active
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-value">$${totalStockValue.toFixed(2)}</div>
+                        <div class="stat-label">Stock Value</div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-chart-line"></i> Total worth
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-value">${lowStockCount}</div>
+                        <div class="stat-label">Low Stock</div>
+                        <div class="stat-trend ${lowStockCount > 0 ? 'trend-down' : 'trend-up'}">
+                            <i class="fas fa-${lowStockCount > 0 ? 'arrow-down' : 'check'}"></i> 
+                            ${lowStockCount > 0 ? 'Need restock' : 'All good'}
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-value">${outOfStockCount}</div>
+                        <div class="stat-label">Out of Stock</div>
+                        <div class="stat-trend ${outOfStockCount > 0 ? 'trend-down' : 'trend-up'}">
+                            <i class="fas fa-${outOfStockCount > 0 ? 'arrow-down' : 'check'}"></i> 
+                            ${outOfStockCount > 0 ? 'Need attention' : 'All in stock'}
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error("❌ Error loading statistics:", error);
+                statsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Statistics</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Function to delete product
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                await db.collection("product_list").doc(productId).delete();
+                console.log("✅ Product deleted:", productId);
+                alert('Product deleted successfully!');
+                
+                // Refresh products and statistics
+                loadProducts();
+                loadStatistics();
+                
+            } catch (error) {
+                console.error("❌ Error deleting product:", error);
+                alert('Error deleting product: ' + error.message);
+            }
+        }
+
+        // Function to close modal
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('active');
+            editingProductId = null;
+        }
+
+        // ==================== UI FUNCTIONS ====================
+
+        // NEW: Setup search and filter functionality
+        function setupSearchAndFilters() {
+            // Search functionality
+            const searchInput = document.getElementById('productSearch');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterProducts(searchTerm);
+            });
+
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update active filter
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    filterProductsByStatus(filter);
+                });
+            });
+        }
+
+        // NEW: Filter products by search term
+        function filterProducts(searchTerm) {
+            if (!searchTerm) {
+                renderProducts();
+                return;
+            }
+
+            const filteredProducts = products.filter(product => {
+                return product.name.toLowerCase().includes(searchTerm) ||
+                       (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+                       (product.category && product.category.toLowerCase().includes(searchTerm)) ||
+                       (product.brand && product.brand.toLowerCase().includes(searchTerm));
+            });
+
+            renderFilteredProducts(filteredProducts);
+        }
+
+        // NEW: Filter products by status
+        function filterProductsByStatus(status) {
+            if (status === 'all') {
+                renderProducts();
+                return;
+            }
+
+            const filteredProducts = products.filter(product => {
+                if (status === 'low_stock') {
+                    return product.stockQty < 10 && product.stockQty > 0;
+                } else if (status === 'out_of_stock') {
+                    return product.stockQty === 0;
+                } else {
+                    return product.status === status;
+                }
+            });
+
+            renderFilteredProducts(filteredProducts);
+        }
+
+        // NEW: Render filtered products
+        function renderFilteredProducts(filteredProducts) {
+            const productsGrid = document.getElementById('productsGrid');
+            
+            if (filteredProducts.length === 0) {
+                productsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No Products Found</h3>
+                        <p>Try adjusting your search or filter criteria</p>
+                        <button class="btn" onclick="openAddProductModal()" style="margin-top: 20px;">
+                            <i class="fas fa-plus"></i> Add New Product
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            renderProductsToGrid(productsGrid, filteredProducts);
+        }
+
+        // UPDATED: Render products with enhanced UI
         function renderProducts() {
             const productsGrid = document.getElementById('productsGrid');
             
@@ -867,31 +1699,53 @@
                 productsGrid.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-box-open"></i>
-                        <p>No products yet</p>
-                        <button class="btn" id="addFirstProduct" style="margin-top: 20px;">
+                        <h3>No Products Yet</h3>
+                        <p>Start by adding your first product to the store</p>
+                        <button class="btn" onclick="openAddProductModal()" style="margin-top: 20px;">
                             <i class="fas fa-plus"></i> Add Your First Product
                         </button>
                     </div>
                 `;
-                document.getElementById('addFirstProduct').addEventListener('click', openAddProductModal);
                 return;
             }
             
-            productsGrid.innerHTML = '';
+            renderProductsToGrid(productsGrid, products);
+        }
+
+        // NEW: Render products to grid with enhanced UI
+        function renderProductsToGrid(container, productList) {
+            container.innerHTML = '';
             
-            products.forEach(product => {
+            productList.forEach(product => {
+                const stockLevel = getStockLevel(product.stockQty);
+                const statusBadge = getStatusBadge(product.status);
+                
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
+                    <div class="product-status ${statusBadge.class}">
+                        ${statusBadge.text}
+                    </div>
                     <div class="product-image">
                         <i class="fas fa-${getProductIcon(product.category)}"></i>
                     </div>
-                    <div class="product-title">${product.name}</div>
-                    <div class="product-desc">${product.description || 'No description'}</div>
-                    <div class="product-footer">
-                        <div class="product-price">$${parseFloat(product.price || 0).toFixed(2)}</div>
-                        <div class="product-stock">Stock: ${product.stockQty || 0}</div>
+                    <div class="product-title">
+                        ${product.name}
+                        <span class="category-tag">${product.category || 'Uncategorized'}</span>
                     </div>
+                    <div class="product-desc">${product.description || 'No description provided'}</div>
+                    
+                    <div class="product-footer">
+                        <div>
+                            <div class="product-price">$${parseFloat(product.price || 0).toFixed(2)}</div>
+                            ${product.brand ? `<div style="font-size: 12px; color: #666;">${product.brand}</div>` : ''}
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator ${stockLevel}"></div>
+                            <span>${product.stockQty || 0} in stock</span>
+                        </div>
+                    </div>
+                    
                     <div class="product-actions">
                         <button class="action-btn edit-btn" data-id="${product.id}">
                             <i class="fas fa-edit"></i> Edit
@@ -901,10 +1755,10 @@
                         </button>
                     </div>
                 `;
-                productsGrid.appendChild(productCard);
+                container.appendChild(productCard);
             });
             
-            // Add event listeners to buttons
+            // Add event listeners
             document.querySelectorAll('.edit-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const productId = this.getAttribute('data-id');
@@ -920,95 +1774,68 @@
             });
         }
 
-        // Get product icon
+        // NEW: Get stock level indicator
+        function getStockLevel(stock) {
+            if (stock === 0) return 'stock-low';
+            if (stock < 10) return 'stock-medium';
+            return 'stock-high';
+        }
+
+        // NEW: Get status badge
+        function getStatusBadge(status) {
+            const badges = {
+                'active': { class: 'badge-active', text: 'Active' },
+                'inactive': { class: 'badge-inactive', text: 'Inactive' },
+                'out_of_stock': { class: 'badge-out_of_stock', text: 'Out of Stock' },
+                'draft': { class: 'badge-secondary', text: 'Draft' }
+            };
+            return badges[status] || { class: 'badge-secondary', text: 'Unknown' };
+        }
+
+        // UPDATED: Get product icon with more options
         function getProductIcon(category) {
             const icons = {
                 'Electronics': 'laptop',
+                'Electronics & Gadgets': 'laptop',
                 'Clothing': 'tshirt',
+                'Clothing & Fashion': 'tshirt',
+                'Footwear': 'shoe-prints',
+                'Footwear & Shoes': 'shoe-prints',
                 'Home & Garden': 'home',
+                'Kitchen': 'utensils',
+                'Furniture': 'couch',
                 'Sports': 'futbol',
                 'Books': 'book',
+                'Health': 'heartbeat',
+                'Toys': 'gamepad',
+                'Automotive': 'car',
+                'Jewelry': 'gem',
+                'Food': 'apple-alt',
+                'Pet': 'paw',
+                'Office': 'briefcase',
+                'Tools': 'tools',
+                'Baby': 'baby',
+                'Art': 'palette',
+                'Musical': 'music',
                 'Other': 'box'
             };
             return icons[category] || 'box';
         }
 
-        // Load statistics
-        async function loadStatistics() {
-            if (!currentMerchantId) {
-                console.log("❌ No merchant ID, cannot load statistics");
-                return;
-            }
-            
-            const statsGrid = document.getElementById('statsGrid');
-            statsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading statistics...</div>';
-            
-            try {
-                const snapshot = await db.collection("product_list")
-                    .where("merchantId", "==", currentMerchantId)
-                    .get();
-                
-                let totalProducts = snapshot.size;
-                let totalValue = 0;
-                let lowStock = 0;
-                let outOfStock = 0;
-                
-                snapshot.forEach(doc => {
-                    const product = doc.data();
-                    totalValue += (product.price || 0) * (product.stockQty || 0);
-                    
-                    if (product.stockQty < 10 && product.stockQty > 0) lowStock++;
-                    if (product.stockQty === 0) outOfStock++;
-                });
-                
-                statsGrid.innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-box"></i>
-                        </div>
-                        <div class="stat-value">${totalProducts}</div>
-                        <div class="stat-label">Total Products</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <div class="stat-value">$${totalValue.toFixed(2)}</div>
-                        <div class="stat-label">Inventory Value</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="stat-value">${lowStock}</div>
-                        <div class="stat-label">Low Stock</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-times-circle"></i>
-                        </div>
-                        <div class="stat-value">${outOfStock}</div>
-                        <div class="stat-label">Out of Stock</div>
-                    </div>
-                `;
-                
-                console.log("📊 Statistics loaded:", totalProducts, "products");
-                
-            } catch (error) {
-                console.error("❌ Error loading statistics:", error);
-                statsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading statistics</p></div>';
-            }
+        // NEW: Export products function
+        function exportProducts() {
+            alert('Export feature will be available in the next update!');
         }
 
-        // Open add product modal
+        // UPDATED: Open add product modal with enhanced UI
         function openAddProductModal() {
             editingProductId = null;
-            document.getElementById('modalTitle').textContent = 'Add Product';
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Add New Product';
             document.getElementById('productForm').reset();
             document.getElementById('productModal').classList.add('active');
         }
 
-        // Open edit product modal
+        // UPDATED: Open edit product modal with enhanced UI
         async function openEditProductModal(productId) {
             try {
                 const productDoc = await db.collection("product_list").doc(productId).get();
@@ -1021,13 +1848,16 @@
                 const product = productDoc.data();
                 editingProductId = productId;
                 
-                document.getElementById('modalTitle').textContent = 'Edit Product';
+                document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Product';
                 document.getElementById('name').value = product.name || '';
                 document.getElementById('description').value = product.description || '';
                 document.getElementById('price').value = product.price || '';
                 document.getElementById('stockQty').value = product.stockQty || '';
                 document.getElementById('category').value = product.category || 'Other';
                 document.getElementById('status').value = product.status || 'active';
+                document.getElementById('sku').value = product.sku || '';
+                document.getElementById('brand').value = product.brand || '';
+                document.getElementById('weight').value = product.weight || '';
                 
                 document.getElementById('productModal').classList.add('active');
                 
@@ -1037,7 +1867,7 @@
             }
         }
 
-        // Save product
+        // UPDATED: Save product with additional fields
         async function saveProduct() {
             const name = document.getElementById('name').value.trim();
             const description = document.getElementById('description').value.trim();
@@ -1045,6 +1875,9 @@
             const stockQty = parseInt(document.getElementById('stockQty').value);
             const category = document.getElementById('category').value;
             const status = document.getElementById('status').value;
+            const sku = document.getElementById('sku').value.trim();
+            const brand = document.getElementById('brand').value.trim();
+            const weight = parseFloat(document.getElementById('weight').value) || 0;
             
             // Validation
             if (!name || isNaN(price) || price < 0 || isNaN(stockQty) || stockQty < 0 || !category) {
@@ -1062,6 +1895,11 @@
                 merchantId: currentMerchantId,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
+            
+            // Add optional fields if provided
+            if (sku) productData.sku = sku;
+            if (brand) productData.brand = brand;
+            if (weight) productData.weight = weight;
             
             try {
                 if (editingProductId) {
@@ -1085,37 +1923,32 @@
             }
         }
 
-        // Delete product
-        async function deleteProduct(productId) {
-            if (!confirm('Are you sure you want to delete this product?')) {
-                return;
-            }
+        // ==================== INITIALIZATION ====================
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log("🚀 Merchant dashboard loading...");
             
-            try {
-                await db.collection("product_list").doc(productId).delete();
-                alert('Product deleted successfully!');
-                loadProducts();
-                loadStatistics();
-            } catch (error) {
-                console.error("Error deleting product:", error);
-                alert('Error deleting product: ' + error.message);
-            }
-        }
+            // Wait for auth state
+            const unsubscribe = auth.onAuthStateChanged(async (user) => {
+                unsubscribe();
+                
+                if (!user) {
+                    console.log("❌ No user logged in - showing login prompt");
+                    showLoginPrompt();
+                    return;
+                }
+                
+                console.log("✅ User logged in:", user.email, user.uid);
+                
+                // Try to find merchant data
+                await findMerchantData(user);
+            });
+            
+            setupEventListeners();
+            setupSearchAndFilters();
+        });
 
-        // Close modal
-        function closeModal() {
-            document.getElementById('productModal').classList.remove('active');
-            editingProductId = null;
-        }
-
-        // DEBUG: Force reload if stuck
-        setTimeout(() => {
-            if (document.getElementById('loginPrompt').style.display === 'none' && 
-                document.getElementById('dashboardContent').style.display === 'none') {
-                console.log("⚠️ Dashboard stuck, forcing reload");
-                window.location.reload();
-            }
-        }, 5000);
     </script>
 </body>
 </html>
