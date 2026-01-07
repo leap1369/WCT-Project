@@ -109,6 +109,7 @@
         <input id="userSearch" class="search" placeholder="Search users (ID, name, email, role)..." />
         <button id="refreshUsers" class="btn">Refresh</button>
       </div>
+      
 
       <div class="form-row">
         <input id="firstName" placeholder="First name" />
@@ -185,7 +186,6 @@
       </table>
       <div class="id-note">Note: Application IDs match the **user's doc ID** (set by the registration form).</div>
     </section>
-
     <!-- ===== Verified (Active) Merchants ===== -->
     <section id="merchants" class="card">
       <h2>Active Merchants</h2>
@@ -193,6 +193,9 @@
         <input id="merchantSearch" class="search" placeholder="Search merchants (ID, store, owner, city, email)..." />
         <button id="refreshMerchants" class="btn">Refresh</button>
       </div>
+     
+      <div id="modalOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1999;"></div>
+      
       <table id="merchantsTable">
         <thead>
           <tr><th>ID</th><th>Store</th><th>Owner</th><th>City</th><th>Email</th><th>Docs</th><th>Joined</th><th>Status</th><th>Verification</th><th>Actions</th></tr>
@@ -212,12 +215,26 @@
       <h2>Product Management</h2>
       <div class="filters">
         <select id="productCategoryFilter">
-          <option value="">All Categories</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Clothing">Clothing</option>
+          <option value="">Select Category</option>
+          <option value="Electronics">Electronics & Gadgets</option>
+          <option value="Clothing">Clothing & Fashion</option>
+          <option value="Footwear">Footwear & Shoes</option>
           <option value="Home & Garden">Home & Garden</option>
-          <option value="Sports">Sports</option>
-          <option value="Books">Books</option>
+          <option value="Kitchen">Kitchen & Dining</option>
+          <option value="Furniture">Furniture & Decor</option>
+          <option value="Sports">Sports & Outdoors</option>
+          <option value="Books">Books & Stationery</option>
+          <option value="Health">Health & Beauty</option>
+          <option value="Toys">Toys & Games</option>
+          <option value="Automotive">Automotive Parts</option>
+          <option value="Jewelry">Jewelry & Accessories</option>
+          <option value="Food">Food & Beverages</option>
+          <option value="Pet">Pet Supplies</option>
+          <option value="Office">Office Supplies</option>
+          <option value="Tools">Tools & Hardware</option>
+          <option value="Baby">Baby & Kids</option>
+          <option value="Art">Art & Crafts</option>
+          <option value="Musical">Musical Instruments</option>
           <option value="Other">Other</option>
         </select>
         <select id="productStatusFilter">
@@ -237,11 +254,26 @@
         <input id="productPrice" type="number" placeholder="Price" step="0.01" min="0" />
         <input id="productStockQty" type="number" placeholder="Stock Quantity" min="0" />
         <select id="productCategory">
-          <option value="Electronics">Electronics</option>
-          <option value="Clothing">Clothing</option>
+          <option value="">Select Category</option>
+          <option value="Electronics">Electronics & Gadgets</option>
+          <option value="Clothing">Clothing & Fashion</option>
+          <option value="Footwear">Footwear & Shoes</option>
           <option value="Home & Garden">Home & Garden</option>
-          <option value="Sports">Sports</option>
-          <option value="Books">Books</option>
+          <option value="Kitchen">Kitchen & Dining</option>
+          <option value="Furniture">Furniture & Decor</option>
+          <option value="Sports">Sports & Outdoors</option>
+          <option value="Books">Books & Stationery</option>
+          <option value="Health">Health & Beauty</option>
+          <option value="Toys">Toys & Games</option>
+          <option value="Automotive">Automotive Parts</option>
+          <option value="Jewelry">Jewelry & Accessories</option>
+          <option value="Food">Food & Beverages</option>
+          <option value="Pet">Pet Supplies</option>
+          <option value="Office">Office Supplies</option>
+          <option value="Tools">Tools & Hardware</option>
+          <option value="Baby">Baby & Kids</option>
+          <option value="Art">Art & Crafts</option>
+          <option value="Musical">Musical Instruments</option>
           <option value="Other">Other</option>
         </select>
         <select id="productStatus">
@@ -456,6 +488,7 @@
             <button data-action="set-role" data-id="${id}" data-role="ADMINISTRATOR">Role: ADMIN</button>
             <button data-action="verify-email" data-id="${id}">Verify email</button>
             <button data-action="delete" data-id="${id}">Delete</button>
+            
           </td>
         `;
         tbody.appendChild(tr);
@@ -657,108 +690,124 @@
     let editingProductId = null;
 
     async function loadProducts() {
-      const tbody = document.querySelector("#productsTable tbody");
-      if (!tbody) return;
+  const tbody = document.querySelector("#productsTable tbody");
+  if (!tbody) return;
+  
+  tbody.innerHTML = "";
+  
+  const category = document.getElementById("productCategoryFilter")?.value || "";
+  const status = document.getElementById("productStatusFilter")?.value || "";
+  const searchTerm = (document.getElementById("productSearch")?.value || "").toLowerCase();
+  
+  try {
+    // Get ALL products without any where() clauses
+    const q = collection(db, "product_list");
+    const snap = await getDocs(q);
+    
+    if (snap.empty) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="10" class="muted">No products found.</td>`;
+      tbody.appendChild(tr);
+      return;
+    }
+    
+    // Convert to array and apply ALL filters in memory
+    let products = snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    // Filter by category (if selected)
+    if (category) {
+      products = products.filter(product => product.category === category);
+    }
+    
+    // Filter by status (if selected)
+    if (status) {
+      products = products.filter(product => product.status === status);
+    }
+    
+    // Filter by search term (if entered)
+    if (searchTerm) {
+      products = products.filter(product => {
+        const searchable = [
+          product.id,
+          product.name || "",
+          product.description || "",
+          product.merchantId || "",
+          product.category || ""
+        ].map(x => String(x).toLowerCase()).join(" ");
+        
+        return searchable.includes(searchTerm);
+      });
+    }
+    
+    // Sort by createdAt (newest first) in memory
+    products.sort((a, b) => {
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+      return dateB - dateA;
+    });
+    
+    if (!products.length) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="10" class="muted">No products match your filters.</td>`;
+      tbody.appendChild(tr);
+      return;
+    }
+    
+    // Display results
+    products.forEach(product => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${product.id}</td>
+        <td>${product.name || "-"}</td>
+        <td>${product.category || "-"}</td>
+        <td>$${parseFloat(product.price || 0).toFixed(2)}</td>
+        <td>${product.stockQty || 0}</td>
+        <td><span class="chip ${product.status === 'active' ? 'true' : 'false'}">${product.status || "-"}</span></td>
+        <td><span class="muted">${(product.merchantId || "").substring(0, 8)}...</span></td>
+        <td>${fmtDate(product.createdAt, true)}</td>
+        <td>${fmtDate(product.updatedAt, true)}</td>
+        <td class="actions">
+          <button data-action="edit" data-id="${product.id}">Edit</button>
+          <button data-action="toggle-status" data-id="${product.id}">${product.status === 'active' ? 'Deactivate' : 'Activate'}</button>
+          <button data-action="delete" data-id="${product.id}">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+    
+    tbody.onclick = async (e) => {
+      const btn = e.target.closest("button[data-action]");
+      if (!btn) return;
       
-      tbody.innerHTML = "";
-      
-      const category = document.getElementById("productCategoryFilter")?.value || "";
-      const status = document.getElementById("productStatusFilter")?.value || "";
-      const searchTerm = (document.getElementById("productSearch")?.value || "").toLowerCase();
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
       
       try {
-        let q = collection(db, "product_list");
-        
-        if (category) {
-          q = query(q, where("category", "==", category));
-        }
-        if (status) {
-          q = query(q, where("status", "==", status));
-        }
-        
-        try {
-          q = query(q, orderBy("createdAt", "desc"));
-        } catch (err) {
-          console.log("No index for createdAt ordering");
-        }
-        
-        const snap = await getDocs(q);
-        
-        if (snap.empty) {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td colspan="10" class="muted">No products found.</td>`;
-          tbody.appendChild(tr);
-          return;
-        }
-        
-        const products = snap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })).filter(product => {
-          if (!searchTerm) return true;
-          
-          const searchable = [
-            product.id,
-            product.name || "",
-            product.description || "",
-            product.merchantId || "",
-            product.category || ""
-          ].map(x => String(x).toLowerCase()).join(" ");
-          
-          return searchable.includes(searchTerm);
-        });
-        
-        products.forEach(product => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${product.id}</td>
-            <td>${product.name || "-"}</td>
-            <td>${product.category || "-"}</td>
-            <td>$${parseFloat(product.price || 0).toFixed(2)}</td>
-            <td>${product.stockQty || 0}</td>
-            <td><span class="chip ${product.status === 'active' ? 'true' : 'false'}">${product.status || "-"}</span></td>
-            <td><span class="muted">${(product.merchantId || "").substring(0, 8)}...</span></td>
-            <td>${fmtDate(product.createdAt, true)}</td>
-            <td>${fmtDate(product.updatedAt, true)}</td>
-            <td class="actions">
-              <button data-action="edit" data-id="${product.id}">Edit</button>
-              <button data-action="toggle-status" data-id="${product.id}">${product.status === 'active' ? 'Deactivate' : 'Activate'}</button>
-              <button data-action="delete" data-id="${product.id}">Delete</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-        
-        tbody.onclick = async (e) => {
-          const btn = e.target.closest("button[data-action]");
-          if (!btn) return;
-          
-          const id = btn.dataset.id;
-          const action = btn.dataset.action;
-          
-          try {
-            if (action === "edit") {
-              await editProduct(id);
-            } else if (action === "toggle-status") {
-              await toggleProductStatus(id);
-            } else if (action === "delete") {
-              if (confirm("Are you sure you want to delete this product?")) {
-                await deleteDoc(doc(db, "product_list", id));
-                await loadProducts();
-              }
-            }
-          } catch (err) {
-            alert(err?.message || "Action failed");
+        if (action === "edit") {
+          await editProduct(id);
+        } else if (action === "toggle-status") {
+          await toggleProductStatus(id);
+        } else if (action === "delete") {
+          if (confirm("Are you sure you want to delete this product?")) {
+            await deleteDoc(doc(db, "product_list", id));
+            await loadProducts();
           }
-        };
-        
+        }
       } catch (err) {
-        console.error("Error loading products:", err);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="10" class="muted">Error loading products: ${err.message}</td>`;
-        tbody.appendChild(tr);
+        alert(err?.message || "Action failed");
       }
-    }
+    };
+    
+  } catch (err) {
+    console.error("Error loading products:", err);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="10" class="muted">Error loading products: ${err.message}</td>`;
+    tbody.appendChild(tr);
+  }
+}
 
     async function createProduct() {
       const name = document.getElementById("productName").value.trim();

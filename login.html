@@ -127,28 +127,39 @@
         }
     }
 
-    // Check if email exists as merchant
+          // Check if email exists as merchant (with suspension check)
     async function checkIfMerchant(email) {
         try {
             console.log("Checking if email is merchant:", email);
             
-            // Check verifiedMerchant collection
-            const merchantQuery = await db.collection("verifiedMerchant")
+            // Check verifiedMerchants collection (FIXED: added 's')
+            const merchantQuery = await db.collection("verifiedMerchants")
                 .where("email", "==", email)
                 .limit(1)
                 .get();
             
             if (!merchantQuery.empty) {
                 const merchantDoc = merchantQuery.docs[0];
-                console.log("Email found in verifiedMerchant");
+                const merchantData = merchantDoc.data();
+                console.log("Email found in verifiedMerchants", merchantData);
+                
+                // Check if merchant is suspended
+                const isSuspended = merchantData.status === "Suspended";
+                
                 return {
                     isMerchant: true,
                     merchantId: merchantDoc.id,
-                    merchantData: merchantDoc.data()
+                    merchantData: merchantData,
+                    isSuspended: isSuspended,
+                    suspensionInfo: isSuspended ? {
+                        type: merchantData.suspensionType || "temp",
+                        reason: merchantData.suspensionReason,
+                        endDate: merchantData.suspensionEnd
+                    } : null
                 };
             }
             
-            // Check active_merchants collection
+            // Also check active_merchants collection (if you have this)
             const activeMerchantQuery = await db.collection("active_merchants")
                 .where("email", "==", email)
                 .limit(1)
@@ -156,11 +167,22 @@
             
             if (!activeMerchantQuery.empty) {
                 const merchantDoc = activeMerchantQuery.docs[0];
-                console.log("Email found in active_merchants");
+                const merchantData = merchantDoc.data();
+                console.log("Email found in active_merchants", merchantData);
+                
+                // Check if merchant is suspended
+                const isSuspended = merchantData.status === "Suspended";
+                
                 return {
                     isMerchant: true,
                     merchantId: merchantDoc.id,
-                    merchantData: merchantDoc.data()
+                    merchantData: merchantData,
+                    isSuspended: isSuspended,
+                    suspensionInfo: isSuspended ? {
+                        type: merchantData.suspensionType || "temp",
+                        reason: merchantData.suspensionReason,
+                        endDate: merchantData.suspensionEnd
+                    } : null
                 };
             }
             
@@ -172,7 +194,7 @@
         }
     }
 
-    // Check email input for account type
+     // Check email input for account type
     document.getElementById('email').addEventListener('blur', async function() {
         const email = this.value.trim();
         const checkMessage = document.getElementById('emailCheckMessage');
@@ -199,11 +221,46 @@
             const merchantCheck = await checkIfMerchant(email);
             
             if (merchantCheck.isMerchant) {
-                checkMessage.innerHTML = '<i class="fas fa-store"></i> Merchant account detected';
-                checkMessage.style.color = '#3a5a40';
+                if (merchantCheck.isSuspended) {
+                    checkMessage.innerHTML = '<i class="fas fa-ban"></i> <strong>MERCHANT ACCOUNT SUSPENDED</strong>';
+                    checkMessage.style.color = '#dc3545';
+                    checkMessage.style.background = '#fff5f5';
+                    checkMessage.style.padding = '5px';
+                    checkMessage.style.borderRadius = '4px';
+                    checkMessage.style.border = '1px solid #ffc9c9';
+                    
+                    // Add suspension details
+                    let details = 'Your account is suspended. ';
+                    if (merchantCheck.suspensionInfo) {
+                
+                        if (merchantCheck.suspensionInfo.reason) {
+                            details += `Reason: ${merchantCheck.suspensionInfo.reason}. `;
+                        }
+                    }
+                    details += 'Please contact customer service.';
+                    
+                    // Show a warning below
+                    const warningDiv = document.createElement('div');
+                    warningDiv.id = 'suspensionWarning';
+                    warningDiv.style.cssText = 'color: #dc3545; background: #fff5f5; padding: 10px; border-radius: 5px; margin-top: 10px; border: 1px solid #ffc9c9;';
+                    warningDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <strong>ACCOUNT SUSPENDED</strong><br>${details}`;
+                    
+                    // Remove existing warning if any
+                    const existingWarning = document.getElementById('suspensionWarning');
+                    if (existingWarning) existingWarning.remove();
+                    
+                    checkMessage.parentNode.insertBefore(warningDiv, checkMessage.nextSibling);
+                } else {
+                    checkMessage.innerHTML = '<i class="fas fa-store"></i> Merchant account detected';
+                    checkMessage.style.color = '#3a5a40';
+                }
             } else {
                 checkMessage.textContent = 'Regular user account';
                 checkMessage.style.color = '#4361ee';
+                
+                // Remove any suspension warning
+                const existingWarning = document.getElementById('suspensionWarning');
+                if (existingWarning) existingWarning.remove();
             }
             
         } catch (error) {
@@ -213,7 +270,7 @@
         }
     });
 
-    // Email login
+        // Email login
     document.getElementById('loginBtn').addEventListener('click', async function() {
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
@@ -223,10 +280,28 @@
             return;
         }
         
+        // Check if account is suspended BEFORE attempting login
+        try {
+            const merchantCheck = await checkIfMerchant(email);
+            if (merchantCheck.isMerchant && merchantCheck.isSuspended) {
+                let message = '❌ ACCOUNT SUSPENDED\n\n';
+                message += 'Your merchant account has been suspended. ';
+                
+                
+                message += '\n\nPlease contact customer service for assistance.';
+                alert(message);
+                return; // Stop login process
+            }
+        } catch (error) {
+            console.error("Error checking suspension status:", error);
+        }
+        
         // Show loading state
         const loginBtn = document.getElementById('loginBtn');
         loginBtn.disabled = true;
         loginBtn.textContent = 'Logging in...';
+        
+        // Rest of your login code continues here...
         
         // Update role info
         const roleInfo = document.getElementById('roleInfo');
@@ -375,7 +450,7 @@
         }
     }
     
-    // Google Login with role detection
+        // Google Login with role detection
     async function googleLogin() {
         const provider = new firebase.auth.GoogleAuthProvider();
         
@@ -384,15 +459,35 @@
             const user = result.user;
             console.log("✅ Google user signed in:", user.uid, user.email);
             
+            // Check if merchant account is suspended
+            const merchantCheck = await checkIfMerchant(user.email);
+            if (merchantCheck.isMerchant && merchantCheck.isSuspended) {
+                await auth.signOut(); // Sign out immediately
+                
+                let message = '❌ ACCOUNT SUSPENDED\n\n';
+                message += 'Your merchant account has been suspended. ';
+                
+                if (merchantCheck.suspensionInfo) {
+                    if (merchantCheck.suspensionInfo.type === 'temp' && merchantCheck.suspensionInfo.endDate) {
+                        const endDate = new Date(merchantCheck.suspensionInfo.endDate.toDate());
+                        message += `\n\nSuspension ends: ${endDate.toLocaleString()}`;
+                    }
+                    if (merchantCheck.suspensionInfo.reason) {
+                        message += `\nReason: ${merchantCheck.suspensionInfo.reason}`;
+                    }
+                }
+                
+                message += '\n\nPlease contact customer service for assistance.';
+                alert(message);
+                return; // Stop login process
+            }
+            
             // Show role detection
             const roleInfo = document.getElementById('roleInfo');
             const roleText = document.getElementById('roleText');
             roleInfo.style.display = 'block';
             roleInfo.style.backgroundColor = '#fff8e1';
             roleText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking account type...';
-            
-            // Check if user is a merchant
-            const merchantCheck = await checkIfMerchant(user.email);
             
             // Determine user role
             let userRole = { role: "user" };
