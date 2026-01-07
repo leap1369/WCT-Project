@@ -60,6 +60,22 @@
     section {
       scroll-margin-top: 80px; /* Same as main margin-top */
     }
+        /* Order Status Chips */
+    .order-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: capitalize;
+    }
+    
+    .status-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+    .status-processing { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
+    .status-shipped { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .status-delivered { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    .status-cancelled { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .status-refunded { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
   </style>
 </head>
 <body>
@@ -203,11 +219,195 @@
         <tbody></tbody>
       </table>
     </section>
-
-    <!-- ===== Orders ===== -->
+      
+         <!-- ===== Orders ===== -->
     <section id="orders" class="card">
       <h2>Order Management</h2>
-      <div class="muted">Coming soon…</div>
+      
+      <div class="filters">
+        <select id="orderStatusFilter">
+          <option value="">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="refunded">Refunded</option>
+        </select>
+        <input id="orderSearch" class="search" placeholder="Search orders (ID, customer, email, product)..." />
+        <button id="refreshOrders" class="btn">Refresh</button>
+        <button id="createTestOrderBtn" class="btn" style="background:#28a745; color:white;">Create Test Order</button>
+      </div>
+
+      <!-- Add this Create Test Order Modal -->
+      <div id="createTestOrderModal" class="card" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2000; background:white; padding:24px; max-width:600px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+        <h3 style="margin-top:0;">Create Test Order</h3>
+        
+        <div style="margin-bottom:20px;">
+          <h4>Customer Information</h4>
+          <div class="form-row">
+            <input id="testCustomerName" placeholder="Customer Name" value="Test Customer" style="flex:1;" />
+            <input id="testCustomerEmail" placeholder="Email" value="test@example.com" style="flex:1;" />
+            <input id="testCustomerPhone" placeholder="Phone" value="123-456-7890" style="flex:1;" />
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px;">
+          <h4>Shipping Information</h4>
+          <div class="form-row">
+            <input id="testShippingAddress" placeholder="Address" value="123 Test Street" style="flex:1;" />
+            <input id="testShippingCity" placeholder="City" value="Phnom Penh" style="flex:1;" />
+            <input id="testShippingZip" placeholder="Zip Code" value="12000" style="flex:1;" />
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px;">
+          <h4>Order Items (Add up to 5 items)</h4>
+          <div id="testOrderItems">
+            <!-- Items will be added here dynamically -->
+          </div>
+          <button id="addTestItemBtn" class="btn" style="margin-top:10px;">+ Add Item</button>
+        </div>
+        
+        <div style="margin-bottom:20px;">
+          <h4>Order Details</h4>
+          <div class="form-row">
+            <select id="testOrderStatus" style="flex:1;">
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select id="testPaymentStatus" style="flex:1;">
+              <option value="pending">Payment Pending</option>
+              <option value="paid" selected>Paid</option>
+              <option value="refunded">Refunded</option>
+              <option value="failed">Failed</option>
+            </select>
+            <select id="testPaymentMethod" style="flex:1;">
+              <option value="credit_card">Credit Card</option>
+              <option value="paypal">PayPal</option>
+              <option value="cash_on_delivery">Cash on Delivery</option>
+              <option value="bank_transfer">Bank Transfer</option>
+            </select>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px;">
+          <h4>Order Summary</h4>
+          <div style="background:#f8f9fa; padding:15px; border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span>Subtotal:</span>
+              <span>$<span id="testSubtotal">0.00</span></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span>Shipping:</span>
+              <span>$<input id="testShippingCost" type="number" step="0.01" min="0" value="5.99" style="width:80px; padding:4px;" /></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <span>Tax:</span>
+              <span>$<input id="testTax" type="number" step="0.01" min="0" value="2.99" style="width:80px; padding:4px;" /></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:bold; padding-top:8px; border-top:1px solid #dee2e6;">
+              <span>Total:</span>
+              <span>$<span id="testTotal">0.00</span></span>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button id="cancelTestOrderBtn" class="btn">Cancel</button>
+          <button id="saveTestOrderBtn" class="btn" style="background:#28a745; color:white;">Create Order</button>
+        </div>
+      </div>
+      <div id="createTestOrderModalOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1999;"></div>
+      
+      <!-- Rest of your existing order modal and table remain here -->
+
+      <!-- Order Details Modal -->
+      <div id="orderModal" class="card" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2000; background:white; padding:24px; max-width:800px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+        <h3 style="margin-top:0;">Order Details <span id="modalOrderId" class="muted"></span></h3>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+          <div>
+            <h4>Customer Information</h4>
+            <div><strong>Name:</strong> <span id="modalCustomerName">-</span></div>
+            <div><strong>Email:</strong> <span id="modalCustomerEmail">-</span></div>
+            <div><strong>Phone:</strong> <span id="modalCustomerPhone">-</span></div>
+          </div>
+          
+          <div>
+            <h4>Shipping Information</h4>
+            <div><strong>Address:</strong> <span id="modalShippingAddress">-</span></div>
+            <div><strong>City:</strong> <span id="modalShippingCity">-</span></div>
+            <div><strong>Zip:</strong> <span id="modalShippingZip">-</span></div>
+          </div>
+        </div>
+        
+        <h4>Order Items</h4>
+        <table style="width:100%; margin-bottom:20px;">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="modalOrderItems"></tbody>
+        </table>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+          <div>
+            <h4>Order Summary</h4>
+            <div><strong>Subtotal:</strong> $<span id="modalSubtotal">0.00</span></div>
+            <div><strong>Shipping:</strong> $<span id="modalShippingCost">0.00</span></div>
+            <div><strong>Tax:</strong> $<span id="modalTax">0.00</span></div>
+            <div><strong>Total:</strong> $<span id="modalTotal">0.00</span></div>
+          </div>
+          
+          <div>
+            <h4>Order Status</h4>
+            <div><strong>Current Status:</strong> <span id="modalCurrentStatus" class="chip"></span></div>
+            <div><strong>Payment Status:</strong> <span id="modalPaymentStatus">-</span></div>
+            <div><strong>Order Date:</strong> <span id="modalOrderDate">-</span></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px;">
+          <h4>Update Status</h4>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn" data-status-action="pending">Set Pending</button>
+            <button class="btn" data-status-action="processing">Set Processing</button>
+            <button class="btn" data-status-action="shipped">Set Shipped</button>
+            <button class="btn" data-status-action="delivered">Set Delivered</button>
+            <button class="btn" style="background:#dc3545; color:white;" data-status-action="cancelled">Cancel Order</button>
+            <button class="btn" style="background:#ffc107; color:black;" data-status-action="refunded">Refund</button>
+          </div>
+        </div>
+        
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button id="closeOrderModal" class="btn">Close</button>
+        </div>
+      </div>
+      <div id="orderModalOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1999;"></div>
+
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </section>
 
     <!-- ===== Product Management ===== -->
@@ -394,6 +594,23 @@
       const onMerchantSearch = debounce(loadVerifiedMerchants, 200);
       document.getElementById("merchantSearch").addEventListener("input", onMerchantSearch);
       document.getElementById("refreshMerchants").addEventListener("click", loadVerifiedMerchants);
+            // Orders
+      const onOrderSearch = debounce(loadOrders, 200);
+      document.getElementById("orderStatusFilter").addEventListener("change", loadOrders);
+      document.getElementById("orderSearch").addEventListener("input", onOrderSearch);
+      document.getElementById("refreshOrders").addEventListener("click", loadOrders);
+      
+      // Order modal events
+      document.getElementById("closeOrderModal").addEventListener("click", hideOrderModal);
+      document.getElementById("orderModalOverlay").addEventListener("click", hideOrderModal);
+      
+      // Status update buttons
+      document.querySelectorAll('[data-status-action]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const status = e.target.getAttribute('data-status-action');
+          updateOrderStatus(status);
+        });
+      });
 
       // Product Management
       const onProductSearch = debounce(loadProducts, 200);
@@ -404,6 +621,17 @@
       document.getElementById("createProductBtn").addEventListener("click", createProduct);
       document.getElementById("updateProductBtn").addEventListener("click", updateProduct);
       document.getElementById("cancelEditBtn").addEventListener("click", cancelEdit);
+
+            // Test order functionality
+      document.getElementById("createTestOrderBtn")?.addEventListener("click", showCreateTestOrderModal);
+      document.getElementById("cancelTestOrderBtn")?.addEventListener("click", hideCreateTestOrderModal);
+      document.getElementById("saveTestOrderBtn")?.addEventListener("click", createTestOrder);
+      document.getElementById("addTestItemBtn")?.addEventListener("click", addTestItem);
+      document.getElementById("createTestOrderModalOverlay")?.addEventListener("click", hideCreateTestOrderModal);
+      
+      // Add input listeners for shipping and tax
+      document.getElementById("testShippingCost")?.addEventListener("input", calculateTestOrderTotal);
+      document.getElementById("testTax")?.addEventListener("input", calculateTestOrderTotal);
 
       // Initial load
       initOverview();
@@ -684,6 +912,603 @@
           await loadVerifiedMerchants(); await initOverview();
         } catch (err) { alert(err?.message || "Action failed"); }
       };
+    }
+        /* ===== Order Management ===== */
+    let currentOrderId = null;
+    
+    // Show order details modal
+    function showOrderModal(orderId) {
+      currentOrderId = orderId;
+      document.getElementById("modalOrderId").textContent = `#${orderId.substring(0, 8)}...`;
+      
+      // Show modal
+      document.getElementById("orderModal").style.display = "block";
+      document.getElementById("orderModalOverlay").style.display = "block";
+      
+      // Load order details
+      loadOrderDetails(orderId);
+    }
+    
+    // Hide order modal
+    function hideOrderModal() {
+      document.getElementById("orderModal").style.display = "none";
+      document.getElementById("orderModalOverlay").style.display = "none";
+      currentOrderId = null;
+    }
+    
+    // Load order details
+    async function loadOrderDetails(orderId) {
+      try {
+        const orderRef = doc(db, "order_history", orderId);
+        const orderSnap = await getDoc(orderRef);
+        
+        if (!orderSnap.exists()) {
+          alert("Order not found!");
+          hideOrderModal();
+          return;
+        }
+        
+        const order = orderSnap.data();
+        
+        // Fill customer info
+        document.getElementById("modalCustomerName").textContent = order.customerName || "-";
+        document.getElementById("modalCustomerEmail").textContent = order.customerEmail || "-";
+        document.getElementById("modalCustomerPhone").textContent = order.customerPhone || "-";
+        
+        // Fill shipping info
+        document.getElementById("modalShippingAddress").textContent = order.shippingAddress || "-";
+        document.getElementById("modalShippingCity").textContent = order.shippingCity || "-";
+        document.getElementById("modalShippingZip").textContent = order.shippingZip || "-";
+        
+        // Fill order items
+        const itemsTbody = document.getElementById("modalOrderItems");
+        itemsTbody.innerHTML = "";
+        
+        let subtotal = 0;
+        const items = order.items || [];
+        
+        items.forEach(item => {
+          const row = document.createElement("tr");
+          const itemSubtotal = (item.price || 0) * (item.quantity || 1);
+          subtotal += itemSubtotal;
+          
+          row.innerHTML = `
+            <td>${item.name || "Unknown Product"}</td>
+            <td>${item.quantity || 1}</td>
+            <td>$${(item.price || 0).toFixed(2)}</td>
+            <td>$${itemSubtotal.toFixed(2)}</td>
+          `;
+          itemsTbody.appendChild(row);
+        });
+        
+        // Calculate totals
+        const shipping = order.shippingCost || 0;
+        const tax = order.tax || 0;
+        const total = subtotal + shipping + tax;
+        
+        document.getElementById("modalSubtotal").textContent = subtotal.toFixed(2);
+        document.getElementById("modalShippingCost").textContent = shipping.toFixed(2);
+        document.getElementById("modalTax").textContent = tax.toFixed(2);
+        document.getElementById("modalTotal").textContent = total.toFixed(2);
+        
+        // Fill order status
+        const status = order.status || "pending";
+        const statusElem = document.getElementById("modalCurrentStatus");
+        statusElem.textContent = status;
+        statusElem.className = `chip status-${status}`;
+        
+        document.getElementById("modalPaymentStatus").textContent = order.paymentStatus || "pending";
+        document.getElementById("modalOrderDate").textContent = fmtDate(order.orderDate, true);
+        
+      } catch (err) {
+        console.error("Error loading order details:", err);
+        alert("Error loading order details: " + err.message);
+      }
+    }
+    
+    // Update order status
+    async function updateOrderStatus(newStatus) {
+      if (!currentOrderId) return;
+      
+      try {
+        const orderRef = doc(db, "order_history", currentOrderId);
+        const updateData = {
+          status: newStatus,
+          updatedAt: new Date()
+        };
+        
+        // Add status-specific updates
+        if (newStatus === "cancelled") {
+          updateData.cancelledAt = new Date();
+        } else if (newStatus === "refunded") {
+          updateData.refundedAt = new Date();
+          updateData.paymentStatus = "refunded";
+        } else if (newStatus === "delivered") {
+          updateData.deliveredAt = new Date();
+        } else if (newStatus === "shipped") {
+          updateData.shippedAt = new Date();
+          updateData.trackingNumber = updateData.trackingNumber || `TRK${Date.now().toString().slice(-8)}`;
+        }
+        
+        await updateDoc(orderRef, updateData);
+        
+        // Reload order details and orders list
+        await loadOrderDetails(currentOrderId);
+        await loadOrders();
+        
+        alert(`Order status updated to ${newStatus}`);
+        
+      } catch (err) {
+        console.error("Error updating order status:", err);
+        alert("Error updating order status: " + err.message);
+      }
+    }
+    
+    // Load all orders
+    async function loadOrders() {
+      const tbody = document.querySelector("#ordersTable tbody");
+      if (!tbody) return;
+      
+      tbody.innerHTML = "";
+      
+      const statusFilter = document.getElementById("orderStatusFilter")?.value || "";
+      const searchTerm = (document.getElementById("orderSearch")?.value || "").toLowerCase();
+      
+      try {
+        let q = collection(db, "order_history");
+        
+        // Apply status filter if selected
+        if (statusFilter) {
+          q = query(q, where("status", "==", statusFilter));
+        }
+        
+        // Try to order by date
+        try {
+          q = query(q, orderBy("orderDate", "desc"));
+        } catch (err) {
+          console.log("No index for orderDate ordering");
+        }
+        
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td colspan="8" class="muted">No orders found.</td>`;
+          tbody.appendChild(tr);
+          return;
+        }
+        
+        // Filter and process orders
+        const orders = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })).filter(order => {
+          // Apply search filter
+          if (!searchTerm) return true;
+          
+          const searchable = [
+            order.id,
+            order.customerName || "",
+            order.customerEmail || "",
+            order.orderId || "",
+            order.status || ""
+          ].map(x => String(x).toLowerCase()).join(" ");
+          
+          // Also search in items
+          const itemNames = (order.items || []).map(item => item.name || "").join(" ");
+          
+          return searchable.includes(searchTerm) || itemNames.toLowerCase().includes(searchTerm);
+        });
+        
+        // Sort by date (newest first)
+        orders.sort((a, b) => {
+          const dateA = a.orderDate?.toDate ? a.orderDate.toDate() : new Date(a.orderDate || 0);
+          const dateB = b.orderDate?.toDate ? b.orderDate.toDate() : new Date(b.orderDate || 0);
+          return dateB - dateA;
+        });
+        
+        // Display orders
+        orders.forEach(order => {
+          // Calculate total
+          const items = order.items || [];
+          const subtotal = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+          const shipping = order.shippingCost || 0;
+          const tax = order.tax || 0;
+          const total = subtotal + shipping + tax;
+          
+          // Count items
+          const itemCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+          
+          // Create status badge
+          const status = order.status || "pending";
+          const statusBadge = `<span class="order-status status-${status}">${status}</span>`;
+          
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${order.id.substring(0, 12)}...</td>
+            <td>
+              <div><strong>${order.customerName || "Unknown Customer"}</strong></div>
+              <div class="muted">${order.customerEmail || "-"}</div>
+            </td>
+            <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
+            <td>$${total.toFixed(2)}</td>
+            <td>${statusBadge}</td>
+            <td>${order.paymentStatus || "pending"}</td>
+            <td>${fmtDate(order.orderDate, true)}</td>
+            <td class="actions">
+              <button data-action="view-order" data-id="${order.id}">View</button>
+              <button data-action="edit-order" data-id="${order.id}">Edit</button>
+              <button data-action="delete-order" data-id="${order.id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+        
+        // Add event listeners to order actions
+        tbody.onclick = async (e) => {
+          const btn = e.target.closest("button[data-action]");
+          if (!btn) return;
+          
+          const orderId = btn.dataset.id;
+          const action = btn.dataset.action;
+          
+          try {
+            if (action === "view-order") {
+              showOrderModal(orderId);
+            } else if (action === "edit-order") {
+              // You can expand this to show an edit form
+              alert("Edit functionality coming soon!");
+            } else if (action === "delete-order") {
+              if (confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
+                await deleteDoc(doc(db, "order_history", orderId));
+                await loadOrders();
+                alert("Order deleted successfully!");
+              }
+            }
+          } catch (err) {
+            alert(err?.message || "Action failed");
+          }
+        };
+        
+      } catch (err) {
+        console.error("Error loading orders:", err);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="8" class="muted">Error loading orders: ${err.message}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+    
+    // Create sample order (for testing)
+    async function createSampleOrder() {
+      const sampleOrder = {
+        customerName: "John Doe",
+        customerEmail: "john@example.com",
+        customerPhone: "123-456-7890",
+        shippingAddress: "123 Main St",
+        shippingCity: "Phnom Penh",
+        shippingZip: "12000",
+        items: [
+          { name: "Sample Product 1", price: 29.99, quantity: 2 },
+          { name: "Sample Product 2", price: 49.99, quantity: 1 }
+        ],
+        subtotal: 109.97,
+        shippingCost: 5.99,
+        tax: 10.99,
+        total: 126.95,
+        status: "pending",
+        paymentStatus: "paid",
+        paymentMethod: "credit_card",
+        orderDate: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      try {
+        await addDoc(collection(db, "order_history"), sampleOrder);
+        await loadOrders();
+        alert("Sample order created!");
+      } catch (err) {
+        alert("Error creating sample order: " + err.message);
+      }
+    }
+        /* ===== Create Test Order Functions ===== */
+    let testOrderItems = [];
+    
+    // Show create test order modal
+    function showCreateTestOrderModal() {
+      // Reset form
+      testOrderItems = [
+        { name: "Sample Product 1", price: 29.99, quantity: 1 },
+        { name: "Sample Product 2", price: 49.99, quantity: 2 }
+      ];
+      
+      renderTestOrderItems();
+      calculateTestOrderTotal();
+      
+      // Show modal
+      document.getElementById("createTestOrderModal").style.display = "block";
+      document.getElementById("createTestOrderModalOverlay").style.display = "block";
+    }
+    
+    // Hide create test order modal
+    function hideCreateTestOrderModal() {
+      document.getElementById("createTestOrderModal").style.display = "none";
+      document.getElementById("createTestOrderModalOverlay").style.display = "none";
+      testOrderItems = [];
+    }
+    
+    // Render test order items
+    function renderTestOrderItems() {
+      const container = document.getElementById("testOrderItems");
+      container.innerHTML = "";
+      
+      testOrderItems.forEach((item, index) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "form-row";
+        itemDiv.style.marginBottom = "8px";
+        itemDiv.innerHTML = `
+          <input type="text" placeholder="Product Name" value="${item.name}" 
+                 data-index="${index}" data-field="name" style="flex:2;" />
+          <input type="number" step="0.01" min="0" placeholder="Price" value="${item.price}" 
+                 data-index="${index}" data-field="price" style="flex:1;" />
+          <input type="number" min="1" placeholder="Qty" value="${item.quantity}" 
+                 data-index="${index}" data-field="quantity" style="width:80px;" />
+          <button type="button" class="btn" data-index="${index}" 
+                  style="background:#dc3545; color:white; width:40px;">×</button>
+        `;
+        container.appendChild(itemDiv);
+      });
+      
+      // Add event listeners for input changes
+      container.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const index = parseInt(e.target.dataset.index);
+          const field = e.target.dataset.field;
+          const value = e.target.value;
+          
+          if (field === 'price' || field === 'quantity') {
+            testOrderItems[index][field] = parseFloat(value) || 0;
+          } else {
+            testOrderItems[index][field] = value;
+          }
+          
+          calculateTestOrderTotal();
+        });
+      });
+      
+      // Add event listeners for delete buttons
+      container.querySelectorAll('button[data-index]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const index = parseInt(e.target.dataset.index);
+          testOrderItems.splice(index, 1);
+          renderTestOrderItems();
+          calculateTestOrderTotal();
+        });
+      });
+    }
+    
+    // Calculate test order total
+    function calculateTestOrderTotal() {
+      let subtotal = 0;
+      
+      testOrderItems.forEach(item => {
+        subtotal += (item.price || 0) * (item.quantity || 1);
+      });
+      
+      const shipping = parseFloat(document.getElementById("testShippingCost").value) || 0;
+      const tax = parseFloat(document.getElementById("testTax").value) || 0;
+      const total = subtotal + shipping + tax;
+      
+      document.getElementById("testSubtotal").textContent = subtotal.toFixed(2);
+      document.getElementById("testTotal").textContent = total.toFixed(2);
+    }
+    
+    // Add new test item
+    function addTestItem() {
+      if (testOrderItems.length >= 5) {
+        alert("Maximum 5 items per order");
+        return;
+      }
+      
+      testOrderItems.push({
+        name: "New Product",
+        price: 19.99,
+        quantity: 1
+      });
+      
+      renderTestOrderItems();
+      calculateTestOrderTotal();
+    }
+    
+    // Create test order in database
+    async function createTestOrder() {
+      // Get customer info
+      const customerName = document.getElementById("testCustomerName").value.trim();
+      const customerEmail = document.getElementById("testCustomerEmail").value.trim();
+      const customerPhone = document.getElementById("testCustomerPhone").value.trim();
+      
+      // Get shipping info
+      const shippingAddress = document.getElementById("testShippingAddress").value.trim();
+      const shippingCity = document.getElementById("testShippingCity").value.trim();
+      const shippingZip = document.getElementById("testShippingZip").value.trim();
+      
+      // Get order details
+      const status = document.getElementById("testOrderStatus").value;
+      const paymentStatus = document.getElementById("testPaymentStatus").value;
+      const paymentMethod = document.getElementById("testPaymentMethod").value;
+      
+      // Calculate totals
+      let subtotal = 0;
+      testOrderItems.forEach(item => {
+        subtotal += (item.price || 0) * (item.quantity || 1);
+      });
+      
+      const shippingCost = parseFloat(document.getElementById("testShippingCost").value) || 0;
+      const tax = parseFloat(document.getElementById("testTax").value) || 0;
+      const total = subtotal + shippingCost + tax;
+      
+      // Validate
+      if (!customerName || !customerEmail) {
+        alert("Please enter customer name and email");
+        return;
+      }
+      
+      if (testOrderItems.length === 0) {
+        alert("Please add at least one item to the order");
+        return;
+      }
+      
+      // Generate order ID
+      const orderId = `TEST-${Date.now().toString().slice(-8)}`;
+      
+      // Create order object
+      const orderData = {
+        orderId: orderId,
+        customerName: customerName,
+        customerEmail: customerEmail,
+        customerPhone: customerPhone,
+        shippingAddress: shippingAddress,
+        shippingCity: shippingCity,
+        shippingZip: shippingZip,
+        items: testOrderItems.map(item => ({
+          name: item.name,
+          price: parseFloat(item.price.toFixed(2)),
+          quantity: parseInt(item.quantity)
+        })),
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        shippingCost: parseFloat(shippingCost.toFixed(2)),
+        tax: parseFloat(tax.toFixed(2)),
+        total: parseFloat(total.toFixed(2)),
+        status: status,
+        paymentStatus: paymentStatus,
+        paymentMethod: paymentMethod,
+        orderDate: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      try {
+        // Save to Firestore
+        await addDoc(collection(db, "order_history"), orderData);
+        
+        // Success
+        alert(`✅ Test order created successfully!\nOrder ID: ${orderId}\nTotal: $${total.toFixed(2)}`);
+        
+        // Close modal and refresh orders
+        hideCreateTestOrderModal();
+        await loadOrders();
+        
+      } catch (err) {
+        console.error("Error creating test order:", err);
+        alert("❌ Error creating test order: " + err.message);
+      }
+    }
+    
+    // Create quick test orders (for testing without modal)
+    async function createQuickTestOrder() {
+      const testCustomers = [
+        "John Smith", "Emma Johnson", "Michael Brown", "Sarah Davis", "David Wilson",
+        "Lisa Miller", "James Taylor", "Jessica Anderson", "Robert Thomas", "Jennifer Jackson"
+      ];
+      
+      const testProducts = [
+        { name: "Smartphone X", price: 699.99 },
+        { name: "Laptop Pro", price: 1299.99 },
+        { name: "Wireless Earbuds", price: 89.99 },
+        { name: "Smart Watch", price: 249.99 },
+        { name: "Tablet Mini", price: 399.99 },
+        { name: "Gaming Console", price: 499.99 },
+        { name: "Bluetooth Speaker", price: 79.99 },
+        { name: "Digital Camera", price: 599.99 },
+        { name: "Headphones Pro", price: 199.99 },
+        { name: "Fitness Tracker", price: 129.99 }
+      ];
+      
+      const statuses = ["pending", "processing", "shipped", "delivered"];
+      const paymentMethods = ["credit_card", "paypal", "cash_on_delivery"];
+      
+      // Generate random order
+      const customer = testCustomers[Math.floor(Math.random() * testCustomers.length)];
+      const itemCount = Math.floor(Math.random() * 3) + 1; // 1-3 items
+      const items = [];
+      
+      for (let i = 0; i < itemCount; i++) {
+        const product = testProducts[Math.floor(Math.random() * testProducts.length)];
+        items.push({
+          name: product.name,
+          price: product.price,
+          quantity: Math.floor(Math.random() * 2) + 1 // 1-2 quantity
+        });
+      }
+      
+      // Calculate totals
+      let subtotal = 0;
+      items.forEach(item => {
+        subtotal += item.price * item.quantity;
+      });
+      
+      const shippingCost = Math.random() > 0.5 ? 9.99 : 0; // 50% chance of free shipping
+      const tax = subtotal * 0.08; // 8% tax
+      const total = subtotal + shippingCost + tax;
+      
+      const orderData = {
+        customerName: customer,
+        customerEmail: `${customer.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+        customerPhone: `+1${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+        shippingAddress: `${Math.floor(Math.random() * 999) + 1} ${["Main", "Oak", "Pine", "Maple", "Cedar"][Math.floor(Math.random() * 5)]} St`,
+        shippingCity: ["Phnom Penh", "Siem Reap", "Battambang", "Sihanoukville"][Math.floor(Math.random() * 4)],
+        shippingZip: ["12000", "17252", "02000", "18000"][Math.floor(Math.random() * 4)],
+        items: items,
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        shippingCost: parseFloat(shippingCost.toFixed(2)),
+        tax: parseFloat(tax.toFixed(2)),
+        total: parseFloat(total.toFixed(2)),
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+        paymentStatus: Math.random() > 0.2 ? "paid" : "pending", // 80% paid, 20% pending
+        paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+        orderDate: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000), // Random date in last 30 days
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      try {
+        await addDoc(collection(db, "order_history"), orderData);
+        return { success: true, orderId: orderData.orderId };
+      } catch (err) {
+        console.error("Error creating quick test order:", err);
+        return { success: false, error: err.message };
+      }
+    }
+    
+    // Create multiple test orders
+    async function createMultipleTestOrders(count = 5) {
+      const createBtn = document.getElementById("createTestOrderBtn");
+      const originalText = createBtn.textContent;
+      
+      createBtn.disabled = true;
+      createBtn.textContent = `Creating ${count} orders...`;
+      
+      let successCount = 0;
+      let errorCount = 0;
+      
+      for (let i = 0; i < count; i++) {
+        const result = await createQuickTestOrder();
+        if (result.success) {
+          successCount++;
+        } else {
+          errorCount++;
+        }
+        
+        // Small delay between creations
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      createBtn.disabled = false;
+      createBtn.textContent = originalText;
+      
+      await loadOrders();
+      
+      alert(`✅ Created ${successCount} test orders successfully!\n${errorCount > 0 ? `Failed: ${errorCount} orders` : ''}`);
     }
 
     /* ===== Product Management ===== */
