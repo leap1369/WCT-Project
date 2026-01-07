@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -36,6 +35,31 @@
     .id-note { font-size:12px; color:#555; margin-top:6px; }
     .link { color:#2c7ef8; text-decoration:none; }
     .link:hover { text-decoration:underline; }
+        /* ===== Sticky Header ===== */
+    header {
+      position: fixed;  /* Change from default to fixed */
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;    /* Ensure it stays above other content */
+      width: 100%;      /* Full width */
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Optional shadow */
+    }
+    
+    /* Add padding to main to account for fixed header */
+    main {
+      margin-top: 80px; /* Adjust based on your header height */
+    }
+    
+    /* Optional: Smooth scrolling for anchor links */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* Ensure nav links work with fixed header */
+    section {
+      scroll-margin-top: 80px; /* Same as main margin-top */
+    }
   </style>
 </head>
 <body>
@@ -159,7 +183,7 @@
         </thead>
         <tbody></tbody>
       </table>
-      <div class="id-note">Note: Application IDs match the **user’s doc ID** (set by the registration form).</div>
+      <div class="id-note">Note: Application IDs match the **user's doc ID** (set by the registration form).</div>
     </section>
 
     <!-- ===== Verified (Active) Merchants ===== -->
@@ -177,16 +201,80 @@
       </table>
     </section>
 
-    <section id="orders" class="card"><h2>Order Management</h2><div class="muted">Coming soon…</div></section>
-    <section id="products" class="card"><h2>Product Management</h2><div class="muted">Coming soon…</div></section>
-  </main>
+    <!-- ===== Orders ===== -->
+    <section id="orders" class="card">
+      <h2>Order Management</h2>
+      <div class="muted">Coming soon…</div>
+    </section>
 
-  <!-- ===== Firebase ESM via CDN (v10.7.1) ===== -->
-  <script type="module">
-    /* IMPORTANT:
-       Do NOT call setPersistence() here—keep it ONLY in admin-login.html with browserSessionPersistence.
-       That keeps refresh in the same tab, and clears on tab close (expected behavior).
-    */
+    <!-- ===== Product Management ===== -->
+    <section id="products" class="card">
+      <h2>Product Management</h2>
+      <div class="filters">
+        <select id="productCategoryFilter">
+          <option value="">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Home & Garden">Home & Garden</option>
+          <option value="Sports">Sports</option>
+          <option value="Books">Books</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="productStatusFilter">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="out_of_stock">Out of Stock</option>
+        </select>
+        <input id="productSearch" class="search" placeholder="Search products (name, description, merchant ID)..." />
+        <button id="refreshProducts" class="btn">Refresh</button>
+      </div>
+
+      <!-- Create/Edit Product Form -->
+      <div class="form-row">
+        <input id="productName" placeholder="Product Name" />
+        <input id="productDescription" placeholder="Description" />
+        <input id="productPrice" type="number" placeholder="Price" step="0.01" min="0" />
+        <input id="productStockQty" type="number" placeholder="Stock Quantity" min="0" />
+        <select id="productCategory">
+          <option value="Electronics">Electronics</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Home & Garden">Home & Garden</option>
+          <option value="Sports">Sports</option>
+          <option value="Books">Books</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="productStatus">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="out_of_stock">Out of Stock</option>
+        </select>
+        <input id="productMerchantId" placeholder="Merchant ID (optional)" />
+        <button id="createProductBtn" class="btn-primary">Create Product</button>
+        <button id="updateProductBtn" class="btn" style="display:none;">Update Product</button>
+        <button id="cancelEditBtn" class="btn" style="display:none;">Cancel</button>
+      </div>
+
+      <table id="productsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Merchant ID</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import {
@@ -204,15 +292,36 @@
       measurementId: "G-3RLD0EB1FT"
     };
 
-    const app  = initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db   = getFirestore(app);
+    const db = getFirestore(app);
 
     const ADMIN_UID = "zYSujcmGisVdCNPYCfwb7tbpG3D2";
     const ROLES = { USER: "user", MERCHANT: "merchant", ADMIN: "ADMINISTRATOR" };
-    const normalizeRole = (val) => { if (!val) return ""; const s = String(val).trim().toLowerCase(); if (s==="user") return ROLES.USER; if (s==="merchant") return ROLES.MERCHANT; if (s.startsWith("admin")) return ROLES.ADMIN; return ROLES.USER; };
-    const fmtDate = (v, withTime=false) => { if (!v) return "-"; const d = v?.toDate ? v.toDate() : (typeof v==="string" ? new Date(v) : new Date(v)); return withTime ? d.toLocaleString() : d.toLocaleDateString(); };
-    const debounce = (fn, ms=250) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
+    
+    // Utility Functions
+    const normalizeRole = (val) => { 
+      if (!val) return ""; 
+      const s = String(val).trim().toLowerCase(); 
+      if (s === "user") return ROLES.USER; 
+      if (s === "merchant") return ROLES.MERCHANT; 
+      if (s.startsWith("admin")) return ROLES.ADMIN; 
+      return ROLES.USER; 
+    };
+    
+    const fmtDate = (v, withTime = false) => { 
+      if (!v) return "-"; 
+      const d = v?.toDate ? v.toDate() : (typeof v === "string" ? new Date(v) : new Date(v)); 
+      return withTime ? d.toLocaleString() : d.toLocaleDateString(); 
+    };
+    
+    const debounce = (fn, ms = 250) => { 
+      let t; 
+      return (...args) => { 
+        clearTimeout(t); 
+        t = setTimeout(() => fn(...args), ms); 
+      }; 
+    };
 
     let bootstrapped = false;
 
@@ -226,7 +335,7 @@
 
       document.getElementById("adminName").textContent = `Admin (${user.email || ADMIN_UID})`;
 
-      // Logout (safe redirect: replace history)
+      // Logout
       document.getElementById("logoutBtn").addEventListener("click", async () => {
         try { await signOut(auth); } catch(_) {}
         location.replace("admin-login.html");
@@ -254,31 +363,42 @@
       document.getElementById("merchantSearch").addEventListener("input", onMerchantSearch);
       document.getElementById("refreshMerchants").addEventListener("click", loadVerifiedMerchants);
 
+      // Product Management
+      const onProductSearch = debounce(loadProducts, 200);
+      document.getElementById("productSearch").addEventListener("input", onProductSearch);
+      document.getElementById("refreshProducts").addEventListener("click", loadProducts);
+      document.getElementById("productCategoryFilter").addEventListener("change", loadProducts);
+      document.getElementById("productStatusFilter").addEventListener("change", loadProducts);
+      document.getElementById("createProductBtn").addEventListener("click", createProduct);
+      document.getElementById("updateProductBtn").addEventListener("click", updateProduct);
+      document.getElementById("cancelEditBtn").addEventListener("click", cancelEdit);
+
       // Initial load
       initOverview();
       loadUsers();
       loadMerchantApplications();
       loadVerifiedMerchants();
+      loadProducts();
     });
 
     /* ===== Overview ===== */
     async function initOverview() {
-      const users    = await getDocs(collection(db, "users"));
+      const users = await getDocs(collection(db, "users"));
       const verified = await getDocs(collection(db, "verifiedMerchants"));
-      document.getElementById("totalUsers").textContent      = users.size;
+      document.getElementById("totalUsers").textContent = users.size;
       document.getElementById("activeMerchants").textContent = verified.size;
-      document.getElementById("totalOrders").textContent     = 0;
+      document.getElementById("totalOrders").textContent = 0;
       document.getElementById("platformRevenue").textContent = "$0.00";
     }
 
     /* ===== Users ===== */
     async function createUserDoc() {
-      const firstName      = document.getElementById("firstName").value.trim();
-      const lastName       = document.getElementById("lastName").value.trim();
-      const displayName    = document.getElementById("displayName").value.trim();
-      const email          = document.getElementById("email").value.trim();
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const displayName = document.getElementById("displayName").value.trim();
+      const email = document.getElementById("email").value.trim();
       const profilePicture = document.getElementById("profilePicture").value.trim();
-      const role           = normalizeRole(document.getElementById("role").value);
+      const role = normalizeRole(document.getElementById("role").value);
       if (!email || (!firstName && !displayName)) return alert("Provide Email and First/Display name.");
       await addDoc(collection(db, "users"), {
         createdAt: new Date(),
@@ -343,7 +463,7 @@
 
       tbody.onclick = async (e) => {
         const btn = e.target.closest("button[data-action]"); if (!btn) return;
-        const id  = btn.dataset.id; const action = btn.dataset.action;
+        const id = btn.dataset.id; const action = btn.dataset.action;
         try {
           if (action === "set-role") { await updateDoc(doc(db, "users", id), { role: normalizeRole(btn.dataset.role) }); }
           else if (action === "verify-email") { await updateDoc(doc(db, "users", id), { emailVerified: true }); }
@@ -355,16 +475,15 @@
 
     /* ===== Merchant Applications ===== */
     async function createApplicationFromAdmin() {
-      const businessName   = document.getElementById("appBusinessName").value.trim();
-      const businessType   = document.getElementById("appBusinessType").value;
-      const address        = document.getElementById("appAddress").value.trim();
-      const city           = document.getElementById("appCity").value;
-      const zipcode        = document.getElementById("appZipcode").value.trim();
-      const description    = document.getElementById("appDescription").value.trim();
+      const businessName = document.getElementById("appBusinessName").value.trim();
+      const businessType = document.getElementById("appBusinessType").value;
+      const address = document.getElementById("appAddress").value.trim();
+      const city = document.getElementById("appCity").value;
+      const zipcode = document.getElementById("appZipcode").value.trim();
+      const description = document.getElementById("appDescription").value.trim();
       const applicantEmail = (document.getElementById("appApplicantEmail").value || "").trim();
       if (!businessName || !businessType || !city) return alert("Business Name, Type, City required.");
 
-      // If email given, try to create under that user's doc ID; else auto-ID.
       let applicantUserId = null;
       if (applicantEmail) {
         const q = query(collection(db, "users"), where("email","==", applicantEmail));
@@ -392,8 +511,8 @@
 
     async function loadMerchantApplications() {
       const status = document.getElementById("appStatusFilter").value;
-      const term   = (document.getElementById("appSearch").value || "").toLowerCase();
-      const base   = collection(db, "merchantApplications");
+      const term = (document.getElementById("appSearch").value || "").toLowerCase();
+      const base = collection(db, "merchantApplications");
 
       let q = status ? query(base, where("status","==",status)) : base;
       try { q = query(q, orderBy("createdAt","desc"), limit(200)); } catch(_) {}
@@ -401,7 +520,7 @@
       let snap; try { snap = await getDocs(q); }
       catch { snap = status ? await getDocs(query(base, where("status","==",status))) : await getDocs(base); }
 
-      const tbody  = document.querySelector("#merchantAppsTable tbody");
+      const tbody = document.querySelector("#merchantAppsTable tbody");
       tbody.innerHTML = "";
 
       const matches = snap.docs.map(d => ({ id: d.id, data: d.data() }))
@@ -433,7 +552,7 @@
           <td class="actions">
             <button data-action="approve" data-id="${id}">Approve</button>
             <button data-action="reject" data-id="${id}">Reject</button>
-            <button data-action="delete"  data-id="${id}">Delete</button>
+            <button data-action="delete" data-id="${id}">Delete</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -441,12 +560,11 @@
 
       tbody.onclick = async (e) => {
         const btn = e.target.closest("button[data-action]"); if (!btn) return;
-        const id  = btn.dataset.id; const action = btn.dataset.action;
+        const id = btn.dataset.id; const action = btn.dataset.action;
         try {
           const appRef = doc(db, "merchantApplications", id);
           if (action === "approve") {
             const app = (await getDoc(appRef)).data();
-            // SAME ID in verifiedMerchants + carry doc URLs
             await setDoc(doc(db, "verifiedMerchants", id), {
               store: app.businessName,
               owner: app.owner || app.businessName,
@@ -477,7 +595,7 @@
     /* ===== Active Merchants ===== */
     async function loadVerifiedMerchants() {
       const tbody = document.querySelector("#merchantsTable tbody");
-      const term  = (document.getElementById("merchantSearch").value || "").toLowerCase();
+      const term = (document.getElementById("merchantSearch").value || "").toLowerCase();
       tbody.innerHTML = "";
 
       let q; try { q = query(collection(db, "verifiedMerchants"), orderBy("joined","desc")); }
@@ -515,8 +633,8 @@
           <td>${d.verification || "Verified"}</td>
           <td class="actions">
             <button data-action="activate" data-id="${id}">Activate</button>
-            <button data-action="suspend"  data-id="${id}">Suspend</button>
-            <button data-action="delete"   data-id="${id}">Delete</button>
+            <button data-action="suspend" data-id="${id}">Suspend</button>
+            <button data-action="delete" data-id="${id}">Delete</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -524,15 +642,279 @@
 
       tbody.onclick = async (e) => {
         const btn = e.target.closest("button[data-action]"); if (!btn) return;
-        const id  = btn.dataset.id; const action = btn.dataset.action;
+        const id = btn.dataset.id; const action = btn.dataset.action;
         try {
           const ref = doc(db, "verifiedMerchants", id);
           if (action === "activate") { await updateDoc(ref, { status: "Active" }); }
           else if (action === "suspend") { await updateDoc(ref, { status: "Suspended" }); }
-          else if (action === "delete")  { await deleteDoc(ref); }
+          else if (action === "delete") { await deleteDoc(ref); }
           await loadVerifiedMerchants(); await initOverview();
         } catch (err) { alert(err?.message || "Action failed"); }
       };
+    }
+
+    /* ===== Product Management ===== */
+    let editingProductId = null;
+
+    async function loadProducts() {
+      const tbody = document.querySelector("#productsTable tbody");
+      if (!tbody) return;
+      
+      tbody.innerHTML = "";
+      
+      const category = document.getElementById("productCategoryFilter")?.value || "";
+      const status = document.getElementById("productStatusFilter")?.value || "";
+      const searchTerm = (document.getElementById("productSearch")?.value || "").toLowerCase();
+      
+      try {
+        let q = collection(db, "product_list");
+        
+        if (category) {
+          q = query(q, where("category", "==", category));
+        }
+        if (status) {
+          q = query(q, where("status", "==", status));
+        }
+        
+        try {
+          q = query(q, orderBy("createdAt", "desc"));
+        } catch (err) {
+          console.log("No index for createdAt ordering");
+        }
+        
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td colspan="10" class="muted">No products found.</td>`;
+          tbody.appendChild(tr);
+          return;
+        }
+        
+        const products = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })).filter(product => {
+          if (!searchTerm) return true;
+          
+          const searchable = [
+            product.id,
+            product.name || "",
+            product.description || "",
+            product.merchantId || "",
+            product.category || ""
+          ].map(x => String(x).toLowerCase()).join(" ");
+          
+          return searchable.includes(searchTerm);
+        });
+        
+        products.forEach(product => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${product.id}</td>
+            <td>${product.name || "-"}</td>
+            <td>${product.category || "-"}</td>
+            <td>$${parseFloat(product.price || 0).toFixed(2)}</td>
+            <td>${product.stockQty || 0}</td>
+            <td><span class="chip ${product.status === 'active' ? 'true' : 'false'}">${product.status || "-"}</span></td>
+            <td><span class="muted">${(product.merchantId || "").substring(0, 8)}...</span></td>
+            <td>${fmtDate(product.createdAt, true)}</td>
+            <td>${fmtDate(product.updatedAt, true)}</td>
+            <td class="actions">
+              <button data-action="edit" data-id="${product.id}">Edit</button>
+              <button data-action="toggle-status" data-id="${product.id}">${product.status === 'active' ? 'Deactivate' : 'Activate'}</button>
+              <button data-action="delete" data-id="${product.id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+        
+        tbody.onclick = async (e) => {
+          const btn = e.target.closest("button[data-action]");
+          if (!btn) return;
+          
+          const id = btn.dataset.id;
+          const action = btn.dataset.action;
+          
+          try {
+            if (action === "edit") {
+              await editProduct(id);
+            } else if (action === "toggle-status") {
+              await toggleProductStatus(id);
+            } else if (action === "delete") {
+              if (confirm("Are you sure you want to delete this product?")) {
+                await deleteDoc(doc(db, "product_list", id));
+                await loadProducts();
+              }
+            }
+          } catch (err) {
+            alert(err?.message || "Action failed");
+          }
+        };
+        
+      } catch (err) {
+        console.error("Error loading products:", err);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="10" class="muted">Error loading products: ${err.message}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    async function createProduct() {
+      const name = document.getElementById("productName").value.trim();
+      const description = document.getElementById("productDescription").value.trim();
+      const price = parseFloat(document.getElementById("productPrice").value);
+      const stockQty = parseInt(document.getElementById("productStockQty").value);
+      const category = document.getElementById("productCategory").value;
+      const status = document.getElementById("productStatus").value;
+      const merchantId = document.getElementById("productMerchantId").value.trim();
+      
+      if (!name || !category || price < 0 || stockQty < 0) {
+        return alert("Please fill in all required fields with valid values.");
+      }
+      
+      if (merchantId) {
+        try {
+          const merchantDoc = await getDoc(doc(db, "verifiedMerchants", merchantId));
+          if (!merchantDoc.exists()) {
+            if (!confirm("Merchant ID not found in verified merchants. Continue anyway?")) {
+              return;
+            }
+          }
+        } catch (err) {
+          console.log("Merchant verification skipped");
+        }
+      }
+      
+      const productData = {
+        name,
+        description,
+        price: parseFloat(price.toFixed(2)),
+        stockQty,
+        category,
+        status,
+        merchantId: merchantId || null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      try {
+        await addDoc(collection(db, "product_list"), productData);
+        
+        document.getElementById("productName").value = "";
+        document.getElementById("productDescription").value = "";
+        document.getElementById("productPrice").value = "";
+        document.getElementById("productStockQty").value = "";
+        document.getElementById("productMerchantId").value = "";
+        
+        await loadProducts();
+      } catch (err) {
+        alert("Error creating product: " + err.message);
+      }
+    }
+
+    async function editProduct(productId) {
+      try {
+        const productDoc = await getDoc(doc(db, "product_list", productId));
+        
+        if (!productDoc.exists()) {
+          alert("Product not found!");
+          return;
+        }
+        
+        const product = productDoc.data();
+        
+        document.getElementById("productName").value = product.name || "";
+        document.getElementById("productDescription").value = product.description || "";
+        document.getElementById("productPrice").value = product.price || "";
+        document.getElementById("productStockQty").value = product.stockQty || "";
+        document.getElementById("productCategory").value = product.category || "Other";
+        document.getElementById("productStatus").value = product.status || "active";
+        document.getElementById("productMerchantId").value = product.merchantId || "";
+        
+        editingProductId = productId;
+        document.getElementById("createProductBtn").style.display = "none";
+        document.getElementById("updateProductBtn").style.display = "inline-block";
+        document.getElementById("cancelEditBtn").style.display = "inline-block";
+        
+      } catch (err) {
+        alert("Error loading product for editing: " + err.message);
+      }
+    }
+
+    async function updateProduct() {
+      if (!editingProductId) return;
+      
+      const name = document.getElementById("productName").value.trim();
+      const description = document.getElementById("productDescription").value.trim();
+      const price = parseFloat(document.getElementById("productPrice").value);
+      const stockQty = parseInt(document.getElementById("productStockQty").value);
+      const category = document.getElementById("productCategory").value;
+      const status = document.getElementById("productStatus").value;
+      const merchantId = document.getElementById("productMerchantId").value.trim();
+      
+      if (!name || !category || price < 0 || stockQty < 0) {
+        return alert("Please fill in all required fields with valid values.");
+      }
+      
+      const productData = {
+        name,
+        description,
+        price: parseFloat(price.toFixed(2)),
+        stockQty,
+        category,
+        status,
+        merchantId: merchantId || null,
+        updatedAt: new Date()
+      };
+      
+      try {
+        await updateDoc(doc(db, "product_list", editingProductId), productData);
+        
+        cancelEdit();
+        await loadProducts();
+      } catch (err) {
+        alert("Error updating product: " + err.message);
+      }
+    }
+
+    function cancelEdit() {
+      editingProductId = null;
+      
+      document.getElementById("productName").value = "";
+      document.getElementById("productDescription").value = "";
+      document.getElementById("productPrice").value = "";
+      document.getElementById("productStockQty").value = "";
+      document.getElementById("productMerchantId").value = "";
+      document.getElementById("productCategory").value = "Electronics";
+      document.getElementById("productStatus").value = "active";
+      
+      document.getElementById("createProductBtn").style.display = "inline-block";
+      document.getElementById("updateProductBtn").style.display = "none";
+      document.getElementById("cancelEditBtn").style.display = "none";
+    }
+
+    async function toggleProductStatus(productId) {
+      try {
+        const productDoc = await getDoc(doc(db, "product_list", productId));
+        
+        if (!productDoc.exists()) {
+          alert("Product not found!");
+          return;
+        }
+        
+        const product = productDoc.data();
+        const newStatus = product.status === 'active' ? 'inactive' : 'active';
+        
+        await updateDoc(doc(db, "product_list", productId), {
+          status: newStatus,
+          updatedAt: new Date()
+        });
+        
+        await loadProducts();
+      } catch (err) {
+        alert("Error toggling product status: " + err.message);
+      }
     }
   </script>
 </body>
