@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -786,16 +788,6 @@
             transform: translateX(26px);
         }
 
-        .language-selector, .currency-selector {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: white;
-        }
-
         /* Profile Content Area */
         .profile-content {
             display: none;
@@ -841,231 +833,6 @@
             gap: 5px;
         }
 
-        /* Order List specific styles */
-        .order-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .order-item:hover {
-            border-color: #85BB65;
-        }
-
-        .order-item.selected {
-            border-color: #85BB65;
-            background-color: #f0f7ff;
-        }
-
-        .order-checkbox {
-            margin-right: 15px;
-        }
-
-        .order-item-image {
-            width: 60px;
-            height: 60px;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-right: 15px;
-        }
-
-        .order-item-details {
-            flex-grow: 1;
-        }
-
-        .order-item-title {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-
-        .order-item-price {
-            color: #85BB65;
-            font-weight: bold;
-        }
-
-        .order-summary {
-            padding: 20px;
-            border-top: 1px solid #eee;
-            margin-top: 20px;
-        }
-
-        .checkout-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #85BB65;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 15px;
-        }
-
-        .checkout-btn:hover {
-            background-color: #3a5a80;
-        }
-
-        /* Form styles for checkout */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        /* Payment section */
-        .payment-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .payment-option {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border: 2px solid #eee;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .payment-option.selected {
-            border-color: #85BB65;
-            background-color: #f0f7ff;
-        }
-
-        .payment-icon {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            background-color: #f5f5f5;
-            border-radius: 50%;
-            color: #85BB65;
-        }
-
-        /* Review stars */
-        .review-stars {
-            display: flex;
-            gap: 5px;
-            margin: 10px 0;
-        }
-
-        .review-star {
-            font-size: 24px;
-            color: #ddd;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .review-star.active {
-            color: #ffc107;
-        }
-
-        .review-textarea {
-            width: 100%;
-            min-height: 100px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin: 10px 0;
-            font-family: inherit;
-            font-size: 14px;
-            resize: vertical;
-        }
-
-        .submit-review-btn {
-            background-color: #85BB65;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        /* Order status badges */
-        .status-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .status-shipped {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .status-delivered {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-cancelled {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        /* Theme mode: Dark */
-        body.dark-mode {
-            background-color: #1a1a1a;
-            color: #ffffff;
-        }
-
-        body.dark-mode .side-profile {
-            background-color: #2d2d2d;
-            color: #ffffff;
-        }
-
-        body.dark-mode .menu-text {
-            color: #ffffff;
-        }
-
-        body.dark-mode .menu-icon {
-            color: #aaaaaa;
-        }
-
-        body.dark-mode .menu-item:hover {
-            background-color: #3a3a3a;
-        }
-
-        body.dark-mode .form-control {
-            background-color: #3a3a3a;
-            border-color: #444;
-            color: #ffffff;
-        }
-
         /* Animations */
         @keyframes pulse {
             0% {
@@ -1095,56 +862,59 @@
             to { opacity: 1; }
         }
 
-/* Add a new animation for left slide-in */
-@keyframes slideInLeft {
-    from { 
-        transform: translateX(-20px); 
-        opacity: 0; 
-    }
-    to { 
-        transform: translateX(0); 
-        opacity: 1; 
-    }
-}
-
-/* Update the profile content show animation for left side */
-.profile-content.show {
-    display: block;
-    animation: slideInLeft 0.3s ease; /* Changed from slideInRight to slideInLeft */
-}
+        @keyframes slideInLeft {
+            from { 
+                transform: translateX(-20px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateX(0); 
+                opacity: 1; 
+            }
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
-    .side-profile {
-        width: 300px;
-        left: -300px; /* Adjusted for mobile */
-    }
-    
-    .side-profile.show {
-        transform: translateX(300px); /* Adjusted for mobile */
-    }
-    
-    .profile-content {
-        width: 300px;
-        left: 300px; /* Adjusted for mobile */
-    }
-}
+            .side-profile {
+                width: 300px;
+                left: -300px;
+            }
+            
+            .side-profile.show {
+                transform: translateX(300px);
+            }
+            
+            .profile-content {
+                width: 300px;
+                left: 300px;
+            }
+        }
 
-@media (max-width: 480px) {
-    .side-profile {
-        width: 280px;
-        left: -280px; /* Adjusted for mobile */
-    }
-    
-    .side-profile.show {
-        transform: translateX(280px); /* Adjusted for mobile */
-    }
-    
-    .profile-content {
-        width: 280px;
-        left: 280px; /* Adjusted for mobile */
-    }
-}
+        @media (max-width: 480px) {
+            .side-profile {
+                width: 280px;
+                left: -280px;
+            }
+            
+            .side-profile.show {
+                transform: translateX(280px);
+            }
+            
+            .profile-content {
+                width: 280px;
+                left: 280px;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            
+            .category {
+                min-width: 80px;
+                padding: 10px 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1155,13 +925,15 @@
         <div class="profile-pic" id="profilePic" onclick="handleProfileClick()">
             <i class="fas fa-user" style="font-size: 2em;"></i>
         </div>
-        <div class="auth-buttons">
+        <div class="auth-buttons" id="authButtons">
             <button class="btn sign-in" onclick="window.location.href='login.html';">Sign In</button>
             <button class="btn register" onclick="window.location.href='register.html';">Register</button>
         </div>
     </div>
-    <div class="name"><img src="asset/logo.jpeg" alt="All" class="category" width="80" height="80"></div>
-    <div class="merchant-profile" id="become-merchant-btn" onclick="window.location.href='merchant-register-information.html';">
+    <div class="name">
+        <img src="asset/logo.jpeg" alt="Logo" width="80" height="80">
+    </div>
+    <div class="merchant-profile" id="become-merchant-btn" onclick="handleMerchantClick()">
         Become Merchant
         <i class="fa-solid fa-store" style="font-size: 2em;"></i>
     </div>
@@ -1170,106 +942,22 @@
 <!-- Search Section -->
 <section class="search-section">
     <div class="search-container">
-        <input type="text" class="search-bar" placeholder="Search for products, brands and more...">
+        <input type="text" class="search-bar" id="searchInput" placeholder="Search for products, brands and more...">
         <div class="mic-icon">
             <i class="fas fa-microphone"></i>
         </div>
     </div>
     <div class="discover-text">Discover</div>
-    <div class="categories">
-        <div class="category"><img src="asset/electronics.png" alt="All" class="category" width="50" height="50">Electronics</div>
-        <div class="category"><img src="asset/clothes.png" alt="All" class="category" width="50" height="50">Clothes</div>
-        <div class="category"><img src="asset/kitchen.png" alt="All" class="category" width="50" height="50">Home & Kitchen</div>
-        <div class="category"><img src="asset/beauty.png" alt="All" class="category" width="50" height="50">Beauty</div>
-        <div class="category"><img src="asset/sports.png" alt="All" class="category" width="50" height="50">Sports</div>
-        <div class="category"><img src="asset/book.png" alt="All" class="category" width="50" height="50">Books</div>
-        <div class="category"><img src="asset/toys.png" alt="All" class="category" width="50" height="50">Toys</div>
+    <div class="categories" id="categoriesContainer">
+        <!-- Categories will be loaded dynamically -->
     </div>  
 </section>
 
 <!-- Products Section -->
 <section class="products-section">
     <h2 class="section-title">Featured Products</h2>
-    <div class="products-grid">
-        <!-- Product 1 -->
-        <div class="product-card">
-            <a href="product-details.html?product=1" class="product-link">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Camera">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">Professional DSLR Camera</h3>
-                    <div class="product-price">$599.99</div>
-                </div>
-            </a>
-            <button class="add-to-cart" 
-                    onclick="event.stopPropagation(); addToCart('1', 
-                              'Professional DSLR Camera', 
-                              '$599.99', 
-                              'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60')">
-                Add to Cart
-            </button>
-        </div>
-
-        <!-- Product 2 -->
-        <div class="product-card">
-            <a href="product-details.html?product=2" class="product-link">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" alt="Smartwatch">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">Smart Watch Series 5</h3>
-                    <div class="product-price">$249.99</div>
-                </div>
-            </a>
-            <button class="add-to-cart" 
-                    onclick="event.stopPropagation(); addToCart('2', 
-                              'Smart Watch Series 5', 
-                              '$249.99', 
-                              'https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60')">
-                Add to Cart
-            </button>
-        </div>
-
-        <!-- Product 3 -->
-        <div class="product-card">
-            <a href="product-details.html?product=3" class="product-link">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Headphones">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">Wireless Noise Cancelling Headphones</h3>
-                    <div class="product-price">$199.99</div>
-                </div>
-            </a>
-            <button class="add-to-cart" 
-                    onclick="event.stopPropagation(); addToCart('3', 
-                              'Wireless Noise Cancelling Headphones', 
-                              '$199.99', 
-                              'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60')">
-                Add to Cart
-            </button>
-        </div>
-
-        <!-- Product 4 -->
-        <div class="product-card">
-            <a href="product-details.html?product=4" class="product-link">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Sneakers">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">Running Sneakers - Men's</h3>
-                    <div class="product-price">$89.99</div>
-                </div>
-            </a>
-            <button class="add-to-cart" 
-                    onclick="event.stopPropagation(); addToCart('4', 
-                              'Running Sneakers - Men\'s', 
-                              '$89.99', 
-                              'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60')">
-                Add to Cart
-            </button>
-        </div>
+    <div class="products-grid" id="productsContainer">
+        <!-- Products will be loaded dynamically -->
     </div>
 </section>
 
@@ -1281,12 +969,12 @@
     </div>
     
     <!-- Cart Preview Modal -->
-    <div class="cart-preview">
+    <div class="cart-preview" id="cartPreview">
         <div class="cart-preview-header">
             <h3>Your Cart</h3>
             <button class="close-cart-preview" onclick="toggleCartPreview()">&times;</button>
         </div>
-        <div class="cart-items-container">
+        <div class="cart-items-container" id="cartItemsContainer">
             <div class="empty-cart-message">
                 <i class="fas fa-shopping-basket"></i>
                 <p>Your cart is empty</p>
@@ -1297,7 +985,7 @@
                 <span>Total:</span>
                 <span class="total-amount">$0.00</span>
             </div>
-            <button class="view-cart-btn" onclick="window.location.href='cart.html'">View Cart</button>
+            <button class="view-cart-btn" onclick="proceedToCheckout()">Checkout</button>
         </div>
     </div>
 </div>
@@ -1306,7 +994,7 @@
 <div class="side-profile-overlay" onclick="closeSideProfile()"></div>
 
 <!-- Side Profile Panel -->
-<div class="side-profile">
+<div class="side-profile" id="sideProfile">
     <div class="side-profile-header">
         <button class="close-side-profile" onclick="closeSideProfile()">&times;</button>
         <div class="user-info-side">
@@ -1412,12 +1100,13 @@
 <!-- Profile Content Area -->
 <div class="profile-content" id="profileContent"></div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<!-- Firebase v10.7.1 - COMPATIBILITY VERSION -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-    // Firebase configuration
+    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyBKswcE3xGh4feqGZytevh6N-IyrJoJ_7g",
         authDomain: "jeahluy.firebaseapp.com",
@@ -1428,146 +1117,89 @@
         measurementId: "G-3RLD0EB1FT"
     };
 
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth(app);
-    const db = firebase.firestore(app);
-
-    // Add event listener for become-merchant-btn
-    document.getElementById('become-merchant-btn').addEventListener('click', function(event) {
-        if (!auth.currentUser) {
-            alert('Please log in to submit a merchant application');
-            window.location.href = 'login.html';
-            return;
-        }
-        // Redirect to merchant registration page
-        window.location.href = 'merchant-register-information.html';
-    });
+    // Initialize Firebase with compat version
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     
-    // Shopping Cart Data
-    let cart = [];
+    // Get auth and firestore instances
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const FieldValue = firebase.firestore.FieldValue;
 
-    // Check authentication state when page loads
+    // Global variables
+    let currentUser = null;
+    let products = [];
+    let cart = [];
+    let selectedCategory = 'all';
+
+    // Initialize when page loads
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("DOM loaded, checking auth state...");
+        console.log("Initializing homepage with new layout...");
         
-        // Listen for authentication state changes
-        auth.onAuthStateChanged((user) => {
+        // Check authentication state
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
                 console.log("User is signed in:", user.uid);
+                currentUser = user;
                 
-                // Get user data from Firestore
-                db.collection("users").doc(user.uid).get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        const userData = doc.data();
-                        console.log("User data from Firestore:", userData);
-                        
-                        // Store user data in localStorage for easy access
-                        localStorage.setItem('currentUser', JSON.stringify({
-                            uid: user.uid,
-                            firstName: userData.firstName || '',
-                            lastName: userData.lastName || '',
-                            displayName: userData.displayName || user.displayName || 'User',
-                            email: user.email,
-                            profilePicture: userData.profilePicture || user.photoURL || ''
-                        }));
-                        
-                        // Update UI with user data
-                        updateHeaderForLoginState();
-                        updateSideProfile(userData);
-                    } else {
-                        console.log("No user document found in Firestore!");
-                        // Create a basic user document
-                        createUserDocument(user);
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error getting user document:", error);
-                });
+                // Create or update user document in Firestore
+                await createOrUpdateUserDocument(user);
+                
+                updateUIForLoggedInUser(user);
+                loadUserCart(user.uid);
             } else {
                 console.log("User is signed out");
-                localStorage.removeItem('currentUser');
-                updateHeaderForLoginState();
+                currentUser = null;
+                updateUIForGuest();
             }
         });
         
-        loadCart();
-        
-        // Add event listener to profile picture
-        const profilePic = document.getElementById('profilePic');
-        if (profilePic) {
-            profilePic.addEventListener('click', handleProfileClick);
-        }
-        
-        // Add bounce animation for cart count
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes bounce {
-                0%, 20%, 50%, 80%, 100% {
-                    transform: translateY(0);
-                }
-                40% {
-                    transform: translateY(-10px);
-                }
-                60% {
-                    transform: translateY(-5px);
-                }
-            }
-        `;
-        document.head.appendChild(style);
+        // Load products and categories
+        loadProducts();
+        setupEventListeners();
     });
 
-    // Function to create user document if it doesn't exist
-    function createUserDocument(user) {
-        const names = user.displayName ? user.displayName.split(' ') : ['User', ''];
-        const userData = {
-            firstName: names[0],
-            lastName: names[1] || '',
-            email: user.email,
-            displayName: user.displayName || user.email.split('@')[0],
-            emailVerified: user.emailVerified || false,
-            role: "user",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            profilePicture: user.photoURL || '',
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        db.collection("users").doc(user.uid).set(userData)
-        .then(() => {
-            console.log("User document created in Firestore");
-            localStorage.setItem('currentUser', JSON.stringify({
-                uid: user.uid,
-                ...userData
-            }));
-            updateHeaderForLoginState();
-            updateSideProfile(userData);
-        })
-        .catch((error) => {
-            console.error("Error creating user document:", error);
-        });
-    }
-
-    // Function to handle profile picture click
-    function handleProfileClick() {
-        console.log("Profile picture clicked");
-        
-        // Check if user is logged in
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        const user = auth.currentUser;
-        
-        if (user && currentUser.uid) {
-            console.log("Opening side profile for user:", currentUser.displayName);
-            openSideProfile();
-        } else {
-            console.log("User not logged in, redirecting to login page");
-            window.location.href = 'login.html';
+    // Function to create or update user document in Firestore
+    async function createOrUpdateUserDocument(user) {
+        try {
+            const userRef = db.collection('users').doc(user.uid);
+            const userDoc = await userRef.get();
+            
+            if (!userDoc.exists) {
+                // Create new user document
+                await userRef.set({
+                    email: user.email,
+                    displayName: user.displayName || user.email.split('@')[0],
+                    firstName: user.displayName ? user.displayName.split(' ')[0] : '',
+                    lastName: user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '',
+                    emailVerified: user.emailVerified || false,
+                    role: "user",
+                    createdAt: FieldValue.serverTimestamp(),
+                    profilePicture: user.photoURL || '',
+                    lastLogin: FieldValue.serverTimestamp()
+                });
+                console.log("User document created in Firestore");
+            } else {
+                // Update last login
+                await userRef.update({
+                    lastLogin: FieldValue.serverTimestamp()
+                });
+                
+                // Get user data for UI
+                const userData = userDoc.data();
+                localStorage.setItem('currentUser', JSON.stringify({
+                    uid: user.uid,
+                    ...userData
+                }));
+            }
+        } catch (error) {
+            console.error('Error creating/updating user document:', error);
         }
     }
 
-    // Update header based on login state
-    function updateHeaderForLoginState() {
-        const authButtons = document.querySelector('.auth-buttons');
+    function updateUIForLoggedInUser(user) {
+        const authButtons = document.getElementById('authButtons');
         const profilePic = document.getElementById('profilePic');
         
         // Remove any existing welcome message
@@ -1576,121 +1208,127 @@
             existingWelcome.remove();
         }
         
-        // Get current user data
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        const user = auth.currentUser;
+        // Get user data
+        const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const displayName = userData.displayName || user.email.split('@')[0];
         
-        console.log("updateHeaderForLoginState - currentUser:", currentUser);
-        console.log("updateHeaderForLoginState - auth.currentUser:", user);
+        // Hide auth buttons and show welcome message
+        authButtons.style.display = 'none';
         
-        if (user && currentUser.uid) {
-            // User is logged in
-            console.log("User is logged in, updating header...");
-            authButtons.style.display = 'none';
-            
-            // Create welcome message
-            const welcomeDiv = document.createElement('div');
-            welcomeDiv.className = 'welcome-message';
-            welcomeDiv.innerHTML = `
-                Welcome, <span class="username">${currentUser.firstName || 'User'}</span>!
-                <button class="btn logout" onclick="logout()">Logout</button>
-            `;
-            
-            // Insert welcome message after profile pic
-            const userSection = document.querySelector('.user-section');
-            if (userSection) {
-                userSection.insertBefore(welcomeDiv, authButtons);
-            }
-            
-            // Update profile picture
-            if (currentUser.profilePicture) {
-                profilePic.innerHTML = `<img src="${currentUser.profilePicture}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-            } else {
-                // Use initials if no profile picture
-                const initials = currentUser.firstName ? 
-                    currentUser.firstName.charAt(0).toUpperCase() : 
-                    currentUser.email ? currentUser.email.charAt(0).toUpperCase() : 'U';
-                profilePic.innerHTML = `<span style="font-size: 1.5em;">${initials}</span>`;
-            }
-            
-            profilePic.style.cursor = 'pointer';
-            profilePic.title = 'Click to view profile';
-            
+        const welcomeDiv = document.createElement('div');
+        welcomeDiv.className = 'welcome-message';
+        welcomeDiv.innerHTML = `
+            Welcome, <span class="username">${displayName}</span>!
+            <button class="btn logout" onclick="logout()">Logout</button>
+        `;
+        
+        // Insert welcome message
+        const userSection = document.querySelector('.user-section');
+        if (userSection) {
+            userSection.insertBefore(welcomeDiv, authButtons);
+        }
+        
+        // Update profile picture
+        if (userData.profilePicture) {
+            profilePic.innerHTML = `<img src="${userData.profilePicture}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
         } else {
-            // User is not logged in
-            console.log("User is not logged in, showing auth buttons");
-            authButtons.style.display = 'flex';
-            profilePic.innerHTML = `<i class="fas fa-user" style="font-size: 2em;"></i>`;
-            profilePic.style.cursor = 'default';
-            profilePic.title = '';
+            const initials = displayName.charAt(0).toUpperCase();
+            profilePic.innerHTML = `<span style="font-size: 1.5em;">${initials}</span>`;
+        }
+        
+        // Update side profile
+        document.getElementById('sideUsername').textContent = displayName;
+        document.getElementById('sideEmail').textContent = user.email;
+    }
+
+    function updateUIForGuest() {
+        const authButtons = document.getElementById('authButtons');
+        authButtons.style.display = 'flex';
+        
+        // Clear any welcome message
+        const existingWelcome = document.querySelector('.welcome-message');
+        if (existingWelcome) {
+            existingWelcome.remove();
+        }
+        
+        // Reset profile picture
+        const profilePic = document.getElementById('profilePic');
+        profilePic.innerHTML = `<i class="fas fa-user" style="font-size: 2em;"></i>`;
+        
+        // Reset side profile
+        document.getElementById('sideUsername').textContent = 'Guest User';
+        document.getElementById('sideEmail').textContent = 'guest@example.com';
+        
+        // Clear cart for guest (use localStorage for guest cart)
+        loadGuestCart();
+    }
+
+    function loadGuestCart() {
+        try {
+            const savedCart = localStorage.getItem('guestCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart) || [];
+            } else {
+                cart = [];
+            }
+        } catch (error) {
+            console.error('Error loading guest cart:', error);
+            cart = [];
+        }
+        updateCartCount();
+        renderCartPreview();
+    }
+
+    function saveGuestCart() {
+        if (!currentUser) {
+            localStorage.setItem('guestCart', JSON.stringify(cart));
         }
     }
 
-    // Update side profile with user data
-    function updateSideProfile(userData) {
-        console.log("Updating side profile with:", userData);
-        const username = userData.displayName || `${userData.firstName} ${userData.lastName}`;
-        const email = userData.email || '';
-        
-        document.getElementById('sideUsername').textContent = username || 'User';
-        document.getElementById('sideEmail').textContent = email || 'No email';
+    function handleMerchantClick() {
+        if (!currentUser) {
+            alert('Please login to become a merchant');
+            window.location.href = 'login.html';
+        } else {
+            window.location.href = 'merchant-register-information.html';
+        }
     }
 
-    // Logout function
+    function handleProfileClick() {
+        if (!currentUser) {
+            window.location.href = 'login.html';
+            return;
+        }
+        openSideProfile();
+    }
+
+    function openSideProfile() {
+        document.getElementById('sideProfile').classList.add('show');
+        document.querySelector('.side-profile-overlay').classList.add('show');
+        setActiveMenuItem('profile');
+        showProfileSection('profile');
+    }
+
+    function closeSideProfile() {
+        document.getElementById('sideProfile').classList.remove('show');
+        document.querySelector('.side-profile-overlay').classList.remove('show');
+        document.getElementById('profileContent').classList.remove('show');
+    }
+
     function logout() {
-        console.log("Logging out...");
         auth.signOut()
-        .then(() => {
-            localStorage.removeItem('currentUser');
-            updateHeaderForLoginState();
-            closeSideProfile();
-            alert('You have been logged out successfully!');
-        })
-        .catch((error) => {
-            console.error("Logout error:", error);
-            alert('Logout failed: ' + error.message);
-        });
+            .then(() => {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                updateUIForGuest();
+                closeSideProfile();
+                showNotification('Logged out successfully!');
+            })
+            .catch(error => {
+                console.error('Logout error:', error);
+                alert('Error logging out: ' + error.message);
+            });
     }
-
-    // Side Profile Functions
-    // Side Profile Functions
-function openSideProfile() {
-    console.log("Opening side profile from LEFT side...");
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const user = auth.currentUser;
-    
-    if (!user) {
-        console.log("No user found, redirecting to login");
-        window.location.href = 'login.html';
-        return;
-    }
-    
-    // Update user info in side panel
-    if (currentUser.displayName) {
-        document.getElementById('sideUsername').textContent = currentUser.displayName;
-        document.getElementById('sideEmail').textContent = currentUser.email || user.email;
-    }
-    
-    document.querySelector('.side-profile-overlay').classList.add('show');
-    document.querySelector('.side-profile').classList.add('show');
-    
-    updateCartBadge();
-    setActiveMenuItem('profile');
-    showProfileSection('profile');
-}
-
-function closeSideProfile() {
-    document.querySelector('.side-profile-overlay').classList.remove('show');
-    document.querySelector('.side-profile').classList.remove('show');
-    document.querySelectorAll('.profile-content').forEach(content => {
-        content.classList.remove('show');
-    });
-}
-
-function closeProfileContent() {
-    document.getElementById('profileContent').classList.remove('show');
-    setActiveMenuItem('profile');
-}
 
     function setActiveMenuItem(sectionId) {
         document.querySelectorAll('.menu-item').forEach(item => {
@@ -1704,147 +1342,264 @@ function closeProfileContent() {
     }
 
     function showProfileSection(sectionId) {
-    setActiveMenuItem(sectionId);
-    
-    const contentDiv = document.getElementById('profileContent');
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const user = auth.currentUser;
-    
-    let contentHTML = '';
-    
-    switch(sectionId) {
-        case 'profile':
-            contentHTML = `
-                <div class="content-header">
-                    <h3>Profile</h3>
-                    <button class="back-button" onclick="closeProfileContent()">
-                        Back <i class="fas fa-arrow-right"></i> <!-- Arrow now points right -->
-                    </button>
-                </div>
-                <div class="profile-details">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <div class="profile-pic-side" style="width: 100px; height: 100px; margin: 0 auto; background-color: #85BB65;">
-                            ${currentUser.profilePicture ? 
-                                `<img src="${currentUser.profilePicture}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` :
-                                `<i class="fas fa-user" style="font-size: 48px; color: white; line-height: 100px;"></i>`
-                            }
-                        </div>
-                        <h3 id="profileUsername">${currentUser.displayName || 'User'}</h3>
-                        <p id="profileEmail">${currentUser.email || user?.email || 'No email'}</p>
-                        <p><small>Joined: ${new Date().toLocaleDateString()}</small></p>
+        setActiveMenuItem(sectionId);
+        
+        const contentDiv = document.getElementById('profileContent');
+        const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const user = auth.currentUser;
+        
+        let contentHTML = '';
+        
+        switch(sectionId) {
+            case 'profile':
+                contentHTML = `
+                    <div class="content-header">
+                        <h3>Profile</h3>
+                        <button class="back-button" onclick="closeProfileContent()">
+                            Back <i class="fas fa-arrow-right"></i>
+                        </button>
                     </div>
-                    
-                    <div style="padding: 20px;">
-                        <div style="margin-bottom: 15px;">
-                            <strong>First Name:</strong> ${currentUser.firstName || 'Not set'}
+                    <div class="profile-details">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div class="profile-pic-side" style="width: 100px; height: 100px; margin: 0 auto; background-color: #85BB65;">
+                                ${userData.profilePicture ? 
+                                    `<img src="${userData.profilePicture}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` :
+                                    `<i class="fas fa-user" style="font-size: 48px; color: white; line-height: 100px;"></i>`
+                                }
+                            </div>
+                            <h3>${userData.displayName || 'User'}</h3>
+                            <p>${userData.email || user?.email || 'No email'}</p>
                         </div>
-                        <div style="margin-bottom: 15px;">
-                            <strong>Last Name:</strong> ${currentUser.lastName || 'Not set'}
+                        
+                        <div style="padding: 20px;">
+                            <div style="margin-bottom: 15px;">
+                                <strong>First Name:</strong> ${userData.firstName || 'Not set'}
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <strong>Last Name:</strong> ${userData.lastName || 'Not set'}
+                            </div>
                         </div>
-                        <div style="margin-bottom: 15px;">
-                            <strong>Email Verified:</strong> ${user?.emailVerified ? '✓ Verified' : '✗ Not verified'}
-                        </div>
+                        
+                        <button class="view-cart-btn" onclick="editProfile()" style="margin: 20px;">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </button>
                     </div>
-                    
-                    <button class="checkout-btn" onclick="editProfile()" style="margin: 20px;">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </button>
-                </div>
-            `;
-            break;
-            
-        // Update other sections similarly...
-        default:
-            contentHTML = `
-                <div class="content-header">
-                    <h3>${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}</h3>
-                    <button class="back-button" onclick="closeProfileContent()">
-                        Back <i class="fas fa-arrow-right"></i> <!-- Arrow now points right -->
-                    </button>
-                </div>
-                <div style="padding: 20px; text-align: center;">
-                    <p>Feature coming soon!</p>
-                </div>
-            `;
+                `;
+                break;
+                
+            default:
+                contentHTML = `
+                    <div class="content-header">
+                        <h3>${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}</h3>
+                        <button class="back-button" onclick="closeProfileContent()">
+                            Back <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div style="padding: 20px; text-align: center;">
+                        <p>Feature coming soon!</p>
+                    </div>
+                `;
+        }
+        
+        contentDiv.innerHTML = contentHTML;
+        contentDiv.classList.add('show');
     }
-    
-    contentDiv.innerHTML = contentHTML;
-    contentDiv.classList.add('show');
-}
 
     function closeProfileContent() {
         document.getElementById('profileContent').classList.remove('show');
         setActiveMenuItem('profile');
     }
 
-    // Shopping Cart Functions
-    function loadCart() {
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+    }
+
+    async function loadProducts() {
         try {
-            const savedCart = localStorage.getItem('shoppingCart');
-            if (savedCart) {
-                cart = JSON.parse(savedCart) || [];
-                cart = cart.filter(item => item && item.id);
-            } else {
-                cart = [];
-            }
+            console.log("Loading products from Firestore...");
+            
+            const snapshot = await db.collection('product_list').get();
+            products = [];
+            
+            snapshot.forEach(doc => {
+                const product = {
+                    id: doc.id,
+                    ...doc.data()
+                };
+                products.push(product);
+            });
+            
+            console.log(`Loaded ${products.length} products`);
+            
+            // Get unique categories
+            const categories = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
+            renderCategories(categories);
+            renderProducts(products);
+            
         } catch (error) {
-            console.error('Error loading cart from localStorage:', error);
-            cart = [];
+            console.error('Error loading products:', error);
+            document.getElementById('productsContainer').innerHTML = 
+                '<div style="text-align: center; padding: 40px; color: #666;">Error loading products. Please refresh.</div>';
         }
-        updateCartCount();
-        renderCartPreview();
     }
 
-    function saveCart() {
-        localStorage.setItem('shoppingCart', JSON.stringify(cart));
+    function renderCategories(categories) {
+        const container = document.getElementById('categoriesContainer');
+        container.innerHTML = categories.map(category => `
+            <div class="category" onclick="filterByCategory('${category}')">
+                <div style="width: 50px; height: 50px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">
+                    <i class="fas fa-tag" style="color: #85BB65; font-size: 24px;"></i>
+                </div>
+                <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+            </div>
+        `).join('');
     }
 
-    function addToCart(productId, productTitle, productPrice, productImage) {
-        if (!productId || !productTitle) {
-            console.error('Invalid product data');
+    function filterByCategory(category) {
+        selectedCategory = category;
+        
+        // Filter products
+        const filteredProducts = category === 'all' 
+            ? products 
+            : products.filter(product => product.category === category);
+        
+        renderProducts(filteredProducts);
+    }
+
+    function renderProducts(productsToShow) {
+        const container = document.getElementById('productsContainer');
+        
+        if (productsToShow.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 40px; color: #666; grid-column: 1 / -1;">No products found</div>';
             return;
         }
         
-        let formattedPrice = productPrice;
-        if (typeof productPrice === 'number') {
-            formattedPrice = `$${productPrice.toFixed(2)}`;
-        } else if (!productPrice.includes('$')) {
-            formattedPrice = `$${productPrice}`;
+        container.innerHTML = productsToShow.map(product => `
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="${product.imageUrl || 'https://via.placeholder.com/300x200'}" alt="${product.name}">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">${product.name}</h3>
+                    <div class="product-price">$${parseFloat(product.price).toFixed(2)}</div>
+                    ${product.rating ? `
+                        <div class="product-rating">
+                            ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
+                            (${product.rating})
+                        </div>
+                    ` : ''}
+                </div>
+                <button class="add-to-cart" onclick="addToCart('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.imageUrl || ''}')">
+                    Add to Cart
+                </button>
+            </div>
+        `).join('');
+    }
+
+    async function loadUserCart(userId) {
+        try {
+            console.log("Loading cart for user:", userId);
+            
+            const cartDoc = await db.collection('carts').doc(userId).get();
+            
+            if (cartDoc.exists) {
+                cart = cartDoc.data().items || [];
+                console.log("Loaded cart items:", cart.length);
+            } else {
+                // Create empty cart document
+                await db.collection('carts').doc(userId).set({
+                    userId: userId,
+                    items: [],
+                    updatedAt: FieldValue.serverTimestamp()
+                });
+                cart = [];
+            }
+            
+            updateCartCount();
+            renderCartPreview();
+            
+        } catch (error) {
+            console.error('Error loading cart:', error);
+            cart = [];
         }
-        
-        const existingItemIndex = cart.findIndex(item => item.id === productId);
-        
-        if (existingItemIndex > -1) {
-            cart[existingItemIndex].quantity += 1;
+    }
+
+    async function addToCart(productId, productName, productPrice, productImage) {
+        if (!currentUser) {
+            // For guest users
+            const existingItemIndex = cart.findIndex(item => item.id === productId);
+            
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    image: productImage,
+                    quantity: 1
+                });
+            }
+            
+            saveGuestCart();
         } else {
-            cart.push({
-                id: productId,
-                title: productTitle,
-                price: formattedPrice,
-                image: productImage,
-                quantity: 1
-            });
+            // For logged in users
+            const existingItemIndex = cart.findIndex(item => item.id === productId);
+            
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    image: productImage,
+                    quantity: 1
+                });
+            }
+            
+            // Save to Firestore
+            await saveCartToFirestore();
         }
         
-        saveCart();
+        // Update UI
         updateCartCount();
         renderCartPreview();
-        showAddedToCartMessage(productTitle);
+        showNotification(`Added ${productName} to cart`);
+    }
+
+    async function saveCartToFirestore() {
+        if (!currentUser) return;
         
-        const cartPreview = document.querySelector('.cart-preview');
-        if (cartPreview && !cartPreview.classList.contains('show')) {
-            toggleCartPreview();
+        try {
+            await db.collection('carts').doc(currentUser.uid).set({
+                userId: currentUser.uid,
+                items: cart,
+                updatedAt: FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            console.log("Cart saved to Firestore");
+        } catch (error) {
+            console.error('Error saving cart:', error);
         }
     }
 
-    function removeFromCart(productId) {
+    async function removeFromCart(productId) {
         cart = cart.filter(item => item.id !== productId);
-        saveCart();
+        
+        if (currentUser) {
+            await saveCartToFirestore();
+        } else {
+            saveGuestCart();
+        }
+        
         updateCartCount();
         renderCartPreview();
     }
 
-    function updateQuantity(productId, change) {
+    async function updateQuantity(productId, change) {
         const itemIndex = cart.findIndex(item => item.id === productId);
         
         if (itemIndex > -1) {
@@ -1854,230 +1609,196 @@ function closeProfileContent() {
                 cart.splice(itemIndex, 1);
             }
             
-            saveCart();
+            if (currentUser) {
+                await saveCartToFirestore();
+            } else {
+                saveGuestCart();
+            }
+            
             updateCartCount();
             renderCartPreview();
         }
     }
 
     function updateCartCount() {
-        const cartCountElement = document.querySelector('.cart-count');
         const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+        document.querySelector('.cart-count').textContent = totalItems;
         
-        if (cartCountElement) {
-            cartCountElement.textContent = totalItems;
-            
-            if (totalItems > 0) {
-                cartCountElement.style.display = 'flex';
-                cartCountElement.style.animation = 'none';
-                setTimeout(() => {
-                    cartCountElement.style.animation = 'bounce 0.5s';
-                }, 10);
-            } else {
-                cartCountElement.style.display = 'flex';
-            }
-        }
-        
-        updateCartBadge();
-    }
-
-    function updateCartBadge() {
-        const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+        // Update cart badge in side profile
         const badgeElement = document.getElementById('cartBadge');
         if (badgeElement) {
-            badgeElement.textContent = cartCount;
-        }
-    }
-
-    function toggleCartPreview() {
-        const cartPreview = document.querySelector('.cart-preview');
-        cartPreview.classList.toggle('show');
-        
-        if (cartPreview.classList.contains('show')) {
-            renderCartPreview();
+            badgeElement.textContent = totalItems;
         }
     }
 
     function renderCartPreview() {
-        const cartItemsContainer = document.querySelector('.cart-items-container');
-        const cartTotalElement = document.querySelector('.total-amount');
+        const container = document.getElementById('cartItemsContainer');
+        const totalElement = document.querySelector('.total-amount');
         
-        if (!cart || cart.length === 0) {
-            cartItemsContainer.innerHTML = `
+        if (cart.length === 0) {
+            container.innerHTML = `
                 <div class="empty-cart-message">
                     <i class="fas fa-shopping-basket"></i>
                     <p>Your cart is empty</p>
                 </div>
             `;
-            if (cartTotalElement) cartTotalElement.textContent = '$0.00';
+            if (totalElement) totalElement.textContent = '$0.00';
             return;
         }
         
         let total = 0;
+        let itemsHTML = '';
         
-        cartItemsContainer.innerHTML = cart.map(item => {
-            if (!item || !item.price) {
-                console.error('Invalid cart item:', item);
-                return '';
-            }
-            
-            let priceValue = 0;
-            if (typeof item.price === 'string') {
-                priceValue = parseFloat(item.price.replace(/[^0-9.-]+/g, "")) || 0;
-            } else if (typeof item.price === 'number') {
-                priceValue = item.price;
-            }
-            
-            const itemTotal = priceValue * (item.quantity || 1);
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
             total += itemTotal;
             
-            return `
+            itemsHTML += `
                 <div class="cart-item" data-product-id="${item.id}">
                     <div class="cart-item-image">
-                        <img src="${item.image || ''}" alt="${item.title || 'Product'}">
+                        <img src="${item.image || 'https://via.placeholder.com/60'}" alt="${item.name}">
                     </div>
                     <div class="cart-item-details">
-                        <div class="cart-item-title">${item.title || 'Unknown Product'}</div>
-                        <div class="cart-item-price">${item.price} × ${item.quantity || 1}</div>
+                        <div class="cart-item-title">${item.name}</div>
+                        <div class="cart-item-price">$${item.price.toFixed(2)} × ${item.quantity}</div>
                         <div class="cart-item-actions">
                             <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
-                            <span>${item.quantity || 1}</span>
+                            <span>${item.quantity}</span>
                             <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
                             <button class="remove-item" onclick="removeFromCart('${item.id}')">Remove</button>
                         </div>
                     </div>
                 </div>
             `;
-        }).join('');
+        });
         
-        if (cartTotalElement) {
-            cartTotalElement.textContent = `$${total.toFixed(2)}`;
-        }
+        container.innerHTML = itemsHTML;
+        if (totalElement) totalElement.textContent = `$${total.toFixed(2)}`;
     }
 
-    function showAddedToCartMessage(productTitle) {
-        let notification = document.querySelector('.cart-notification');
-        
-        if (!notification) {
-            notification = document.createElement('div');
-            notification.className = 'cart-notification';
-            document.body.appendChild(notification);
-            
-            const style = document.createElement('style');
-            style.textContent = `
-                .cart-notification {
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background-color: #85BB65;
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: 5px;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                    z-index: 1001;
-                    transform: translateX(150%);
-                    transition: transform 0.3s ease;
-                    max-width: 300px;
-                }
-                
-                .cart-notification.show {
-                    transform: translateX(0);
-                }
-                
-                .cart-notification i {
-                    margin-right: 10px;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
-        notification.innerHTML = `
-            <i class="fas fa-check-circle"></i>
-            <strong>Added to cart:</strong> ${productTitle}
-        `;
-        
-        notification.classList.add('show');
-        
-        setTimeout(() => {
-            notification.classList.remove('show');
-        }, 3000);
-    }
-
-    // Close cart preview when clicking outside
-    document.addEventListener('click', function(event) {
-        const cartPreview = document.querySelector('.cart-preview');
-        const cartIcon = document.querySelector('.cart-icon-container');
-        
-        if (cartPreview && cartPreview.classList.contains('show') && 
-            !cartPreview.contains(event.target) && 
-            !cartIcon.contains(event.target)) {
-            cartPreview.classList.remove('show');
-        }
-    });
-
-    // Close cart preview with Escape key
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            const cartPreview = document.querySelector('.cart-preview');
-            if (cartPreview && cartPreview.classList.contains('show')) {
-                cartPreview.classList.remove('show');
-            }
-        }
-    });
-
-    function loadOrderList() {
-        const orderListDiv = document.getElementById('orderListItems');
-        const orderSummaryDiv = document.getElementById('orderSummary');
-        
-        if (!cart || cart.length === 0) {
-            orderListDiv.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Your cart is empty</p>';
-            orderSummaryDiv.style.display = 'none';
+    function toggleCartPreview() {
+        if (!currentUser && cart.length === 0) {
+            showNotification('Your cart is empty');
             return;
         }
         
-        let orderHTML = '';
-        let subtotal = 0;
-        
-        cart.forEach(item => {
-            const priceValue = parseFloat(item.price.replace(/[^0-9.-]+/g, "")) || 0;
-            const itemTotal = priceValue * item.quantity;
-            subtotal += itemTotal;
-            
-            orderHTML += `
-                <div class="order-item" data-product-id="${item.id}">
-                    <div class="order-checkbox">
-                        <input type="checkbox" class="order-checkbox-input" 
-                               onchange="updateSelectedOrders()" 
-                               data-price="${itemTotal}" checked>
-                    </div>
-                    <div class="order-item-image">
-                        <img src="${item.image}" alt="${item.title}">
-                    </div>
-                    <div class="order-item-details">
-                        <div class="order-item-title">${item.title}</div>
-                        <div class="order-item-price">${item.price} × ${item.quantity}</div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        orderListDiv.innerHTML = orderHTML;
-        orderSummaryDiv.style.display = 'block';
-        
-        // Update summary
-        document.getElementById('orderSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-        document.getElementById('orderTotal').textContent = `$${subtotal.toFixed(2)}`;
+        const cartPreview = document.getElementById('cartPreview');
+        cartPreview.classList.toggle('show');
     }
 
     function proceedToCheckout() {
+        if (!currentUser) {
+            alert('Please login to checkout');
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        if (cart.length === 0) {
+            alert('Your cart is empty');
+            return;
+        }
+        
         alert('Checkout feature coming soon!');
     }
 
     function editProfile() {
         alert('Edit profile feature coming soon!');
     }
+
+    function showNotification(message) {
+        // Simple notification implementation
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #85BB65;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 10);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(150%)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    function setupEventListeners() {
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredProducts = products.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    (product.description && product.description.toLowerCase().includes(searchTerm))
+                );
+                renderProducts(filteredProducts);
+            });
+        }
+        
+        // Close cart preview when clicking outside
+        document.addEventListener('click', function(e) {
+            const cartPreview = document.getElementById('cartPreview');
+            const cartIcon = document.querySelector('.cart-icon-container');
+            
+            if (cartPreview && cartPreview.classList.contains('show') && 
+                !cartPreview.contains(e.target) && 
+                !cartIcon.contains(e.target)) {
+                cartPreview.classList.remove('show');
+            }
+        });
+        
+        // Close cart preview with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const cartPreview = document.getElementById('cartPreview');
+                if (cartPreview && cartPreview.classList.contains('show')) {
+                    cartPreview.classList.remove('show');
+                }
+            }
+        });
+        
+        // Check for saved dark mode preference
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'true') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggle').checked = true;
+        }
+    }
+
+    // Expose functions to global scope
+    window.handleProfileClick = handleProfileClick;
+    window.handleMerchantClick = handleMerchantClick;
+    window.closeSideProfile = closeSideProfile;
+    window.showProfileSection = showProfileSection;
+    window.closeProfileContent = closeProfileContent;
+    window.toggleTheme = toggleTheme;
+    window.toggleCartPreview = toggleCartPreview;
+    window.logout = logout;
+    window.addToCart = addToCart;
+    window.updateQuantity = updateQuantity;
+    window.removeFromCart = removeFromCart;
+    window.proceedToCheckout = proceedToCheckout;
+    window.filterByCategory = filterByCategory;
+    window.editProfile = editProfile;
 </script>
-</script>
-<script></script>
 </body>
 </html>
