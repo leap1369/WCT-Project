@@ -141,12 +141,113 @@
       return { ok:true };
     }
 
-    async function uploadImageIfAny(file, path) {
-      if (!file) return null;
-      const storageRef = ref(storage, path);
-      const snap = await uploadBytes(storageRef, file, { contentType: file.type });
-      return await getDownloadURL(snap.ref);
+async function fileToBase64(file) {
+  if (!file) return null;
+  
+  return new Promise((resolve, reject) => {
+    // Validate file is an image
+    if (!file.type.startsWith('image/')) {
+      reject(new Error('File must be an image'));
+      return;
     }
+    
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      try {
+        const fullDataURL = reader.result;
+        if (!fullDataURL.includes('base64,')) {
+          reject(new Error('Invalid file format'));
+          return;
+        }
+        const base64String = fullDataURL.split(',')[1];
+        resolve(base64String);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    reader.onerror = error => reject(error);
+  });
+}
+
+// Remove the uploadImageIfAny function and replace it in your submit handler:
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  msg.textContent = "";
+  msg.className = "msg";
+
+  const businessName = document.getElementById("businessName").value.trim();
+  const businessType = document.getElementById("businessType").value;
+  const address      = document.getElementById("address").value.trim();
+  const city         = document.getElementById("city").value;
+  const zipcode      = document.getElementById("zipcode").value.trim();
+  const description  = document.getElementById("description").value.trim();
+  const applicantEmail = emailInput.value.trim();
+  const userDocId    = userIdInput.value;
+
+  if (!businessName || !businessType || !city || !applicantEmail || !userDocId) {
+    msg.textContent = "Please fill Business Name, Type, City, and ensure you're signed in.";
+    msg.className = "msg error";
+    return;
+  }
+
+  // Validate images
+  const bizFile = businessDocInput.files[0] || null;
+  const idFile  = identityDocInput.files[0] || null;
+
+  const v1 = validateImage(bizFile, "Business registration/related photo");
+  if (!v1.ok) { msg.textContent = v1.err; msg.className = "msg error"; return; }
+
+  const v2 = validateImage(idFile, "Identity card/passport photo");
+  if (!v2.ok) { msg.textContent = v2.err; msg.className = "msg error"; return; }
+
+  try {
+    // Use userDocId as application ID
+    const appRef = doc(db, "merchantApplications", userDocId);
+
+    // If doc exists and not Rejected, block
+    const ex = await getDoc(appRef);
+    if (ex.exists() && ex.data().status !== "Rejected") {
+      msg.textContent = `You already have an application with status: ${ex.data().status}.`;
+      msg.className = "msg error";
+      return;
+    }
+
+    // Convert images to base64
+    msg.textContent = "Processing images…";
+    let businessDocBase64 = null;
+    let identityDocBase64 = null;
+
+    if (bizFile) {
+      businessDocBase64 = await fileToBase64(bizFile);
+    }
+    if (idFile) {
+      identityDocBase64 = await fileToBase64(idFile);
+    }
+
+    // Save application doc with base64 images
+    msg.textContent = "Saving application…";
+    await setDoc(appRef, {
+      applicantUserId: userDocId,
+      applicantEmail,
+      businessName, businessType, address, city, zipcode, description,
+      businessDocBase64,  // Changed from businessDocUrl
+      identityDocBase64,  // Changed from identityDocUrl
+      status: "Pending Review",
+      createdAt: new Date()
+    }, { merge: true });
+
+    msg.textContent = "Application submitted successfully!";
+    msg.className = "msg success";
+    form.reset();
+    businessDocInfo.textContent = "";
+    identityDocInfo.textContent = "";
+  } catch (err) {
+    msg.textContent = err?.message || "Submission failed.";
+    msg.className = "msg error";
+  }
+});
 
     async function fetchUserDocByEmail(email) {
       const q = query(collection(db, "users"), where("email", "==", email));
