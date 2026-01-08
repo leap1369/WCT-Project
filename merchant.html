@@ -2128,6 +2128,7 @@
         function removeImage() {
             selectedImageFile = null;
             productImageBase64 = null;
+            currentProductImageBase64 = null; // Clear the stored product image too
             
             const imagePreview = document.getElementById('imagePreview');
             const uploadArea = document.getElementById('uploadArea');
@@ -2169,11 +2170,18 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
-                // Add base64 image if available
+                // Handle image: Only add if there's a new image
                 if (productImageBase64) {
+                    // New image was uploaded
                     productData.imageBase64 = productImageBase64;
                     console.log("✅ Base64 image added to product data");
+                } else if (currentProductImageBase64 === null && editingProductId) {
+                    // If editing and currentProductImageBase64 is null (image was removed)
+                    productData.imageBase64 = null; // Explicitly set to null to remove image
+                    console.log("✅ Image removed from product");
                 }
+                // If productImageBase64 is null and editingProductId exists but currentProductImageBase64 has a value,
+                // we keep the existing image (user didn't change it)
                 
                 // Add optional fields if provided
                 if (sku) productData.sku = sku;
