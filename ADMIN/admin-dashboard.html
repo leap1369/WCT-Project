@@ -164,6 +164,68 @@
       width: 100%;      /* Full width */
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Optional shadow */
     }
+    /* ===== Date & Status Styling ===== */
+.date-cell, td[style*="font-size: 13px"] {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+  font-size: 13px !important;
+  color: #444 !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* Status badge styling */
+.chip {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.02em !important;
+  padding: 4px 10px !important;
+  border-radius: 12px !important;
+  text-transform: capitalize !important;
+}
+
+/* Specific status colors */
+.chip.true {
+  background: #d1f7c4 !important;
+  color: #0e6245 !important;
+  border: 1px solid #b0e6a1 !important;
+}
+
+.chip.false {
+  background: #ffeaea !important;
+  color: #c53030 !important;
+  border: 1px solid #ffcccc !important;
+}
+
+/* Make all table cells consistent */
+#merchantAppsTable td,
+#merchantsTable td {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+  font-size: 13px !important;
+}
+
+/* Specific styling for date columns */
+#merchantAppsTable td:nth-child(8), /* Applied Date column */
+#merchantsTable td:nth-child(7) {   /* Joined column */
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+  font-size: 13px !important;
+  color: #555 !important;
+  font-weight: 400 !important;
+}
+
+/* Status column styling */
+#merchantAppsTable td:nth-child(9), /* Status column */
+#merchantsTable td:nth-child(8),    /* Status column */
+#merchantsTable td:nth-child(9) {   /* Verification column */
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+}
+
+/* Make the verification badges match */
+#merchantsTable td:nth-child(9) .chip {
+  background: #d1f7c4 !important;
+  color: #0e6245 !important;
+  border: 1px solid #b0e6a1 !important;
+  font-weight: 500 !important;
+} 
     
     /* Add padding to main to account for fixed header */
     main {
@@ -196,6 +258,7 @@
     .status-cancelled { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     .status-refunded { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <header>
@@ -804,23 +867,25 @@
   };
 
   window.removeProductImage = function() {
-    window.productImageBase64 = null;
-    window.selectedImageFile = null;
-    
-    const previewContainer = document.getElementById('imagePreview');
-    const uploadArea = document.getElementById('uploadArea');
-    const imageInput = document.getElementById('productImageInput');
-    const uploadProgress = document.getElementById('uploadProgress');
-    const progressFill = document.getElementById('progressFill');
-    
-    if (previewContainer) previewContainer.style.display = 'none';
-    if (uploadArea) uploadArea.style.display = 'block';
-    if (imageInput) imageInput.value = '';
-    if (uploadProgress) uploadProgress.style.display = 'none';
-    if (progressFill) progressFill.style.width = '0%';
-    
-    console.log("Product image removed (set to null)");
-  }
+  window.productImageBase64 = null;
+  window.selectedImageFile = null;
+  
+  const previewContainer = document.getElementById('imagePreview');
+  const uploadArea = document.getElementById('uploadArea');
+  const imageInput = document.getElementById('productImageInput');
+  const uploadProgress = document.getElementById('uploadProgress');
+  const progressFill = document.getElementById('progressFill');
+  const previewImage = document.getElementById('previewImage');
+  
+  if (previewContainer) previewContainer.style.display = 'none';
+  if (uploadArea) uploadArea.style.display = 'block';
+  if (imageInput) imageInput.value = '';
+  if (uploadProgress) uploadProgress.style.display = 'none';
+  if (progressFill) progressFill.style.width = '0%';
+  if (previewImage) previewImage.src = '#';
+  
+  console.log("Product image removed (set to null)");
+}
 
   window.setupImageUpload = function() {
     const imageInput = document.getElementById('productImageInput');
@@ -996,8 +1061,8 @@
         }
       }
     });
-    
     window.addFontAwesome();
+    window.setupImageUpload();
   });
 
   window.addFontAwesome = function() {
