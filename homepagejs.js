@@ -12,6 +12,8 @@ const firebaseConfig = {
 // Initialize Firebase with compat version
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
+} else {
+    firebase.app(); // Use existing app
 }
 
 // Get auth and firestore instances
@@ -38,21 +40,33 @@ const STATUS_MAPPING = {
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Initializing homepage with order status tabs...");
     
+    // Check if Firebase is properly initialized
+    if (!firebase.apps.length) {
+        console.error("Firebase not initialized!");
+        showNotification("Firebase initialization failed. Please refresh the page.");
+        return;
+    }
+    
     // Check authentication state
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             console.log("User is signed in:", user.uid);
             currentUser = user;
             
-            // Create or update user document in Firestore
-            await createOrUpdateUserDocument(user);
-            
-            updateUIForLoggedInUser(user);
-            loadUserCart(user.uid);
-            loadCartAsOrderList(user.uid);
-            
-            // Load order status tabs for badge counts
-            await loadOrderStatusTabs();
+            try {
+                // Create or update user document in Firestore
+                await createOrUpdateUserDocument(user);
+                
+                updateUIForLoggedInUser(user);
+                await loadUserCart(user.uid);
+                await loadCartAsOrderList(user.uid);
+                
+                // Load order status tabs for badge counts
+                await loadOrderStatusTabs();
+            } catch (error) {
+                console.error("Error during user initialization:", error);
+                showNotification("Error loading user data. Please refresh.");
+            }
         } else {
             console.log("User is signed out");
             currentUser = null;
@@ -104,6 +118,9 @@ async function createOrUpdateUserDocument(user) {
         }
     } catch (error) {
         console.error('Error creating/updating user document:', error);
+        if (error.code === 'permission-denied') {
+            console.error('Permission denied to access user document');
+        }
     }
 }
 
@@ -392,71 +409,72 @@ async function loadOrderStatusTabs() {
     try {
         console.log("Loading order status tabs for user:", currentUser.uid);
         
-        // Try to load from order_history collection first
-        const snapshot = await db.collection('order_history')
-            .where('userId', '==', currentUser.uid)
-            .where('status', 'in', ['pending', 'processing', 'shipped', 'delivered'])
-            .get();
+        let snapshot;
         
-        if (snapshot.empty) {
-            console.log("No orders found in order_history collection");
-            // Also check user's my_orders subcollection
-            const userOrdersSnapshot = await db.collection('users').doc(currentUser.uid)
+        // Try to load from order_history collection first
+        try {
+            snapshot = await db.collection('order_history')
+                .where('userId', '==', currentUser.uid)
+                .where('status', 'in', ['pending', 'processing', 'shipped', 'delivered'])
+                .get();
+                
+            console.log(`Found ${snapshot.size} orders in order_history`);
+            
+        } catch (orderHistoryError) {
+            console.log('Cannot access order_history, trying user subcollection...', orderHistoryError);
+            
+            // Fallback to user's my_orders subcollection
+            snapshot = await db.collection('users').doc(currentUser.uid)
                 .collection('my_orders')
                 .where('status', 'in', ['pending', 'processing', 'shipped', 'delivered'])
                 .get();
-            
-            if (userOrdersSnapshot.empty) {
-                console.log("No orders found in user's my_orders collection either");
-                // Set all badges to 0
-                updateTabBadges({ topay: 0, toship: 0, toreceive: 0, toreview: 0 });
-                return;
-            }
-            
-            // Count orders from my_orders
-            return countOrdersFromSnapshot(userOrdersSnapshot);
+                
+            console.log(`Found ${snapshot.size} orders in my_orders`);
         }
         
-        // Count orders from order_history
-        return countOrdersFromSnapshot(snapshot);
+        if (!snapshot || snapshot.empty) {
+            console.log("No orders found for user");
+            // Set all badges to 0
+            updateTabBadges({ topay: 0, toship: 0, toreceive: 0, toreview: 0 });
+            return;
+        }
+        
+        // Count orders by status
+        const counts = {
+            topay: 0,
+            toship: 0,
+            toreceive: 0,
+            toreview: 0
+        };
+        
+        snapshot.forEach(doc => {
+            const order = doc.data();
+            const status = order.status || 'pending';
+            
+            // Map status to tab
+            if (STATUS_MAPPING[status]) {
+                counts[STATUS_MAPPING[status]]++;
+            }
+        });
+        
+        console.log("Order counts by tab:", counts);
+        
+        // Update badges
+        updateTabBadges(counts);
         
     } catch (error) {
         console.error('Error loading order status tabs:', error);
+        
         // Check if it's a permission error
         if (error.code === 'permission-denied') {
             console.error('Permission denied to access orders. Check Firestore rules.');
             showNotification('Unable to load orders. Please contact support.');
         }
+        
         // Set badges to 0 on error
         updateTabBadges({ topay: 0, toship: 0, toreceive: 0, toreview: 0 });
     }
 }
-
-// Helper function to count orders from snapshot
-function countOrdersFromSnapshot(snapshot) {
-    const counts = {
-        topay: 0,
-        toship: 0,
-        toreceive: 0,
-        toreview: 0
-    };
-    
-    snapshot.forEach(doc => {
-        const order = doc.data();
-        const status = order.status || 'pending';
-        
-        // Map status to tab
-        if (STATUS_MAPPING[status]) {
-            counts[STATUS_MAPPING[status]]++;
-        }
-    });
-    
-    console.log("Order counts by tab:", counts);
-    updateTabBadges(counts);
-    return counts;
-}
-        
-    
 
 // Update tab badges with counts
 function updateTabBadges(counts) {
@@ -498,12 +516,29 @@ async function loadOrdersForTab(tabName) {
             `;
         }
         
-        // Load from user's my_orders subcollection
-        const snapshot = await db.collection('users').doc(currentUser.uid)
-            .collection('my_orders')
-            .where('status', '==', statusForTab)
-            .orderBy('orderDate', 'desc')
-            .get();
+        let snapshot;
+        let source = '';
+        
+        try {
+            // Try to load from main order_history collection first
+            snapshot = await db.collection('order_history')
+                .where('userId', '==', currentUser.uid)
+                .where('status', '==', statusForTab)
+                .orderBy('orderDate', 'desc')
+                .get();
+            source = 'order_history';
+        } catch (error) {
+            console.log('Trying user subcollection instead...', error);
+            // Fallback to user's my_orders subcollection
+            snapshot = await db.collection('users').doc(currentUser.uid)
+                .collection('my_orders')
+                .where('status', '==', statusForTab)
+                .orderBy('orderDate', 'desc')
+                .get();
+            source = 'my_orders';
+        }
+        
+        console.log(`Loaded ${snapshot.size} orders from ${source} for tab ${tabName}`);
         
         if (snapshot.empty) {
             return `
@@ -519,7 +554,7 @@ async function loadOrdersForTab(tabName) {
         
         snapshot.forEach(doc => {
             const order = doc.data();
-            const orderId = order.orderId;
+            const orderId = order.orderId || doc.id;
             const orderDate = order.orderDate?.toDate ? order.orderDate.toDate() : 
                             order.createdAt?.toDate ? order.createdAt.toDate() : 
                             order.createdAt?.seconds ? new Date(order.createdAt.seconds * 1000) : 
@@ -579,7 +614,7 @@ async function loadOrdersForTab(tabName) {
                             ${order.items && order.items.length > 0 ? order.items.slice(0, 3).map(item => `
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
                                     <span style="color: #666;">${item.name} × ${item.quantity}</span>
-                                    <span style="font-weight: bold; color: #333;">$${(item.price * item.quantity).toFixed(2)}</span>
+                                    <span style="font-weight: bold; color: #333;">$${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
                                 </div>
                             `).join('') : ''}
                             ${order.items && order.items.length > 3 ? 
@@ -608,6 +643,19 @@ async function loadOrdersForTab(tabName) {
         
     } catch (error) {
         console.error(`Error loading orders for tab ${tabName}:`, error);
+        
+        // Check error type
+        if (error.code === 'permission-denied') {
+            return `
+                <div style="text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ffc107; margin-bottom: 20px;"></i>
+                    <h4>Permission Error</h4>
+                    <p>Unable to access your orders. Please check your account permissions.</p>
+                    <p style="font-size: 12px; color: #999; margin-top: 10px;">Error: ${error.message}</p>
+                </div>
+            `;
+        }
+        
         return `
             <div style="text-align: center; padding: 40px;">
                 <p>Error loading orders. Please try again.</p>
@@ -766,9 +814,14 @@ async function cancelOrder(orderId) {
 
 async function trackOrder(orderId) {
     try {
-        // Get order details
-        const orderDoc = await db.collection('users').doc(currentUser.uid)
-            .collection('my_orders').doc(orderId).get();
+        // Try to get order from order_history first
+        let orderDoc = await db.collection('order_history').doc(orderId).get();
+        
+        if (!orderDoc.exists) {
+            // Try from user's my_orders subcollection
+            orderDoc = await db.collection('users').doc(currentUser.uid)
+                .collection('my_orders').doc(orderId).get();
+        }
         
         if (!orderDoc.exists) {
             showNotification('Order not found');
@@ -813,9 +866,14 @@ async function confirmReceipt(orderId) {
 
 async function reviewOrder(orderId) {
     try {
-        // Get order details
-        const orderDoc = await db.collection('users').doc(currentUser.uid)
-            .collection('my_orders').doc(orderId).get();
+        // Try to get order from order_history first
+        let orderDoc = await db.collection('order_history').doc(orderId).get();
+        
+        if (!orderDoc.exists) {
+            // Try from user's my_orders subcollection
+            orderDoc = await db.collection('users').doc(currentUser.uid)
+                .collection('my_orders').doc(orderId).get();
+        }
         
         if (!orderDoc.exists) {
             showNotification('Order not found');
@@ -949,12 +1007,20 @@ async function skipReview(orderId) {
 async function updateOrderInFirestore(orderId, updateData) {
     if (!currentUser) return;
     
-    // Update in user's my_orders subcollection
-    await db.collection('users').doc(currentUser.uid)
-        .collection('my_orders').doc(orderId).update(updateData);
+    try {
+        // Update in order_history collection
+        await db.collection('order_history').doc(orderId).update(updateData);
+    } catch (error) {
+        console.log('Could not update order_history, trying user collection...', error);
+    }
     
-    // Also update in main order_history collection
-    await db.collection('order_history').doc(orderId).update(updateData);
+    try {
+        // Also update in user's my_orders subcollection
+        await db.collection('users').doc(currentUser.uid)
+            .collection('my_orders').doc(orderId).update(updateData);
+    } catch (error) {
+        console.log('Could not update my_orders', error);
+    }
 }
 
 async function loadProducts() {
@@ -1024,7 +1090,7 @@ function renderProducts(productsToShow) {
             </div>
             <div class="product-info">
                 <h3 class="product-title">${product.name}</h3>
-                <div class="product-price">$${parseFloat(product.price).toFixed(2)}</div>
+                <div class="product-price">$${parseFloat(product.price || 0).toFixed(2)}</div>
                 ${product.rating ? `
                     <div class="product-rating">
                         ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
@@ -1032,7 +1098,7 @@ function renderProducts(productsToShow) {
                     </div>
                 ` : ''}
             </div>
-            <button class="add-to-cart" onclick="addToCart('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.imageUrl || ''}')">
+            <button class="add-to-cart" onclick="addToCart('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price || 0}, '${product.imageUrl || ''}')">
                 Add to Cart
             </button>
         </div>
@@ -1368,8 +1434,8 @@ async function updateQuantity(productId, change) {
         
         // Refresh order list if it's open
         const profileContent = document.getElementById('profileContent');
-        if (profileContent.classList.contains('show') && 
-            document.querySelector('.content-header h3').textContent.includes('Order List')) {
+        if (profileContent && profileContent.classList.contains('show') && 
+            document.querySelector('.content-header h3')?.textContent.includes('Order List')) {
             showProfileSection('orders');
         }
     }
@@ -1438,7 +1504,9 @@ function toggleCartPreview() {
     }
     
     const cartPreview = document.getElementById('cartPreview');
-    cartPreview.classList.toggle('show');
+    if (cartPreview) {
+        cartPreview.classList.toggle('show');
+    }
 }
 
 // Simple checkout confirmation
@@ -1534,11 +1602,12 @@ async function proceedToCheckout() {
         
         // 1. Save to order_history collection
         await db.collection('order_history').doc(orderId).set(orderData);
-        console.log("Order saved to order_history collection:", orderId);
+        console.log("✓ Order saved to order_history collection:", orderId);
         
         // 2. Also save to user's personal order history subcollection
         await db.collection('users').doc(currentUser.uid)
             .collection('my_orders').doc(orderId).set(orderData);
+        console.log("✓ Order saved to user's my_orders");
         
         // 3. Clear the cart
         cart = [];
@@ -1552,6 +1621,8 @@ async function proceedToCheckout() {
             totalAmount: 0,
             status: 'empty'
         }, { merge: true });
+        
+        console.log("✓ Cart cleared");
         
         // 5. Update local storage and UI
         saveGuestCart();
@@ -1567,7 +1638,7 @@ async function proceedToCheckout() {
         
         // 8. If order tabs are open, refresh them
         const profileContent = document.getElementById('profileContent');
-        if (profileContent.classList.contains('show') && 
+        if (profileContent && profileContent.classList.contains('show') && 
             document.querySelector('.content-header h3')?.textContent.includes('Pay')) {
             showProfileSection('topay');
         }
@@ -1580,7 +1651,12 @@ async function proceedToCheckout() {
         
     } catch (error) {
         console.error('Error during checkout:', error);
-        showNotification('Error processing checkout. Please try again.');
+        
+        if (error.code === 'permission-denied') {
+            showNotification('Permission denied. Please check your account settings.');
+        } else {
+            showNotification('Error processing checkout. Please try again.');
+        }
     }
 }
 
@@ -1593,13 +1669,27 @@ async function loadOrderHistory() {
     try {
         console.log("Loading order history for user:", currentUser.uid);
         
-        // Load from user's personal orders subcollection
-        const snapshot = await db.collection('users').doc(currentUser.uid)
-            .collection('my_orders')
-            .orderBy('orderDate', 'desc')
-            .get();
+        let snapshot;
         
-        if (snapshot.empty) {
+        // Try to load from order_history collection first
+        try {
+            snapshot = await db.collection('order_history')
+                .where('userId', '==', currentUser.uid)
+                .orderBy('orderDate', 'desc')
+                .get();
+            console.log(`Loaded ${snapshot.size} orders from order_history`);
+        } catch (error) {
+            console.log('Cannot access order_history, trying user subcollection...', error);
+            
+            // Fallback to user's my_orders subcollection
+            snapshot = await db.collection('users').doc(currentUser.uid)
+                .collection('my_orders')
+                .orderBy('orderDate', 'desc')
+                .get();
+            console.log(`Loaded ${snapshot.size} orders from my_orders`);
+        }
+        
+        if (!snapshot || snapshot.empty) {
             return `
                 <div style="text-align: center; padding: 40px;">
                     <i class="fas fa-box-open" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
@@ -1616,7 +1706,7 @@ async function loadOrderHistory() {
         
         snapshot.forEach(doc => {
             const order = doc.data();
-            const orderId = order.orderId;
+            const orderId = order.orderId || doc.id;
             const orderDate = order.orderDate?.toDate ? order.orderDate.toDate() : 
                             order.createdAt?.toDate ? order.createdAt.toDate() : 
                             order.createdAt?.seconds ? new Date(order.createdAt.seconds * 1000) : 
@@ -1683,7 +1773,7 @@ async function loadOrderHistory() {
                             ${order.items && order.items.length > 0 ? order.items.slice(0, 3).map(item => `
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
                                     <span style="color: #666;">${item.name} × ${item.quantity}</span>
-                                    <span style="font-weight: bold; color: #333;">$${(item.price * item.quantity).toFixed(2)}</span>
+                                    <span style="font-weight: bold; color: #333;">$${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
                                 </div>
                             `).join('') : ''}
                             ${order.items && order.items.length > 3 ? 
@@ -1765,9 +1855,14 @@ function getStatusStyle(status) {
 
 async function viewOrderDetails(orderId) {
     try {
-        // Load order details
-        const orderDoc = await db.collection('users').doc(currentUser.uid)
-            .collection('my_orders').doc(orderId).get();
+        // Try to get order from order_history first
+        let orderDoc = await db.collection('order_history').doc(orderId).get();
+        
+        if (!orderDoc.exists) {
+            // Try from user's my_orders subcollection
+            orderDoc = await db.collection('users').doc(currentUser.uid)
+                .collection('my_orders').doc(orderId).get();
+        }
         
         if (!orderDoc.exists) {
             showNotification('Order not found');
@@ -1808,16 +1903,16 @@ async function viewOrderDetails(orderId) {
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Order Status</div>
                                     <div style="font-size: 16px; color: #333; font-weight: 500; ${getStatusStyle(order.status)} padding: 4px 12px; border-radius: 20px; display: inline-block;">
-                                        ${order.status.toUpperCase()}
+                                        ${(order.status || '').toUpperCase()}
                                     </div>
                                 </div>
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Payment Method</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.paymentMethod.replace('_', ' ').toUpperCase()}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${(order.paymentMethod || '').replace('_', ' ').toUpperCase()}</div>
                                 </div>
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Payment Status</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.paymentStatus.toUpperCase()}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${(order.paymentStatus || '').toUpperCase()}</div>
                                 </div>
                             </div>
                         </div>
@@ -1827,15 +1922,15 @@ async function viewOrderDetails(orderId) {
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Name</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.customerName}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.customerName || 'N/A'}</div>
                                 </div>
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Email</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.customerEmail}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.customerEmail || 'N/A'}</div>
                                 </div>
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Phone</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.customerPhone}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.customerPhone || 'N/A'}</div>
                                 </div>
                             </div>
                         </div>
@@ -1845,15 +1940,15 @@ async function viewOrderDetails(orderId) {
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Address</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.shippingAddress}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.shippingAddress || 'N/A'}</div>
                                 </div>
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">City</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.shippingCity}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.shippingCity || 'N/A'}</div>
                                 </div>
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Zip Code</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.shippingZip}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${order.shippingZip || 'N/A'}</div>
                                 </div>
                             </div>
                         </div>
@@ -1861,20 +1956,20 @@ async function viewOrderDetails(orderId) {
                         <div style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #eee;">
                             <h4 style="margin: 0 0 15px 0; color: #444; font-size: 16px; font-weight: 600;">Order Items</h4>
                             <div style="max-height: 300px; overflow-y: auto;">
-                                ${order.items.map(item => `
+                                ${order.items ? order.items.map(item => `
                                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f0f0f0; background-color: #f9f9f9; border-radius: 8px; margin-bottom: 10px;">
                                         <div style="flex: 2;">
-                                            <div style="font-weight: bold; margin-bottom: 5px; color: #333;">${item.name}</div>
-                                            <div style="font-size: 14px; color: #666;">$${item.price.toFixed(2)} each</div>
+                                            <div style="font-weight: bold; margin-bottom: 5px; color: #333;">${item.name || 'Unnamed Product'}</div>
+                                            <div style="font-size: 14px; color: #666;">$${(item.price || 0).toFixed(2)} each</div>
                                         </div>
                                         <div style="flex: 1; text-align: center; font-weight: 600;">
-                                            <span>Quantity: ${item.quantity}</span>
+                                            <span>Quantity: ${item.quantity || 1}</span>
                                         </div>
                                         <div style="flex: 1; text-align: right; font-weight: bold; font-size: 18px; color: #85BB65;">
-                                            $${(item.price * item.quantity).toFixed(2)}
+                                            $${((item.price || 0) * (item.quantity || 1)).toFixed(2)}
                                         </div>
                                     </div>
-                                `).join('')}
+                                `).join('') : '<div style="text-align: center; padding: 20px; color: #666;">No items found</div>'}
                             </div>
                         </div>
                         
@@ -1883,19 +1978,19 @@ async function viewOrderDetails(orderId) {
                             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px;">
                                     <span style="color: #666;">Subtotal</span>
-                                    <span style="color: #333; font-weight: 500;">$${order.subtotal.toFixed(2)}</span>
+                                    <span style="color: #333; font-weight: 500;">$${(order.subtotal || 0).toFixed(2)}</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px;">
                                     <span style="color: #666;">Shipping</span>
-                                    <span style="color: #333; font-weight: 500;">$${order.shippingCost.toFixed(2)}</span>
+                                    <span style="color: #333; font-weight: 500;">$${(order.shippingCost || 0).toFixed(2)}</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px;">
                                     <span style="color: #666;">Tax</span>
-                                    <span style="color: #333; font-weight: 500;">$${order.tax.toFixed(2)}</span>
+                                    <span style="color: #333; font-weight: 500;">$${(order.tax || 0).toFixed(2)}</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; padding-top: 10px; border-top: 2px solid #e0e0e0;">
                                     <span style="color: #333;">Total</span>
-                                    <span style="color: #85BB65;">$${order.total.toFixed(2)}</span>
+                                    <span style="color: #85BB65;">$${(order.total || 0).toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
@@ -1983,7 +2078,7 @@ function setupEventListeners() {
         
         if (cartPreview && cartPreview.classList.contains('show') && 
             !cartPreview.contains(e.target) && 
-            !cartIcon.contains(e.target)) {
+            cartIcon && !cartIcon.contains(e.target)) {
             cartPreview.classList.remove('show');
         }
     });
@@ -2002,7 +2097,10 @@ function setupEventListeners() {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode === 'true') {
         document.body.classList.add('dark-mode');
-        document.getElementById('themeToggle').checked = true;
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.checked = true;
+        }
     }
 }
 
@@ -2031,3 +2129,4 @@ window.reviewOrder = reviewOrder;
 window.skipReview = skipReview;
 window.submitReview = submitReview;
 window.closeReviewModal = closeReviewModal;
+window.viewOrderDetails = viewOrderDetails;
