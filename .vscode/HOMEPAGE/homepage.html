@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JeahLuy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Header Section -->
+<header>
+    <div class="user-section">
+        <div class="profile-pic" id="profilePic" onclick="handleProfileClick()">
+            <i class="fas fa-user" style="font-size: 2em;"></i>
+        </div>
+        <div class="auth-buttons" id="authButtons">
+            <button class="btn sign-in" onclick="window.location.href='login.html';">Sign In</button>
+            <button class="btn register" onclick="window.location.href='register.html';">Register</button>
+        </div>
+    </div>
+    <div class="name">
+        <img src="asset/logo.jpeg" alt="Logo" width="80" height="80">
+    </div>
+    <div class="merchant-profile" id="become-merchant-btn" onclick="handleMerchantClick()">
+        Become Merchant
+        <i class="fa-solid fa-store" style="font-size: 2em;"></i>
+    </div>
+</header>   
+
+<!-- Search Section -->
+<section class="search-section">
+    <div class="search-container">
+        <input type="text" class="search-bar" id="searchInput" placeholder="Search for products, brands and more...">
+        <div class="mic-icon">
+            <i class="fas fa-microphone"></i>
+        </div>
+    </div>
+    <div class="discover-text">Discover</div>
+    <div class="categories" id="categoriesContainer">
+        <!-- Categories will be loaded dynamically -->
+    </div>  
+</section>
+
+<!-- Products Section -->
+<section class="products-section">
+    <h2 class="section-title">Featured Products</h2>
+    <div class="products-grid" id="productsContainer">
+        <!-- Products will be loaded dynamically -->
+    </div>
+</section>
+
+<!-- Shopping Cart Icon -->
+<div class="floating-cart">
+    <div class="cart-icon-container" onclick="toggleCartPreview()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count">0</span>
+    </div>
+    
+    <!-- Cart Preview Modal -->
+    <div class="cart-preview" id="cartPreview">
+        <div class="cart-preview-header">
+            <h3>Your Cart</h3>
+            <button class="close-cart-preview" onclick="toggleCartPreview()">&times;</button>
+        </div>
+        <div class="cart-items-container" id="cartItemsContainer">
+            <div class="empty-cart-message">
+                <i class="fas fa-shopping-basket"></i>
+                <p>Your cart is empty</p>
+            </div>
+        </div>
+        <div class="cart-preview-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span class="total-amount">$0.00</span>
+            </div>
+            <button class="view-cart-btn" onclick="proceedToCheckout()">Checkout</button>
+        </div>
+    </div>
+</div>
+
+<!-- Side Profile Overlay -->
+<div class="side-profile-overlay" onclick="closeSideProfile()"></div>
+
+<!-- Side Profile Panel -->
+<div class="side-profile" id="sideProfile">
+    <div class="side-profile-header">
+        <button class="close-side-profile" onclick="closeSideProfile()">&times;</button>
+        <div class="user-info-side">
+            <div class="profile-pic-side">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details-side">
+                <h3 id="sideUsername">Guest User</h3>
+                <p id="sideEmail">guest@example.com</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="side-profile-menu">
+        <div class="menu-section">
+            <h4>Account</h4>
+            <ul class="menu-items">
+                <li class="menu-item active" onclick="showProfileSection('profile')">
+                    <div class="menu-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="menu-text">Profile</div>
+                    <div class="menu-arrow">›</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('orders')">
+                    <div class="menu-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="menu-text">Order List</div>
+                    <div class="menu-badge" id="cartBadge">0</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('history')">
+                    <div class="menu-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="menu-text">Order History</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="menu-section">
+            <h4>Orders</h4>
+            <ul class="menu-items">
+                <li class="menu-item" onclick="showProfileSection('topay')">
+                    <div class="menu-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="menu-text">To Pay</div>
+                    <div class="menu-badge" id="topayBadge">0</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('toship')">
+                    <div class="menu-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <div class="menu-text">To Ship</div>
+                    <div class="menu-badge" id="toshipBadge">0</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('toreceive')">
+                    <div class="menu-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <div class="menu-text">To Receive</div>
+                    <div class="menu-badge" id="toreceiveBadge">0</div>
+                </li>
+                <li class="menu-item" onclick="showProfileSection('toreview')">
+                    <div class="menu-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="menu-text">To Review</div>
+                    <div class="menu-badge" id="toreviewBadge">0</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="menu-section">
+            <h4>Settings</h4>
+            <ul class="menu-items">
+                <li class="menu-item" onclick="showProfileSection('settings')">
+                    <div class="menu-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="menu-text">Settings</div>
+                    <div class="menu-arrow">›</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="side-profile-footer">
+        <div class="theme-toggle">
+            <div class="theme-label">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Content Area -->
+<div class="profile-content" id="profileContent"></div>
+
+<!-- Firebase v10.7.1 - COMPATIBILITY VERSION -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script src="homepagejs.js"></script>
+</body>
+</html>
