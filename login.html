@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-Shopping - Sign In</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="translation-styles.css">
     <style>
         /* Additional styles for role detection */
         .role-info {
@@ -64,12 +65,15 @@
         <p class="language"><strong>Change Language</strong></p>
     </fieldset>
 
-    <!-- Load Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <!-- Font Awesome for icons -->
+        <!-- Load Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <div id="google_translate_element"></div>
+
+    <script src="translation-script.js"></script>
 
     <script>
     // Firebase configuration

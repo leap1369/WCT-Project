@@ -1,0 +1,64 @@
+/* voice-search.css */
+/* Voice Search Styles */
+
+/* Pulse animation for listening state */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Mic icon styling */
+.mic-icon {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.mic-icon:hover {
+    color: #4285f4 !important;
+    transform: scale(1.1);
+}
+
+.mic-icon.listening {
+    animation: pulse 1.5s infinite;
+    color: #f44336 !important;
+}
+
+/* Voice search status popup */
+#voiceSearchStatus {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Voice search instructions tooltip */
+.mic-icon::after {
+    content: 'Click for voice search';
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.mic-icon:hover::after {
+    opacity: 1;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    #voiceSearchStatus {
+        font-size: 14px;
+        padding: 15px 20px;
+    }
+}
