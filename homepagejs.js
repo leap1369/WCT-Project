@@ -1059,7 +1059,10 @@ async function loadProducts() {
     try {
         console.log("Loading products from Firestore...");
         
-        const snapshot = await db.collection('product_list').get();
+        const snapshot = await db.collection('product_list')
+            .where('status', '==', 'active') // Only load active products
+            .get();
+        
         products = [];
         
         snapshot.forEach(doc => {
@@ -1067,14 +1070,24 @@ async function loadProducts() {
                 id: doc.id,
                 ...doc.data()
             };
+            
+            // Log product data for debugging
+            console.log("Product loaded:", {
+                id: product.id,
+                name: product.name,
+                hasBase64: !!product.imageBase64,
+                hasImageUrl: !!product.imageUrl,
+                category: product.category
+            });
+            
             products.push(product);
         });
         
         console.log(`Loaded ${products.length} products`);
         
-        // Get unique categories
-        const categories = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
-        renderCategories(categories);
+        // Get unique categories from active products
+        const activeCategories = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
+        renderCategories(activeCategories);
         renderProducts(products);
         
     } catch (error) {
@@ -1115,26 +1128,44 @@ function renderProducts(productsToShow) {
         return;
     }
     
-    container.innerHTML = productsToShow.map(product => `
-        <div class="product-card">
-            <div class="product-image">
-                <img src="${product.imageUrl || 'https://via.placeholder.com/300x200'}" alt="${product.name}">
+    container.innerHTML = productsToShow.map(product => {
+        const imageSrc = getProductImageSrc(product);
+        const altText = product.name || 'Product image';
+        
+        return `
+            <div class="product-card">
+                <div class="product-image" onclick="window.location.href='product-details.html?product=${product.id}'">
+                    <img src="${imageSrc}" 
+                         alt="${altText}" 
+                         onerror="handleProductImageError(this, ${JSON.stringify(product).replace(/"/g, '&quot;')})">
+                </div>
+                <div class="product-info" onclick="window.location.href='product-details.html?product=${product.id}'">
+                    <h3 class="product-title">${product.name || 'Unnamed Product'}</h3>
+                    <div class="product-price">$${parseFloat(product.price || 0).toFixed(2)}</div>
+                    ${product.description ? `
+                        <div class="product-description" style="font-size: 12px; color: #666; margin-top: 5px; line-height: 1.3;">
+                            ${product.description.length > 80 ? product.description.substring(0, 80) + '...' : product.description}
+                        </div>
+                    ` : ''}
+                    ${product.category ? `
+                        <div class="product-category" style="font-size: 11px; color: #888; margin-top: 8px; background: #f5f5f5; padding: 3px 8px; border-radius: 10px; display: inline-block;">
+                            ${product.category}
+                        </div>
+                    ` : ''}
+                    ${product.stockQty !== undefined ? `
+                        <div class="product-stock" style="font-size: 11px; color: ${product.stockQty > 10 ? '#28a745' : product.stockQty > 0 ? '#ffc107' : '#dc3545'}; margin-top: 8px;">
+                            ${product.stockQty > 0 ? `${product.stockQty} in stock` : 'Out of stock'}
+                        </div>
+                    ` : ''}
+                </div>
+                <button class="add-to-cart" 
+                        onclick="addToCart('${product.id}', '${(product.name || 'Unnamed Product').replace(/'/g, "\\'")}', ${product.price || 0}, '${imageSrc.replace(/'/g, "\\'")}')"
+                        ${(product.stockQty || 0) <= 0 ? 'disabled style="background-color: #ccc; cursor: not-allowed;"' : ''}>
+                    ${(product.stockQty || 0) > 0 ? 'Add to Cart' : 'Out of Stock'}
+                </button>
             </div>
-            <div class="product-info">
-                <h3 class="product-title">${product.name}</h3>
-                <div class="product-price">$${parseFloat(product.price || 0).toFixed(2)}</div>
-                ${product.rating ? `
-                    <div class="product-rating">
-                        ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
-                        (${product.rating})
-                    </div>
-                ` : ''}
-            </div>
-            <button class="add-to-cart" onclick="addToCart('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${product.price || 0}, '${product.imageUrl || ''}')">
-                Add to Cart
-            </button>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 async function loadUserCart(userId) {
@@ -1328,44 +1359,45 @@ function renderOrdersList() {
             const itemTotal = price * (item.quantity || 1);
             
             return `
-                <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background-color: #f9f9f9; border-radius: 8px;">
-                    <div style="width: 60px; height: 60px; margin-right: 15px; flex-shrink: 0;">
-                        <img src="${item.image || 'https://via.placeholder.com/60'}" 
-                             alt="${item.name}" 
-                             style="width: 100%; height: 100%; object-fit: cover; border-radius: 5px;">
-                    </div>
-                    <div style="flex-grow: 1;">
-                        <div style="font-weight: bold; margin-bottom: 5px; font-size: 16px; color: #333;">
-                            ${item.name || 'Unnamed Product'}
-                        </div>
-                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">
-                            Price: $${price.toFixed(2)} each
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <button onclick="updateQuantity('${item.id}', -1)" 
-                                    style="background: none; border: 1px solid #ddd; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 14px;">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <span style="font-weight: bold; min-width: 30px; text-align: center;">${item.quantity || 1}</span>
-                            <button onclick="updateQuantity('${item.id}', 1)" 
-                                    style="background: none; border: 1px solid #ddd; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 14px;">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                            <button onclick="removeFromCart('${item.id}')" 
-                                    style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 14px; margin-left: auto;">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
-                        </div>
-                    </div>
-                    <div style="text-align: right; margin-left: 15px; flex-shrink: 0;">
-                        <div style="font-weight: bold; font-size: 16px; color: #85BB65;">
-                            $${itemTotal.toFixed(2)}
-                        </div>
-                        <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                            Qty: ${item.quantity || 1}
-                        </div>
-                    </div>
+                <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background-color: #f9f9f9; border-radius: 8px; width: 100%;">
+            <div style="width: 80px; height: 80px; margin-right: 15px; flex-shrink: 0; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; border-radius: 5px;">
+                <img src="${item.image || 'https://via.placeholder.com/80'}" 
+                     alt="${item.name}" 
+                     style="width: 100%; height: 100%; object-fit: contain; background-color: white; padding: 5px; transition: transform 0.5s ease;"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/80'">
+            </div>
+            <div style="flex-grow: 1; min-width: 0;"> <!-- Added min-width: 0 for proper flexbox behavior -->
+                <div style="font-weight: bold; margin-bottom: 5px; font-size: 16px; color: #333; word-break: break-word;">
+                    ${item.name || 'Unnamed Product'}
                 </div>
+                <div style="font-size: 14px; color: #666; margin-bottom: 8px;">
+                    Price: $${price.toFixed(2)} each
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="updateQuantity('${item.id}', -1)" 
+                            style="background: none; border: 1px solid #ddd; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 14px;">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span style="font-weight: bold; min-width: 30px; text-align: center;">${item.quantity || 1}</span>
+                    <button onclick="updateQuantity('${item.id}', 1)" 
+                            style="background: none; border: 1px solid #ddd; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 14px;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button onclick="removeFromCart('${item.id}')" 
+                            style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 14px; margin-left: auto;">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+            <div style="text-align: right; margin-left: 15px; flex-shrink: 0;">
+                <div style="font-weight: bold; font-size: 16px; color: #85BB65;">
+                    $${itemTotal.toFixed(2)}
+                </div>
+                <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                    Qty: ${item.quantity || 1}
+                </div>
+            </div>
+        </div>
             `;
         }).join('');
     }
@@ -1378,55 +1410,55 @@ function renderOrdersList() {
     }, 0);
     
     ordersHTML = `
-        <div class="order-card" style="border: 1px solid #e0e0e0; border-radius: 12px; margin-bottom: 20px; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
-            <div style="padding: 20px; border-bottom: 1px solid #e0e0e0; background-color: #f8f9fa;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="font-size: 20px; font-weight: bold; color: #333;">
-                        Current Cart
-                    </div>
-                    <div>
-                        <span style="background-color: #85BB65; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;">
-                            IN CART
-                        </span>
-                    </div>
+        <div class="order-card" style="border: 1px solid #e0e0e0; border-radius: 12px; margin-bottom: 20px; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; width: 100%;">
+        <div style="padding: 20px; border-bottom: 1px solid #e0e0e0; background-color: #f8f9fa; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; width: 100%;">
+                <div style="font-size: 20px; font-weight: bold; color: #333;">
+                    Current Cart
                 </div>
-                <div style="font-size: 14px; color: #666;">
-                    <i class="fas fa-clock" style="margin-right: 5px;"></i> Last updated: ${orderDate}
+                <div>
+                    <span style="background-color: #85BB65; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;">
+                        IN CART
+                    </span>
                 </div>
             </div>
-            
-            <div style="padding: 20px; max-height: 400px; overflow-y: auto;">
-                ${itemsHTML}
-            </div>
-            
-            <div style="padding: 20px; border-top: 2px solid #e0e0e0; background-color: #f8f9fa;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <div style="font-size: 16px; color: #666;">
-                        <i class="fas fa-box" style="margin-right: 8px;"></i> Items: ${totalItems}
-                    </div>
-                    <div style="font-size: 24px; font-weight: bold; color: #333;">
-                        Total: $${totalAmount.toFixed(2)}
-                    </div>
-                </div>
-                <button onclick="confirmAndCheckout()" 
-                        style="background-color: #85BB65; color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background-color 0.3s;">
-                    <i class="fas fa-shopping-bag"></i> Proceed to Checkout
-                </button>
+            <div style="font-size: 14px; color: #666;">
+                <i class="fas fa-clock" style="margin-right: 5px;"></i> Last updated: ${orderDate}
             </div>
         </div>
         
-        <div style="margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-radius: 8px; border-left: 4px solid #85BB65;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-info-circle" style="color: #85BB65; font-size: 18px;"></i>
-                <div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">Note:</div>
-                    <div style="font-size: 14px; color: #666;">
-                        This is your current shopping cart. Items will be saved here until you checkout.
-                        Click "Proceed to Checkout" to complete your purchase.
-                    </div>
+        <div style="padding: 20px; max-height: 400px; overflow-y: auto; width: 100%;">
+            ${itemsHTML}
+        </div>
+        
+        <div style="padding: 20px; border-top: 2px solid #e0e0e0; background-color: #f8f9fa; width: 100%;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; width: 100%;">
+                <div style="font-size: 16px; color: #666;">
+                    <i class="fas fa-box" style="margin-right: 8px;"></i> Items: ${totalItems}
+                </div>
+                <div style="font-size: 24px; font-weight: bold; color: #333;">
+                    Total: $${totalAmount.toFixed(2)}
+                </div>
+            </div>
+            <button onclick="confirmAndCheckout()" 
+                    style="background-color: #85BB65; color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background-color 0.3s;">
+                <i class="fas fa-shopping-bag"></i> Proceed to Checkout
+            </button>
+        </div>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-radius: 8px; border-left: 4px solid #85BB65; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+            <i class="fas fa-info-circle" style="color: #85BB65; font-size: 18px;"></i>
+            <div style="width: 100%;">
+                <div style="font-weight: bold; margin-bottom: 5px;">Note:</div>
+                <div style="font-size: 14px; color: #666;">
+                    This is your current shopping cart. Items will be saved here until you checkout.
+                    Click "Proceed to Checkout" to complete your purchase.
                 </div>
             </div>
         </div>
+    </div>
     `;
     
     return ordersHTML;
@@ -1508,20 +1540,23 @@ function renderCartPreview() {
         
         itemsHTML += `
             <div class="cart-item" data-product-id="${item.id}">
-                <div class="cart-item-image">
-                    <img src="${item.image || 'https://via.placeholder.com/60'}" alt="${item.name}">
-                </div>
-                <div class="cart-item-details">
-                    <div class="cart-item-title">${item.name}</div>
-                    <div class="cart-item-price">$${item.price.toFixed(2)} × ${item.quantity}</div>
-                    <div class="cart-item-actions">
-                        <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
-                        <span>${item.quantity}</span>
-                        <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
-                        <button class="remove-item" onclick="removeFromCart('${item.id}')">Remove</button>
-                    </div>
-                </div>
+        <div class="cart-item-image" style="width: 80px; height: 80px; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 5px;">
+            <img src="${getCartItemImageSrc(item)}" 
+                 alt="${item.name}" 
+                 style="width: 100%; height: 100%; object-fit: contain; background-color: white; padding: 5px;"
+                 onerror="handleCartImageError(this)">
+        </div>
+        <div class="cart-item-details">
+            <div class="cart-item-title">${item.name}</div>
+            <div class="cart-item-price">$${item.price.toFixed(2)} × ${item.quantity}</div>
+            <div class="cart-item-actions">
+                <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+                <span>${item.quantity}</span>
+                <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+                <button class="remove-item" onclick="removeFromCart('${item.id}')">Remove</button>
             </div>
+        </div>
+    </div>
         `;
     });
     
@@ -2653,6 +2688,70 @@ function setupEventListeners() {
             themeToggle.checked = true;
         }
     }
+}
+// fetch imageBase64
+function getProductImageSrc(product) {
+    // First check for base64 image
+    if (product.imageBase64) {
+        // If it's already a data URL, use it directly
+        if (product.imageBase64.startsWith('data:image/')) {
+            return product.imageBase64;
+        }
+        // Otherwise, assume it's a base64 string and format it
+        return `data:image/jpeg;base64,${product.imageBase64}`;
+    }
+    // Check for imageUrl field (Firestore storage URL)
+    if (product.imageUrl) {
+        return product.imageUrl;
+    }
+    // Check for image field (alternative naming)
+    if (product.image) {
+        return product.image;
+    }
+    // Default placeholder
+    return 'https://via.placeholder.com/300x200';
+}
+
+function handleProductImageError(imgElement, product) {
+    imgElement.onerror = null; // Prevent infinite loop
+    
+    // Try different fallback strategies
+    if (product.imageUrl) {
+        imgElement.src = product.imageUrl;
+    } else if (product.image) {
+        imgElement.src = product.image;
+    } else {
+        // Final fallback to placeholder
+        imgElement.src = 'https://via.placeholder.com/300x200';
+        imgElement.style.objectFit = 'contain';
+        imgElement.style.padding = '20px';
+    }
+}
+
+// fetch imageBase64 in Order List
+function getCartItemImageSrc(item) {
+    // First check if item has image field
+    if (item.image) {
+        // Check if it's already a data URL
+        if (item.image.startsWith('data:image/')) {
+            return item.image;
+        }
+        // Check if it's a base64 string (stored from merchant upload)
+        if (item.image.length > 100 && !item.image.startsWith('http')) {
+            // Assume it's base64 and format as data URL
+            return `data:image/jpeg;base64,${item.image}`;
+        }
+        // Otherwise, it's a URL
+        return item.image;
+    }
+    return 'https://via.placeholder.com/80';
+}
+
+function handleCartImageError(imgElement) {
+    imgElement.onerror = null;
+    imgElement.src = 'https://via.placeholder.com/80';
+    imgElement.style.objectFit = 'contain';
+    imgElement.style.padding = '5px';
 }
 
 // Expose functions to global scope

@@ -554,7 +554,7 @@
                         <div class="product-status ${statusBadge.class}">
                             ${statusBadge.text}
                         </div>
-                        <div class="product-image ${product.imageBase64 ? 'has-image' : ''}">
+                        <div class="product-image ${product.imageBase64 ? 'has-image' : ''}" onclick="window.location.href='product-details.html?product=${product.id}'">
                             ${imageContent}
                         </div>
                         <div class="product-title">

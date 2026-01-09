@@ -714,6 +714,8 @@
     height: 160px;
     object-fit: cover;
     border-radius: 12px;
+    object-fit: contain;
+    padding: 10px;
 }
 
 .product-card .product-image {
@@ -938,3 +940,6 @@
             font-weight: 600;
             margin-top: 10px;
         }
+
+
+        

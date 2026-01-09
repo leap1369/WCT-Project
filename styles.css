@@ -492,13 +492,16 @@ button:focus {
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
-
+        
         .product-image img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* Changed from cover to contain to show full image */
             transition: transform 0.5s ease;
+            background-color: white;
+            padding: 10px; /* Add some padding for product images */
         }
 
         .product-card:hover .product-image img {
@@ -836,8 +839,8 @@ button:focus {
         .side-profile {
             position: fixed;
             top: 0;
-            left: -400px;
-            width: 350px;
+            left: -450px; /* Changed from -400px to -450px */
+            width: 400px; /* Increased from 350px to 400px */
             height: 100%;
             background-color: white;
             box-shadow: 5px 0 20px rgba(0, 0, 0, 0.1);
@@ -847,9 +850,9 @@ button:focus {
             flex-direction: column;
             overflow: hidden;
         }
-
+        
         .side-profile.show {
-            transform: translateX(400px);
+            transform: translateX(450px); /* Changed from 400px to 450px */
         }
 
         .side-profile-header {
@@ -1049,8 +1052,8 @@ button:focus {
             background-color: white;
             position: absolute;
             top: 0;
-            left: 350px;
-            width: 350px;
+            left: 400px; /* Changed from 350px to 400px */
+            width: 600px; /* Increased from 350px to 600px for more space */
             height: 100%;
             box-shadow: 5px 0 20px rgba(0, 0, 0, 0.1);
             z-index: 1003;
@@ -1175,12 +1178,18 @@ button:focus {
 
 /* Order List Styling */
 .orders-container {
-    max-height: calc(100vh - 150px);
-    overflow-y: auto;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 !important; /* Remove any padding that might limit width */
 }
 
 .order-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 20px 0 !important;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
 }
 
 .order-card:hover {
@@ -1739,3 +1748,48 @@ button:active {
     font-size: 12px;
     color: #666;
 }
+
+/* imageBase64 on orderlish*/
+.order-item-image-container {
+    width: 80px;
+    height: 80px;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+.order-item-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: white;
+    padding: 5px;
+    transition: transform 0.5s ease;
+}
+
+.cart-preview-image-container {
+    width: 60px;
+    height: 60px;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.cart-preview-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: white;
+    padding: 3px;
+}
+
+
