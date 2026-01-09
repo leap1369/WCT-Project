@@ -133,17 +133,58 @@
     loadVerifiedMerchants();
     loadProducts();
   });
+  
 
-  /* ===== Overview ===== */
-  async function initOverview() {
+ /* ===== Overview ===== */
+async function initOverview() {
+  try {
+    // Load users
     const users = await getDocs(collection(db, "users"));
-    const verified = await getDocs(collection(db, "verifiedMerchants"));
     document.getElementById("totalUsers").textContent = users.size;
+    
+    // Load verified merchants
+    const verified = await getDocs(collection(db, "verifiedMerchants"));
     document.getElementById("activeMerchants").textContent = verified.size;
-    document.getElementById("totalOrders").textContent = 0;
+    
+    // 🟢 CRITICAL FIX: Load orders and calculate totals
+    const orders = await getDocs(collection(db, "order_history"));
+    document.getElementById("totalOrders").textContent = orders.size;
+    
+    // Calculate platform revenue
+    let platformRevenue = 0;
+    orders.forEach(doc => {
+      const order = doc.data();
+      // Sum up the total from each order
+      if (order.total) {
+        platformRevenue += parseFloat(order.total);
+      } else if (order.subtotal || order.shippingCost || order.tax) {
+        // Calculate if total is not stored directly
+        const subtotal = parseFloat(order.subtotal || 0);
+        const shipping = parseFloat(order.shippingCost || 0);
+        const tax = parseFloat(order.tax || 0);
+        platformRevenue += subtotal + shipping + tax;
+      }
+    });
+    
+    // Format and display revenue
+    document.getElementById("platformRevenue").textContent = `$${platformRevenue.toFixed(2)}`;
+    
+    console.log("Overview loaded:", {
+      users: users.size,
+      merchants: verified.size,
+      orders: orders.size,
+      revenue: platformRevenue.toFixed(2)
+    });
+    
+  } catch (error) {
+    console.error("Error loading overview:", error);
+    // Set defaults on error
+    document.getElementById("totalUsers").textContent = "0";
+    document.getElementById("activeMerchants").textContent = "0";
+    document.getElementById("totalOrders").textContent = "0";
     document.getElementById("platformRevenue").textContent = "$0.00";
   }
-
+}
   /* ===== Users ===== */
   async function createUserDoc() {
     const firstName = document.getElementById("firstName").value.trim();
@@ -1093,43 +1134,64 @@ async function loadVerifiedMerchants() {
     }
   }
   
-  // Update order status
-  async function updateOrderStatus(newStatus) {
-    if (!currentOrderId) return;
+ // Update order status
+async function updateOrderStatus(newStatus) {
+  if (!currentOrderId) return;
+  
+  try {
+    const orderRef = doc(db, "order_history", currentOrderId);
+    const orderSnap = await getDoc(orderRef);
     
-    try {
-      const orderRef = doc(db, "order_history", currentOrderId);
-      const updateData = {
-        status: newStatus,
-        updatedAt: new Date()
-      };
-      
-      // Add status-specific updates
-      if (newStatus === "cancelled") {
-        updateData.cancelledAt = new Date();
-      } else if (newStatus === "refunded") {
-        updateData.refundedAt = new Date();
-        updateData.paymentStatus = "refunded";
-      } else if (newStatus === "delivered") {
-        updateData.deliveredAt = new Date();
-      } else if (newStatus === "shipped") {
+    if (!orderSnap.exists()) {
+      alert("Order not found!");
+      return;
+    }
+    
+    const order = orderSnap.data();
+    const updateData = {
+      status: newStatus,
+      updatedAt: new Date()
+    };
+    
+    // Add status-specific updates
+    switch(newStatus) {
+      case "pending":
+        updateData.paymentStatus = "pending";
+        break;
+      case "processing":
+        updateData.paymentStatus = "paid"; // Assuming payment is done when processing
+        break;
+      case "shipped":
         updateData.shippedAt = new Date();
         updateData.trackingNumber = updateData.trackingNumber || `TRK${Date.now().toString().slice(-8)}`;
-      }
-      
-      await updateDoc(orderRef, updateData);
-      
-      // Reload order details and orders list
-      await loadOrderDetails(currentOrderId);
-      await loadOrders();
-      
-      alert(`Order status updated to ${newStatus}`);
-      
-    } catch (err) {
-      console.error("Error updating order status:", err);
-      alert("Error updating order status: " + err.message);
+        break;
+      case "delivered":
+        updateData.deliveredAt = new Date();
+        updateData.readyForReview = true; // Flag for review tab
+        break;
+      case "cancelled":
+        updateData.cancelledAt = new Date();
+        updateData.paymentStatus = "refunded";
+        break;
+      case "refunded":
+        updateData.refundedAt = new Date();
+        updateData.paymentStatus = "refunded";
+        break;
     }
+    
+    await updateDoc(orderRef, updateData);
+    
+    // Reload order details and orders list
+    await loadOrderDetails(currentOrderId);
+    await loadOrders();
+    
+    alert(`Order status updated to ${newStatus}`);
+    
+  } catch (err) {
+    console.error("Error updating order status:", err);
+    alert("Error updating order status: " + err.message);
   }
+}
   
   // Load all orders
   async function loadOrders() {
