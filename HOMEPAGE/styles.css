@@ -1168,5 +1168,63 @@ button:focus {
                 min-width: 80px;
                 padding: 10px 15px;
             }
-        }
+}
+/* Add to existing styles.css */
+
+/* Add these styles to your existing styles.css */
+
+/* Order List Styling */
+.orders-container {
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+}
+
+.order-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* Button hover effects */
+button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Scrollbar styling */
+.orders-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.orders-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.orders-container::-webkit-scrollbar-thumb {
+    background: #85BB65;
+    border-radius: 10px;
+}
+
+.orders-container::-webkit-scrollbar-thumb:hover {
+    background: #6da34a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .order-card {
+        margin: 10px;
+        border-radius: 8px;
+    }
     
+    .orders-container {
+        padding: 10px !important;
+    }
+}
