@@ -27,6 +27,7 @@ let products = [];
 let cart = [];
 let selectedCategory = 'all';
 let cartAsOrder = null;
+let selectedPaymentMethod = 'cash_on_delivery';
 
 // Status mapping for homepage tabs
 const STATUS_MAPPING = {
@@ -766,25 +767,56 @@ function getTabActions(tabName, orderId) {
 // Action functions for each tab
 async function payOrder(orderId) {
     try {
-        showNotification('Processing payment...');
-        
-        // Update order status to processing (paid)
-        await updateOrderInFirestore(orderId, {
-            status: 'processing',
-            paymentStatus: 'paid',
-            paidAt: new Date(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        showNotification('Payment successful! Your order is now being processed.');
-        
-        // Refresh the tabs
-        await loadOrderStatusTabs();
-        showProfileSection('topay');
+        // Show payment method selection for this specific order
+        showPaymentMethodModalForOrder(orderId);
         
     } catch (error) {
         console.error('Error processing payment:', error);
         showNotification('Error processing payment. Please try again.');
+    }
+}
+
+// Show payment method modal for a specific order
+function showPaymentMethodModalForOrder(orderId) {
+    // Try to get order data first
+    getOrderById(orderId).then(order => {
+        if (!order) {
+            showNotification('Order not found');
+            return;
+        }
+        
+        const modalHTML = createPaymentMethodModal(order, orderId, true);
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Add payment method selection
+        setupPaymentMethodSelection();
+    }).catch(error => {
+        console.error('Error loading order:', error);
+        // Create generic modal if can't load order
+        const genericOrder = { total: 0 };
+        const modalHTML = createPaymentMethodModal(genericOrder, orderId, true);
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        setupPaymentMethodSelection();
+    });
+}
+
+async function getOrderById(orderId) {
+    if (!currentUser) return null;
+    
+    try {
+        // Try to get from order_history first
+        const orderDoc = await db.collection('order_history').doc(orderId).get();
+        if (orderDoc.exists) return orderDoc.data();
+        
+        // Try from user's my_orders
+        const userOrderDoc = await db.collection('users').doc(currentUser.uid)
+            .collection('my_orders').doc(orderId).get();
+        if (userOrderDoc.exists) return userOrderDoc.data();
+        
+        return null;
+    } catch (error) {
+        console.error('Error getting order:', error);
+        return null;
     }
 }
 
@@ -1516,30 +1548,303 @@ async function confirmAndCheckout() {
         return;
     }
     
+    // Show payment method selection
+    showPaymentMethodModal();
+}
+
+// Show payment method selection modal
+function showPaymentMethodModal() {
     // Calculate totals for display
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shippingCost = 5.99;
     const tax = subtotal * 0.07;
     const total = subtotal + shippingCost + tax;
     
-    // Show confirmation dialog
-    const confirmed = confirm(
-        `Order Summary:\n\n` +
-        `Items: ${cart.length}\n` +
-        `Subtotal: $${subtotal.toFixed(2)}\n` +
-        `Shipping: $${shippingCost.toFixed(2)}\n` +
-        `Tax: $${tax.toFixed(2)}\n` +
-        `Total: $${total.toFixed(2)}\n\n` +
-        `Do you want to place this order?`
-    );
+    const orderSummary = {
+        subtotal: subtotal,
+        shippingCost: shippingCost,
+        tax: tax,
+        total: total,
+        items: cart.length,
+        totalItems: cart.reduce((sum, item) => sum + item.quantity, 0)
+    };
     
-    if (confirmed) {
-        await proceedToCheckout();
+    const modalHTML = createPaymentMethodModal(orderSummary, null, false);
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Add payment method selection
+    setupPaymentMethodSelection();
+}
+
+// Create payment method modal HTML
+// Create payment method modal HTML
+function createPaymentMethodModal(orderData, orderId = null, isExistingOrder = false) {
+    const subtotal = orderData.subtotal || 0;
+    const shippingCost = orderData.shippingCost || 5.99;
+    const tax = orderData.tax || 0;
+    const total = orderData.total || 0;
+    const items = orderData.items || 0;
+    const totalItems = orderData.totalItems || 0;
+    
+    return `
+        <div id="paymentMethodModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 20px;">
+            <div style="background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);">
+                <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: #333; font-size: 22px;">
+                        ${isExistingOrder ? `Pay Order #${orderId}` : 'Select Payment Method'}
+                    </h3>
+                    <button onclick="closePaymentMethodModal()" style="background: none; border: none; font-size: 28px; color: #666; cursor: pointer; line-height: 1; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">×</button>
+                </div>
+                
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #eee;">
+                        <h4 style="margin: 0 0 15px 0; color: #444; font-size: 16px; font-weight: 600;">Order Summary</h4>
+                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                            ${isExistingOrder ? '' : `
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+                                    <span style="color: #666;">Items (${totalItems})</span>
+                                    <span style="color: #333; font-weight: 500;">$${subtotal.toFixed(2)}</span>
+                                </div>
+                            `}
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+                                <span style="color: #666;">Subtotal</span>
+                                <span style="color: #333; font-weight: 500;">$${subtotal.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+                                <span style="color: #666;">Shipping</span>
+                                <span style="color: #333; font-weight: 500;">$${shippingCost.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+                                <span style="color: #666;">Tax</span>
+                                <span style="color: #333; font-weight: 500;">$${tax.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; padding-top: 10px; border-top: 2px solid #e0e0e0;">
+                                <span style="color: #333;">Total</span>
+                                <span style="color: #85BB65;">$${total.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 25px;">
+                        <h4 style="margin: 0 0 15px 0; color: #444; font-size: 16px; font-weight: 600;">Select Payment Method</h4>
+                        <div id="paymentMethods" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <div class="payment-method-option" data-method="cash_on_delivery" style="border: 2px solid #85BB65; background-color: #f0f8f0; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; text-align: center;">
+                                <div style="font-size: 24px; margin-bottom: 10px;">💵</div>
+                                <div style="font-weight: bold; margin-bottom: 5px;">Cash on Delivery</div>
+                                <div style="font-size: 12px; color: #666;">Pay when you receive</div>
+                            </div>
+                            
+                            <div class="payment-method-option" data-method="card" style="border: 2px solid #eee; background-color: white; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; text-align: center;">
+                                <div style="font-size: 24px; margin-bottom: 10px;">💳</div>
+                                <div style="font-weight: bold; margin-bottom: 5px;">Credit/Debit Card</div>
+                                <div style="font-size: 12px; color: #666;">Visa, Mastercard</div>
+                            </div>
+                            
+                            <div class="payment-method-option" data-method="paypal" style="border: 2px solid #eee; background-color: white; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; text-align: center;">
+                                <div style="font-size: 24px; margin-bottom: 10px;">🔵</div>
+                                <div style="font-weight: bold; margin-bottom: 5px;">PayPal</div>
+                                <div style="font-size: 12px; color: #666;">Secure online payment</div>
+                            </div>
+                            
+                            <div class="payment-method-option" data-method="khqr" style="border: 2px solid #eee; background-color: white; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; text-align: center;">
+                                <div style="font-size: 24px; margin-bottom: 10px;">
+                                    <img src="asset/KHQR.png" alt="KHQR" style="width: 32px; height: 32px; object-fit: contain;">
+                                </div>
+                                <div style="font-weight: bold; margin-bottom: 5px;">KHQR</div>
+                                <div style="font-size: 12px; color: #666;">Scan to Pay</div>
+                            </div>
+                        </div>
+                        
+                        <div id="cardDetails" style="margin-top: 20px; display: none;">
+                            <h5 style="margin: 0 0 15px 0; color: #444; font-size: 14px; font-weight: 600;">Card Details</h5>
+                            <div style="display: grid; gap: 10px;">
+                                <input type="text" id="cardNumber" placeholder="Card Number" style="padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <input type="text" id="cardExpiry" placeholder="MM/YY" style="padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                                    <input type="text" id="cardCVC" placeholder="CVC" style="padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                                <input type="text" id="cardName" placeholder="Name on Card" style="padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                            </div>
+                        </div>
+                        
+                        <div id="khqrDetails" style="margin-top: 20px; display: none;">
+                            <h5 style="margin: 0 0 15px 0; color: #444; font-size: 14px; font-weight: 600;">KHQR Payment</h5>
+                            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #85BB65; text-align: center;">
+                                <div style="margin-bottom: 15px;">
+                                    <img src="asset/KHQR.png" alt="KHQR" style="width: 60px; height: 60px; margin-bottom: 10px;">
+                                    <div style="font-weight: bold; font-size: 16px; color: #333; margin-bottom: 5px;">Scan KHQR Code to Pay</div>
+                                    <div style="font-size: 14px; color: #666;">Use any banking app with KHQR support</div>
+                                </div>
+                                
+                                <div style="margin: 20px 0; text-align: center;">
+                                    <div id="qrCodeContainer" style="display: none;">
+                                        <div style="background: white; padding: 15px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                                            <img src="asset/Qr.jpeg" alt="QR Code" style="width: 200px; height: 200px; object-fit: cover; border-radius: 4px;">
+                                            <div style="margin-top: 10px; font-size: 12px; color: #666;">Scan this QR code with your banking app</div>
+                                        </div>
+                                    </div>
+                                    <button id="showQrBtn" onclick="showKHQRCode()" style="background-color: #85BB65; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-qrcode"></i> Show KHQR Code
+                                    </button>
+                                </div>
+                                
+                                <div style="margin-top: 15px; padding: 15px; background-color: #e8f5e8; border-radius: 6px;">
+                                    <div style="font-weight: bold; margin-bottom: 8px; color: #2e7d32;">Payment Instructions:</div>
+                                    <div style="text-align: left; font-size: 13px; color: #555;">
+                                        <div style="display: flex; align-items: flex-start; margin-bottom: 5px;">
+                                            <span style="color: #85BB65; margin-right: 8px;">1.</span>
+                                            <span>Click "Show KHQR Code" button above</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; margin-bottom: 5px;">
+                                            <span style="color: #85BB65; margin-right: 8px;">2.</span>
+                                            <span>Open your banking app (ABA, Wing, etc.)</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; margin-bottom: 5px;">
+                                            <span style="color: #85BB65; margin-right: 8px;">3.</span>
+                                            <span>Scan the displayed QR code</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start;">
+                                            <span style="color: #85BB65; margin-right: 8px;">4.</span>
+                                            <span>Confirm payment and save the receipt</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 15px; padding: 12px; background-color: #fff8e1; border-radius: 6px; border-left: 4px solid #ffb300;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-info-circle" style="color: #ff9800; font-size: 16px;"></i>
+                                        <div style="font-size: 13px; color: #666;">
+                                            <strong>Note:</strong> After payment, please upload proof of payment below
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 15px;">
+                                    <label style="display: block; font-size: 14px; margin-bottom: 8px; color: #555; text-align: left;">
+                                        <i class="fas fa-upload"></i> Upload Payment Proof
+                                    </label>
+                                    <input type="file" id="khqrPaymentProof" accept="image/*,.pdf" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                    <div style="font-size: 12px; color: #888; margin-top: 5px; text-align: left;">
+                                        Accepted: JPG, PNG, PDF (Max: 5MB)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="padding: 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button onclick="closePaymentMethodModal()" style="background: #f5f5f5; color: #666; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        Cancel
+                    </button>
+                    <button onclick="${isExistingOrder ? `processPaymentForOrder('${orderId}')` : 'processCheckoutPayment()'}" 
+                            id="confirmPaymentBtn"
+                            style="background: #85BB65; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        ${isExistingOrder ? 'Pay Now' : 'Confirm & Place Order'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Setup payment method selection
+// Setup payment method selection
+function setupPaymentMethodSelection() {
+    // Set default selection
+    document.querySelector('[data-method="cash_on_delivery"]').style.borderColor = '#85BB65';
+    document.querySelector('[data-method="cash_on_delivery"]').style.backgroundColor = '#f0f8f0';
+    selectedPaymentMethod = 'cash_on_delivery';
+    
+    // Add click handlers to payment methods
+    document.querySelectorAll('.payment-method-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Reset all options
+            document.querySelectorAll('.payment-method-option').forEach(opt => {
+                opt.style.borderColor = '#eee';
+                opt.style.backgroundColor = 'white';
+            });
+            
+            // Highlight selected option
+            this.style.borderColor = '#85BB65';
+            this.style.backgroundColor = '#f0f8f0';
+            selectedPaymentMethod = this.dataset.method;
+            
+            // Show/hide additional fields
+            const cardDetails = document.getElementById('cardDetails');
+            const khqrDetails = document.getElementById('khqrDetails');
+            
+            if (selectedPaymentMethod === 'card') {
+                cardDetails.style.display = 'block';
+                khqrDetails.style.display = 'none';
+            } else if (selectedPaymentMethod === 'khqr') {
+                cardDetails.style.display = 'none';
+                khqrDetails.style.display = 'block';
+                // Hide QR code initially
+                const qrCodeContainer = document.getElementById('qrCodeContainer');
+                const showQrBtn = document.getElementById('showQrBtn');
+                if (qrCodeContainer) {
+                    qrCodeContainer.style.display = 'none';
+                }
+                if (showQrBtn) {
+                    showQrBtn.style.display = 'inline-flex';
+                }
+            } else {
+                cardDetails.style.display = 'none';
+                khqrDetails.style.display = 'none';
+            }
+        });
+    });
+}
+// Show KHQR code function
+function showKHQRCode() {
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
+    const showQrBtn = document.getElementById('showQrBtn');
+    
+    if (qrCodeContainer && showQrBtn) {
+        qrCodeContainer.style.display = 'block';
+        showQrBtn.style.display = 'none';
+        
+        // Generate a fake transaction reference for demo
+        const transactionRef = `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+        
+        // Add transaction info below QR code
+        const transactionInfo = document.createElement('div');
+        transactionInfo.style.cssText = `
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+        `;
+        transactionInfo.innerHTML = `
+            <div style="margin-bottom: 5px;"><strong>Transaction Ref:</strong> ${transactionRef}</div>
+            <div><strong>Amount:</strong> $${document.querySelector('[style*="color: #85BB65"]')?.textContent?.replace('$', '') || '0.00'}</div>
+        `;
+        
+        // Remove existing transaction info if any
+        const existingInfo = qrCodeContainer.querySelector('.transaction-info');
+        if (existingInfo) {
+            existingInfo.remove();
+        }
+        
+        transactionInfo.className = 'transaction-info';
+        qrCodeContainer.appendChild(transactionInfo);
+        
+        // Show notification
+        showNotification('KHQR code displayed. Please scan with your banking app.');
     }
 }
 
-// Main checkout function
-async function proceedToCheckout() {
+function closePaymentMethodModal() {
+    const modal = document.getElementById('paymentMethodModal');
+    if (modal) modal.remove();
+}
+
+// Process checkout with selected payment method
+// Process checkout with selected payment method
+async function processCheckoutPayment() {
     if (!currentUser) {
         alert('Please login to checkout');
         window.location.href = 'login.html';
@@ -1549,6 +1854,15 @@ async function proceedToCheckout() {
     if (cart.length === 0) {
         alert('Your cart is empty');
         return;
+    }
+    
+    // For KHQR, check if payment proof is uploaded
+    if (selectedPaymentMethod === 'khqr') {
+        const paymentProofInput = document.getElementById('khqrPaymentProof');
+        if (paymentProofInput && !paymentProofInput.files.length) {
+            showNotification('Please upload proof of payment for KHQR');
+            return;
+        }
     }
     
     try {
@@ -1568,6 +1882,22 @@ async function proceedToCheckout() {
         // Generate order ID
         const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
         const orderDate = new Date();
+        
+        // Determine payment status based on method
+        let paymentStatus = 'pending';
+        if (selectedPaymentMethod === 'cash_on_delivery') {
+            paymentStatus = 'pending';
+        } else if (selectedPaymentMethod === 'card' || selectedPaymentMethod === 'paypal') {
+            paymentStatus = 'paid'; // Assuming immediate payment for card/PayPal
+        } else if (selectedPaymentMethod === 'khqr') {
+            paymentStatus = 'pending'; // KHQR payments need verification
+        }
+        
+        // Determine order status based on payment
+        let orderStatus = 'pending';
+        if (paymentStatus === 'paid') {
+            orderStatus = 'processing'; // Paid orders go to processing
+        }
         
         // Create order data matching your schema
         const orderData = {
@@ -1589,14 +1919,25 @@ async function proceedToCheckout() {
             subtotal: subtotal,
             tax: tax,
             total: total,
-            paymentMethod: 'cash_on_delivery',
-            paymentStatus: 'pending',
-            status: 'pending', // This will place it in "To Pay" tab
+            paymentMethod: selectedPaymentMethod,
+            paymentStatus: paymentStatus,
+            status: orderStatus,
             orderDate: firebase.firestore.Timestamp.fromDate(orderDate),
             createdAt: firebase.firestore.Timestamp.fromDate(orderDate),
             updatedAt: firebase.firestore.Timestamp.fromDate(orderDate),
             userId: currentUser.uid
         };
+        
+        // Add KHQR specific data if applicable
+        if (selectedPaymentMethod === 'khqr') {
+            const paymentProofInput = document.getElementById('khqrPaymentProof');
+            if (paymentProofInput && paymentProofInput.files.length) {
+                // For demo, we'll just store the filename
+                // In a real app, you would upload the file to Firebase Storage
+                orderData.khqrPaymentProof = paymentProofInput.files[0].name;
+                orderData.khqrPaymentDate = new Date();
+            }
+        }
         
         console.log("Creating order with data:", orderData);
         
@@ -1634,16 +1975,31 @@ async function proceedToCheckout() {
         await loadOrderStatusTabs();
         
         // 7. Show success message
-        showNotification(`Order #${orderId} created successfully! Please complete payment.`);
-        
-        // 8. If order tabs are open, refresh them
-        const profileContent = document.getElementById('profileContent');
-        if (profileContent && profileContent.classList.contains('show') && 
-            document.querySelector('.content-header h3')?.textContent.includes('Pay')) {
-            showProfileSection('topay');
+        let successMessage = `Order #${orderId} created successfully!`;
+        if (selectedPaymentMethod === 'cash_on_delivery') {
+            successMessage += ' Please prepare cash for delivery.';
+        } else if (selectedPaymentMethod === 'khqr') {
+            successMessage += ' KHQR payment submitted. We will verify your payment shortly.';
+        } else if (selectedPaymentMethod === 'card' || selectedPaymentMethod === 'paypal') {
+            successMessage += ' Payment processed successfully!';
         }
         
-        // 9. Close cart preview if open
+        showNotification(successMessage);
+        
+        // 8. Close payment modal
+        closePaymentMethodModal();
+        
+        // 9. If order tabs are open, refresh them
+        const profileContent = document.getElementById('profileContent');
+        if (profileContent && profileContent.classList.contains('show')) {
+            if (orderStatus === 'pending') {
+                showProfileSection('topay');
+            } else if (orderStatus === 'processing') {
+                showProfileSection('toship');
+            }
+        }
+        
+        // 10. Close cart preview if open
         const cartPreview = document.getElementById('cartPreview');
         if (cartPreview && cartPreview.classList.contains('show')) {
             cartPreview.classList.remove('show');
@@ -1657,6 +2013,163 @@ async function proceedToCheckout() {
         } else {
             showNotification('Error processing checkout. Please try again.');
         }
+    }
+}
+
+// Process payment for existing order
+async function processPaymentForOrder(orderId) {
+    try {
+        // For KHQR, check if payment proof is uploaded
+        if (selectedPaymentMethod === 'khqr') {
+            const paymentProofInput = document.getElementById('khqrPaymentProof');
+            if (paymentProofInput && !paymentProofInput.files.length) {
+                showNotification('Please upload proof of payment for KHQR');
+                return;
+            }
+        }
+        
+        showNotification('Processing payment...');
+        
+        // Get the order to update
+        const order = await getOrderById(orderId);
+        if (!order) {
+            showNotification('Order not found');
+            closePaymentMethodModal();
+            return;
+        }
+        
+        // Determine payment status based on method
+        let paymentStatus = 'pending';
+        let orderStatus = 'pending';
+        
+        if (selectedPaymentMethod === 'cash_on_delivery') {
+            paymentStatus = 'pending';
+            orderStatus = 'pending';
+        } else if (selectedPaymentMethod === 'card' || selectedPaymentMethod === 'paypal') {
+            paymentStatus = 'paid';
+            orderStatus = 'processing';
+        } else if (selectedPaymentMethod === 'khqr') {
+            paymentStatus = 'pending'; // Needs verification
+            orderStatus = 'pending';
+        }
+        
+        // Update order with payment info
+        const updateData = {
+            paymentMethod: selectedPaymentMethod,
+            paymentStatus: paymentStatus,
+            status: orderStatus,
+            paidAt: paymentStatus === 'paid' ? new Date() : null,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        // Add KHQR specific data if applicable
+        if (selectedPaymentMethod === 'khqr') {
+            const paymentProofInput = document.getElementById('khqrPaymentProof');
+            if (paymentProofInput && paymentProofInput.files.length) {
+                // For demo, we'll just store the filename
+                updateData.khqrPaymentProof = paymentProofInput.files[0].name;
+                updateData.khqrPaymentDate = new Date();
+            }
+        }
+        
+        await updateOrderInFirestore(orderId, updateData);
+        
+        // Show success message
+        let successMessage = `Payment for Order #${orderId} submitted successfully!`;
+        if (selectedPaymentMethod === 'cash_on_delivery') {
+            successMessage = 'Order updated. Please prepare cash for delivery.';
+        } else if (selectedPaymentMethod === 'khqr') {
+            successMessage = 'KHQR payment submitted. We will verify your payment shortly.';
+        } else if (selectedPaymentMethod === 'card' || selectedPaymentMethod === 'paypal') {
+            successMessage = 'Payment processed successfully! Order is now being processed.';
+        }
+        
+        showNotification(successMessage);
+        
+        // Close modal
+        closePaymentMethodModal();
+        
+        // Refresh order tabs
+        await loadOrderStatusTabs();
+        
+        // Show appropriate tab
+        if (orderStatus === 'processing') {
+            showProfileSection('toship');
+        } else {
+            showProfileSection('topay');
+        }
+        
+    } catch (error) {
+        console.error('Error processing payment for order:', error);
+        showNotification('Error processing payment. Please try again.');
+    }
+}
+
+// Process payment for existing order
+async function processPaymentForOrder(orderId) {
+    try {
+        showNotification('Processing payment...');
+        
+        // Get the order to update
+        const order = await getOrderById(orderId);
+        if (!order) {
+            showNotification('Order not found');
+            closePaymentMethodModal();
+            return;
+        }
+        
+        // Determine payment status based on method
+        let paymentStatus = 'pending';
+        let orderStatus = 'pending';
+        
+        if (selectedPaymentMethod === 'cash_on_delivery') {
+            paymentStatus = 'pending';
+            orderStatus = 'pending';
+        } else if (selectedPaymentMethod === 'card' || selectedPaymentMethod === 'paypal') {
+            paymentStatus = 'paid';
+            orderStatus = 'processing';
+        } else if (selectedPaymentMethod === 'aba' || selectedPaymentMethod === 'acleda') {
+            paymentStatus = 'pending'; // Needs verification
+            orderStatus = 'pending';
+        }
+        
+        // Update order with payment info
+        const updateData = {
+            paymentMethod: selectedPaymentMethod,
+            paymentStatus: paymentStatus,
+            status: orderStatus,
+            paidAt: paymentStatus === 'paid' ? new Date() : null,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await updateOrderInFirestore(orderId, updateData);
+        
+        // Show success message
+        let successMessage = `Payment for Order #${orderId} processed successfully!`;
+        if (selectedPaymentMethod === 'cash_on_delivery') {
+            successMessage = 'Order updated. Please prepare cash for delivery.';
+        } else if (selectedPaymentMethod === 'aba' || selectedPaymentMethod === 'acleda') {
+            successMessage = 'Please complete the bank transfer. Order will be processed after payment confirmation.';
+        }
+        
+        showNotification(successMessage);
+        
+        // Close modal
+        closePaymentMethodModal();
+        
+        // Refresh order tabs
+        await loadOrderStatusTabs();
+        
+        // Show appropriate tab
+        if (orderStatus === 'processing') {
+            showProfileSection('toship');
+        } else {
+            showProfileSection('topay');
+        }
+        
+    } catch (error) {
+        console.error('Error processing payment for order:', error);
+        showNotification('Error processing payment. Please try again.');
     }
 }
 
@@ -1733,6 +2246,9 @@ async function loadOrderHistory() {
             // Count total items
             const totalItems = order.items ? order.items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
             
+            // Get payment method display name
+            const paymentMethodDisplay = getPaymentMethodDisplay(order.paymentMethod);
+            
             ordersHTML += `
                 <div class="order-history-card" style="border: 1px solid #e0e0e0; border-radius: 12px; margin-bottom: 20px; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
                     <div style="padding: 20px; border-bottom: 1px solid #e0e0e0; background-color: #f8f9fa;">
@@ -1750,6 +2266,12 @@ async function loadOrderHistory() {
                                     ${statusText.toUpperCase()}
                                 </span>
                             </div>
+                        </div>
+                        <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                            <i class="fas fa-credit-card"></i> Paid with: ${paymentMethodDisplay}
+                            <span style="margin-left: 10px; ${getPaymentStatusStyle(order.paymentStatus)}">
+                                ${order.paymentStatus || 'pending'}
+                            </span>
                         </div>
                     </div>
                     
@@ -1825,6 +2347,30 @@ async function loadOrderHistory() {
     }
 }
 
+function getPaymentMethodDisplay(method) {
+    const methods = {
+        'cash_on_delivery': 'Cash on Delivery',
+        'card': 'Credit/Debit Card',
+        'paypal': 'PayPal',
+        'khqr': 'KHQR',
+        'aba': 'ABA Bank' // Keep for backward compatibility
+    };
+    return methods[method] || method;
+}
+
+function getPaymentStatusStyle(status) {
+    switch(status) {
+        case 'paid':
+            return 'color: #155724; background-color: #d4edda; padding: 2px 8px; border-radius: 4px;';
+        case 'pending':
+            return 'color: #856404; background-color: #fff3cd; padding: 2px 8px; border-radius: 4px;';
+        case 'failed':
+            return 'color: #721c24; background-color: #f8d7da; padding: 2px 8px; border-radius: 4px;';
+        default:
+            return 'color: #6c757d; background-color: #f8f9fa; padding: 2px 8px; border-radius: 4px;';
+    }
+}
+
 function getStatusClass(status) {
     switch(status) {
         case 'pending': return 'status-pending';
@@ -1883,6 +2429,9 @@ async function viewOrderDetails(orderId) {
             minute: '2-digit'
         });
         
+        // Get payment method display name
+        const paymentMethodDisplay = getPaymentMethodDisplay(order.paymentMethod);
+        
         // Create order details modal
         const modalHTML = `
             <div id="orderDetailsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 20px;">
@@ -1908,11 +2457,13 @@ async function viewOrderDetails(orderId) {
                                 </div>
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Payment Method</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${(order.paymentMethod || '').replace('_', ' ').toUpperCase()}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${paymentMethodDisplay}</div>
                                 </div>
                                 <div>
                                     <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Payment Status</div>
-                                    <div style="font-size: 16px; color: #333; font-weight: 500;">${(order.paymentStatus || '').toUpperCase()}</div>
+                                    <div style="font-size: 16px; color: #333; font-weight: 500; ${getPaymentStatusStyle(order.paymentStatus)} display: inline-block;">
+                                        ${(order.paymentStatus || '').toUpperCase()}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2130,3 +2681,8 @@ window.skipReview = skipReview;
 window.submitReview = submitReview;
 window.closeReviewModal = closeReviewModal;
 window.viewOrderDetails = viewOrderDetails;
+window.showPaymentMethodModal = showPaymentMethodModal;
+window.closePaymentMethodModal = closePaymentMethodModal;
+window.processCheckoutPayment = processCheckoutPayment;
+window.processPaymentForOrder = processPaymentForOrder;
+window.showKHQRCode = showKHQRCode; // Add this line
