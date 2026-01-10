@@ -1377,12 +1377,12 @@ function renderOrdersList() {
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <button onclick="updateQuantity('${item.id}', -1)" 
                             style="background: none; border: 1px solid #ddd; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 14px;">
-                        <i class="fas fa-minus"></i>
+                        <i class="fas fa-minus" style="color:black;"></i>
                     </button>
                     <span style="font-weight: bold; min-width: 30px; text-align: center;">${item.quantity || 1}</span>
                     <button onclick="updateQuantity('${item.id}', 1)" 
                             style="background: none; border: 1px solid #ddd; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 14px;">
-                        <i class="fas fa-plus"></i>
+                        <i class="fas fa-plus" style="color:black"></i>
                     </button>
                     <button onclick="removeFromCart('${item.id}')" 
                             style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 14px; margin-left: auto;">

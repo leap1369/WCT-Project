@@ -966,8 +966,676 @@
                     }
                 }
             }
+
+             // ==================== ORDER MANAGEMENT ====================
+async function loadMerchantOrders(db) {
+    console.log("📦 Loading orders for merchant:", currentMerchantId);
+    
+    const ordersContainer = document.querySelector('.orders-table');
+    if (!ordersContainer) return;
+    
+    // Update placeholder to show loading
+    ordersContainer.innerHTML = `
+        <div style="text-align: center; padding: 60px; color: #666;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px;"></i>
+            <h3>Loading Orders...</h3>
+            <p>Fetching order data...</p>
+        </div>
+    `;
+    
+    try {
+        // First, get all products from this merchant to get product IDs
+        const productsSnapshot = await db.collection("product_list")
+            .where("merchantId", "==", currentMerchantId)
+            .get();
+        
+        if (productsSnapshot.empty) {
+            ordersContainer.innerHTML = `
+                <div style="text-align: center; padding: 60px; color: #666;">
+                    <i class="fas fa-box-open" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+                    <h3>No Products Yet</h3>
+                    <p>Add products first to receive orders</p>
+                    <button class="btn" onclick="openAddProductModal()" style="margin-top: 20px;">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        const merchantProductIds = [];
+        productsSnapshot.forEach(doc => {
+            merchantProductIds.push(doc.id);
+        });
+        
+        console.log("Merchant product IDs:", merchantProductIds);
+        
+        // Now fetch orders from order_history collection
+        const ordersSnapshot = await db.collection("order_history")
+            .where("status", "in", ["pending", "processing", "shipped", "delivered", "cancelled"])
+            .orderBy("orderDate", "desc")
+            .limit(50) // Limit for performance
+            .get();
+        
+        if (ordersSnapshot.empty) {
+            ordersContainer.innerHTML = `
+                <div style="text-align: center; padding: 60px; color: #666;">
+                    <i class="fas fa-shopping-cart" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+                    <h3>No Orders Yet</h3>
+                    <p>Orders from customers will appear here</p>
+                    <p style="font-size: 14px; margin-top: 10px; opacity: 0.7;">
+                        When customers purchase your products, their orders will show up here.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Filter orders to only include those with merchant's products
+        let merchantOrders = [];
+        let orderId = 1;
+        
+        ordersSnapshot.forEach(doc => {
+            const order = doc.data();
+            const orderItems = order.items || [];
+            
+            // Check if any item in this order belongs to this merchant
+            const merchantOrderItems = orderItems.filter(item => 
+                item.productId && merchantProductIds.includes(item.productId)
+            );
+            
+            if (merchantOrderItems.length > 0) {
+                // Calculate merchant's portion of the order
+                const merchantSubtotal = merchantOrderItems.reduce((sum, item) => 
+                    sum + (item.price * item.quantity), 0);
+                
+                // Calculate merchant's share of shipping and tax proportionally
+                const totalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
+                const merchantItems = merchantOrderItems.reduce((sum, item) => sum + item.quantity, 0);
+                const proportion = merchantItems / totalItems;
+                
+                const merchantShipping = (order.shippingCost || 0) * proportion;
+                const merchantTax = (order.tax || 0) * proportion;
+                const merchantTotal = merchantSubtotal + merchantShipping + merchantTax;
+                
+                merchantOrders.push({
+                    id: doc.id,
+                    orderNumber: order.orderId || `ORD-${orderId++}`,
+                    originalOrder: order,
+                    merchantItems: merchantOrderItems,
+                    customerName: order.customerName || "Customer",
+                    customerEmail: order.customerEmail || "",
+                    customerPhone: order.customerPhone || "",
+                    shippingAddress: order.shippingAddress || "Address not provided",
+                    shippingCity: order.shippingCity || "",
+                    shippingZip: order.shippingZip || "",
+                    orderDate: order.orderDate || order.createdAt,
+                    status: order.status || "pending",
+                    paymentMethod: order.paymentMethod || "cash_on_delivery",
+                    paymentStatus: order.paymentStatus || "pending",
+                    merchantSubtotal: merchantSubtotal,
+                    merchantShipping: merchantShipping,
+                    merchantTax: merchantTax,
+                    merchantTotal: merchantTotal,
+                    totalItems: merchantItems,
+                    allItems: orderItems // Keep all items for reference
+                });
+            }
+        });
+        
+        console.log(`Found ${merchantOrders.length} orders containing merchant's products`);
+        
+        // Render orders
+        renderMerchantOrders(merchantOrders, ordersContainer);
+        
+    } catch (error) {
+        console.error("❌ Error loading orders:", error);
+        ordersContainer.innerHTML = `
+            <div style="text-align: center; padding: 60px; color: #666;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px; color: #dc3545;"></i>
+                <h3>Error Loading Orders</h3>
+                <p>${error.message || "Please try again"}</p>
+                <button class="btn" onclick="loadMerchantOrders(db)" style="margin-top: 20px;">
+                    <i class="fas fa-redo"></i> Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
+function renderMerchantOrders(orders, container) {
+    if (orders.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 60px; color: #666;">
+                <i class="fas fa-shopping-cart" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+                <h3>No Orders Yet</h3>
+                <p>When customers purchase your products, their orders will show up here.</p>
+                <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    <h4><i class="fas fa-lightbulb"></i> Tips to get orders:</h4>
+                    <ul style="text-align: left; margin-top: 10px;">
+                        <li>Add attractive product images</li>
+                        <li>Write clear product descriptions</li>
+                        <li>Set competitive prices</li>
+                        <li>Ensure products are in stock</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    // Create table structure
+    container.innerHTML = `
+        <div class="table-header">
+            <div style="flex: 2;">Order Details</div>
+            <div style="flex: 1.5;">Customer</div>
+            <div style="flex: 1;">Date</div>
+            <div style="flex: 1;">Total</div>
+            <div style="flex: 1;">Status</div>
+            <div style="flex: 1;">Actions</div>
+        </div>
+        <div id="merchantOrdersList"></div>
+    `;
+    
+    const ordersList = document.getElementById('merchantOrdersList');
+    
+    orders.forEach(order => {
+        const orderDate = order.orderDate?.toDate ? order.orderDate.toDate() : 
+                         order.orderDate?.seconds ? new Date(order.orderDate.seconds * 1000) : 
+                         new Date();
+        
+        const formattedDate = orderDate.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+        
+        const statusBadge = getOrderStatusBadge(order.status);
+        
+        const orderItem = document.createElement('div');
+        orderItem.className = 'order-row';
+        orderItem.innerHTML = `
+            <div style="flex: 2;">
+                <div style="font-weight: bold; margin-bottom: 5px; color: #333;">
+                    ${order.orderNumber}
+                </div>
+                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                    <i class="fas fa-box"></i> ${order.totalItems} item(s) from your store
+                </div>
+                <div style="font-size: 11px; color: #888;">
+                    ${order.merchantItems.length > 0 ? order.merchantItems[0].name : 'Product'} ${order.merchantItems.length > 1 ? `+ ${order.merchantItems.length - 1} more` : ''}
+                </div>
+            </div>
+            <div style="flex: 1.5;">
+                <div style="font-weight: 600; margin-bottom: 3px;">${order.customerName}</div>
+                <div style="font-size: 11px; color: #666; margin-bottom: 2px;">${order.customerEmail}</div>
+                <div style="font-size: 11px; color: #666;">${order.customerPhone || 'No phone'}</div>
+            </div>
+            <div style="flex: 1; font-size: 14px; color: #555;">
+                ${formattedDate}
+            </div>
+            <div style="flex: 1;">
+                <div style="font-weight: bold; color: #333;">$${order.merchantTotal.toFixed(2)}</div>
+                <div style="font-size: 11px; color: #666;">Your earnings</div>
+            </div>
+            <div style="flex: 1;">
+                <div class="status-badge ${statusBadge.class}" style="display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                    ${statusBadge.text}
+                </div>
+            </div>
+            <div style="flex: 1;">
+                <button class="btn btn-small view-order-btn" data-order-id="${order.id}" style="padding: 8px 12px; font-size: 12px;">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                ${order.status === 'pending' || order.status === 'processing' ? `
+                    <button class="btn btn-small update-status-btn" data-order-id="${order.id}" style="padding: 8px 12px; font-size: 12px; margin-top: 5px; background: #6c757d;">
+                        <i class="fas fa-edit"></i> Update
+                    </button>
+                ` : ''}
+            </div>
+        `;
+        
+        ordersList.appendChild(orderItem);
+    });
+    
+    // Add event listeners for view buttons
+    document.querySelectorAll('.view-order-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                showOrderDetailsModal(order, db);
+            }
+        });
+    });
+    
+    // Add event listeners for update buttons
+    document.querySelectorAll('.update-status-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                showUpdateStatusModal(order, db);
+            }
+        });
+    });
+}
+
+function getOrderStatusBadge(status) {
+    const badges = {
+        'pending': { class: 'badge-pending', text: 'Pending' },
+        'processing': { class: 'badge-processing', text: 'Processing' },
+        'shipped': { class: 'badge-shipped', text: 'Shipped' },
+        'delivered': { class: 'badge-delivered', text: 'Delivered' },
+        'cancelled': { class: 'badge-cancelled', text: 'Cancelled' }
+    };
+    return badges[status] || { class: 'badge-secondary', text: 'Unknown' };
+}
+
+function showOrderDetailsModal(order, db) {
+    // Create modal for order details
+    const orderDate = order.orderDate?.toDate ? order.orderDate.toDate() : 
+                     order.orderDate?.seconds ? new Date(order.orderDate.seconds * 1000) : 
+                     new Date();
+    
+    const formattedDate = orderDate.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    let itemsHTML = '';
+    order.merchantItems.forEach((item, index) => {
+        itemsHTML += `
+            <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px;">
+                <div style="width: 60px; height: 60px; background: #f5f5f5; border-radius: 6px; margin-right: 15px; overflow: hidden;">
+                    <img src="${item.image || 'https://via.placeholder.com/60'}" 
+                         alt="${item.name}" 
+                         style="width: 100%; height: 100%; object-fit: contain; padding: 5px;">
+                </div>
+                <div style="flex-grow: 1;">
+                    <div style="font-weight: 600; margin-bottom: 5px;">${item.name}</div>
+                    <div style="font-size: 14px; color: #666;">
+                        Qty: ${item.quantity} × $${item.price.toFixed(2)} each
+                    </div>
+                    <div style="font-size: 12px; color: #888;">
+                        Product ID: ${item.productId || 'N/A'}
+                    </div>
+                </div>
+                <div style="font-weight: bold; color: #333; font-size: 16px;">
+                    $${(item.price * item.quantity).toFixed(2)}
+                </div>
+            </div>
+        `;
+    });
+    
+    const modalHTML = `
+        <div id="orderDetailsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 3000;">
+            <div style="background: white; border-radius: 15px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                <div style="padding: 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: #333;">
+                        <i class="fas fa-file-invoice-dollar"></i> Order Details: ${order.orderNumber}
+                    </h3>
+                    <button class="close-modal-btn" style="background: none; border: none; font-size: 28px; color: #666; cursor: pointer; line-height: 1;">×</button>
+                </div>
+                
+                <div style="padding: 25px;">
+                    <!-- Order Info -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                            <h4 style="margin-top: 0; margin-bottom: 15px; color: #555; font-size: 16px;">
+                                <i class="fas fa-info-circle"></i> Order Information
+                            </h4>
+                            <div style="font-size: 14px;">
+                                <div style="margin-bottom: 8px;">
+                                    <strong>Order Date:</strong> ${formattedDate}
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <strong>Status:</strong> 
+                                    <span class="status-badge ${getOrderStatusBadge(order.status).class}" style="margin-left: 10px;">
+                                        ${getOrderStatusBadge(order.status).text}
+                                    </span>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <strong>Payment Method:</strong> ${getPaymentMethodName(order.paymentMethod)}
+                                </div>
+                                <div>
+                                    <strong>Payment Status:</strong> 
+                                    <span style="color: ${order.paymentStatus === 'paid' ? '#28a745' : '#dc3545'}; font-weight: 600;">
+                                        ${order.paymentStatus || 'pending'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                            <h4 style="margin-top: 0; margin-bottom: 15px; color: #555; font-size: 16px;">
+                                <i class="fas fa-user"></i> Customer Information
+                            </h4>
+                            <div style="font-size: 14px;">
+                                <div style="margin-bottom: 8px;">
+                                    <strong>Name:</strong> ${order.customerName}
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <strong>Email:</strong> ${order.customerEmail}
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <strong>Phone:</strong> ${order.customerPhone || 'Not provided'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping Info -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+                        <h4 style="margin-top: 0; margin-bottom: 15px; color: #555; font-size: 16px;">
+                            <i class="fas fa-truck"></i> Shipping Information
+                        </h4>
+                        <div style="font-size: 14px;">
+                            <div style="margin-bottom: 5px;">
+                                <strong>Address:</strong> ${order.shippingAddress}
+                            </div>
+                            <div style="margin-bottom: 5px;">
+                                <strong>City:</strong> ${order.shippingCity}
+                            </div>
+                            <div>
+                                <strong>Zip Code:</strong> ${order.shippingZip}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items -->
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="margin-top: 0; margin-bottom: 15px; color: #555; font-size: 16px;">
+                            <i class="fas fa-boxes"></i> Your Products in This Order (${order.merchantItems.length} items)
+                        </h4>
+                        ${itemsHTML}
+                    </div>
+                    
+                    <!-- Order Summary -->
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 10px;">
+                        <h4 style="margin-top: 0; margin-bottom: 20px; color: #555; font-size: 16px;">
+                            <i class="fas fa-receipt"></i> Order Summary (Your Portion)
+                        </h4>
+                        <div style="max-width: 400px; margin-left: auto;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px;">
+                                <span style="color: #666;">Subtotal</span>
+                                <span style="font-weight: 500;">$${order.merchantSubtotal.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px;">
+                                <span style="color: #666;">Shipping</span>
+                                <span style="font-weight: 500;">$${order.merchantShipping.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px;">
+                                <span style="color: #666;">Tax</span>
+                                <span style="font-weight: 500;">$${order.merchantTax.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; padding-top: 15px; border-top: 2px solid #ddd;">
+                                <span style="color: #333;">Your Earnings</span>
+                                <span style="color: #85BB65;">$${order.merchantTotal.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="padding: 25px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 15px;">
+                    <button class="btn btn-secondary" id="closeOrderDetailsBtn" style="padding: 12px 25px;">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                    ${order.status !== 'delivered' && order.status !== 'cancelled' ? `
+                        <button class="btn" id="updateOrderStatusBtn" style="padding: 12px 25px;">
+                            <i class="fas fa-edit"></i> Update Status
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Add event listeners
+    document.getElementById('closeOrderDetailsBtn').addEventListener('click', () => {
+        document.getElementById('orderDetailsModal').remove();
+    });
+    
+    document.querySelector('#orderDetailsModal .close-modal-btn').addEventListener('click', () => {
+        document.getElementById('orderDetailsModal').remove();
+    });
+    
+    if (document.getElementById('updateOrderStatusBtn')) {
+        document.getElementById('updateOrderStatusBtn').addEventListener('click', () => {
+            document.getElementById('orderDetailsModal').remove();
+            showUpdateStatusModal(order, db);
+        });
+    }
+}
+
+function getPaymentMethodName(method) {
+    const methods = {
+        'cash_on_delivery': 'Cash on Delivery',
+        'card': 'Credit/Debit Card',
+        'paypal': 'PayPal',
+        'khqr': 'KHQR',
+        'aba': 'ABA Bank'
+    };
+    return methods[method] || method;
+}
+
+function showUpdateStatusModal(order, db) {
+    const modalHTML = `
+        <div id="updateStatusModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 3000;">
+            <div style="background: white; border-radius: 15px; max-width: 500px; width: 90%; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-shipping-fast"></i> Update Order Status
+                </h3>
+                <p style="color: #666; margin-bottom: 25px;">
+                    Order: <strong>${order.orderNumber}</strong><br>
+                    Customer: ${order.customerName}
+                </p>
+                
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #555;">
+                        Select New Status
+                    </label>
+                    <select id="newOrderStatus" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                        <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                        <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                    </select>
+                </div>
+                
+                <div id="trackingSection" style="margin-bottom: 25px; display: none;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #555;">
+                        Tracking Number
+                    </label>
+                    <input type="text" id="trackingNumber" placeholder="Enter tracking number" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+                    <p style="font-size: 12px; color: #888; margin-top: 8px;">
+                        Optional: Add tracking number for shipping
+                    </p>
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #555;">
+                        Notes (Optional)
+                    </label>
+                    <textarea id="statusNotes" placeholder="Add any notes for the customer..." rows="3" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; resize: vertical;"></textarea>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 15px;">
+                    <button class="btn btn-secondary" id="cancelUpdateBtn" style="padding: 12px 25px;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="btn" id="saveStatusBtn" style="padding: 12px 25px;">
+                        <i class="fas fa-save"></i> Update Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Show/hide tracking number field based on status
+    const statusSelect = document.getElementById('newOrderStatus');
+    const trackingSection = document.getElementById('trackingSection');
+    
+    statusSelect.addEventListener('change', function() {
+        if (this.value === 'shipped') {
+            trackingSection.style.display = 'block';
+        } else {
+            trackingSection.style.display = 'none';
+        }
+    });
+    
+    // Trigger change event to set initial state
+    statusSelect.dispatchEvent(new Event('change'));
+    
+    // Add event listeners
+    document.getElementById('cancelUpdateBtn').addEventListener('click', () => {
+        document.getElementById('updateStatusModal').remove();
+    });
+    
+    document.getElementById('saveStatusBtn').addEventListener('click', async () => {
+        await updateOrderStatus(order.id, statusSelect.value, db);
+    });
+}
+
+async function updateOrderStatus(orderId, newStatus, db) {
+    const trackingNumber = document.getElementById('trackingNumber')?.value || '';
+    const notes = document.getElementById('statusNotes')?.value || '';
+    
+    try {
+        const updateData = {
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        if (trackingNumber) {
+            updateData.trackingNumber = trackingNumber;
+        }
+        
+        if (notes) {
+            updateData.merchantNotes = notes;
+        }
+        
+        // Update in order_history
+        await db.collection("order_history").doc(orderId).update(updateData);
+        
+        // Also update in user's my_orders subcollection (for user notification)
+        // We need to get the user ID from the order first
+        const orderDoc = await db.collection("order_history").doc(orderId).get();
+        const orderData = orderDoc.data();
+        
+        if (orderData.userId) {
+            try {
+                await db.collection("users").doc(orderData.userId)
+                    .collection("my_orders").doc(orderId).update(updateData);
+            } catch (error) {
+                console.log("Could not update user's my_orders", error);
+            }
+        }
+        
+        // Show success message
+        alert(`✅ Order status updated to: ${newStatus}`);
+        
+        // Close modal
+        document.getElementById('updateStatusModal').remove();
+        
+        // Refresh orders list
+        const dbInstance = window.firebaseDb;
+        loadMerchantOrders(dbInstance);
+        
+    } catch (error) {
+        console.error("❌ Error updating order status:", error);
+        alert('Error updating order status: ' + error.message);
+    }
+}
+
+// Add to global exports
+window.loadMerchantOrders = function() {
+    const db = window.firebaseDb;
+    loadMerchantOrders(db);
+};
+
+// Add to the tab switching logic to load orders when Orders tab is clicked
+// In the initializeDashboard function, modify the tab click event:
+function initializeDashboard(db) {
+    console.log("📊 Initializing dashboard tabs");
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+            
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show corresponding content
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            const content = document.getElementById(tabId);
+            if (content) content.classList.add('active');
+            
+            // Load data for specific tabs
+            if (tabId === 'orders') {
+                loadMerchantOrders(db);
+            }
+        });
+    });
+}
+
+
+async function exportOrders() {
+    try {
+        const db = window.firebaseDb;
+        const ordersSnapshot = await db.collection("order_history")
+            .where("status", "in", ["pending", "processing", "shipped", "delivered"])
+            .get();
+        
+        if (ordersSnapshot.empty) {
+            alert('No orders to export');
+            return;
+        }
+        
+        let csvContent = "Order ID,Customer Name,Email,Phone,Date,Status,Total,Items\n";
+        
+        ordersSnapshot.forEach(doc => {
+            const order = doc.data();
+            const orderDate = order.orderDate?.toDate ? order.orderDate.toDate() : new Date();
+            const formattedDate = orderDate.toLocaleDateString('en-GB');
+            
+            const items = order.items ? order.items.map(item => 
+                `${item.name} (x${item.quantity})`).join('; ') : '';
+            
+            csvContent += `"${order.orderId || doc.id}","${order.customerName || ''}","${order.customerEmail || ''}","${order.customerPhone || ''}","${formattedDate}","${order.status || ''}","${order.total || 0}","${items}"\n`;
+        });
+        
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        alert('Orders exported successfully!');
+        
+    } catch (error) {
+        console.error("Error exporting orders:", error);
+        alert('Error exporting orders: ' + error.message);
+    }
+}
+
             
             // ==================== GLOBAL EXPORTS ====================
+            window.exportOrders = exportOrders;
             window.openAddProductModal = openAddProductModal;
             window.loadProducts = function() {
                 const db = window.firebaseDb;

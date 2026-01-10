@@ -1,4 +1,3 @@
-// product-details.js
 // Fetch product data from Firebase Firestore when users click on products
 
 // Firebase Configuration
@@ -68,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
-// Function to load product from Firestore product_list collection
+// Function to load product from Firestore product_list collection - FIXED VERSION
 async function loadProductFromFirestore(productId) {
     try {
         console.log("Loading product from Firestore product_list:", productId);
@@ -92,6 +91,15 @@ async function loadProductFromFirestore(productId) {
         };
         
         console.log("✅ Product loaded from product_list:", currentProduct);
+        console.log("Product data structure:", {
+            id: currentProduct.id,
+            name: currentProduct.name,
+            price: currentProduct.price,
+            hasImageBase64: !!currentProduct.imageBase64,
+            imageBase64Length: currentProduct.imageBase64 ? currentProduct.imageBase64.length : 0,
+            imageUrl: currentProduct.imageUrl,
+            image: currentProduct.image
+        });
         
         // Load merchant data if available
         if (currentProduct.merchantId) {
@@ -103,10 +111,6 @@ async function loadProductFromFirestore(productId) {
         
         // Update page title
         document.title = `${currentProduct.name} - JeahLuy`;
-        
-        // Log image source for debugging
-        const imageSrc = getProductImageSrc(currentProduct);
-        console.log("Product image source type:", imageSrc.substring(0, 50) + "...");
         
     } catch (error) {
         console.error('Error loading product:', error);
@@ -154,7 +158,7 @@ async function loadMerchantData(merchantId) {
     }
 }
 
-// Function to display product data in the UI
+// Function to display product data in the UI - FIXED VERSION
 function displayProductData(product) {
     console.log("Displaying product data:", product);
     
@@ -169,14 +173,17 @@ function displayProductData(product) {
     document.getElementById('productPrice').textContent = `$${price.toFixed(2)}`;
     document.getElementById('finalPrice').textContent = `$${price.toFixed(2)}`;
     
-    // Update the product image
+    // Update the product image - FIXED IMAGE HANDLING
     const productImageContainer = document.querySelector('.product-image');
     const imageSrc = getProductImageSrc(product);
+    
+    console.log("Image source to be used:", imageSrc.substring(0, 100) + "...");
     
     productImageContainer.innerHTML = `
         <img id="productImage" src="${imageSrc}" 
              alt="${product.name || 'Product Image'}"
-             onerror="handleProductImageError(this, ${JSON.stringify(product).replace(/"/g, '&quot;')})">
+             onerror="handleProductImageError(this)" 
+             style="width: 100%; height: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
     `;
     
     // Set product category
@@ -290,27 +297,38 @@ function displayProductData(product) {
     }
 }
 
-// Function to get product image source
+// Function to get product image source - FIXED VERSION
 function getProductImageSrc(product) {
     console.log("Getting image source for product:", product.id);
+    console.log("Available image fields:", {
+        imageBase64: product.imageBase64 ? `Present (${product.imageBase64.length} chars)` : 'Missing',
+        imageUrl: product.imageUrl || 'Missing',
+        image: product.image || 'Missing'
+    });
     
     // Priority 1: Base64 image (from merchant upload)
     if (product.imageBase64) {
-        console.log("Using imageBase64 field");
+        console.log("✅ Using imageBase64 field");
         
+        // Check if it's already a data URL
         if (product.imageBase64.startsWith('data:image/')) {
+            console.log("Base64 is already a data URL");
             return product.imageBase64;
         }
         
-        if (product.imageBase64.startsWith('https://firebasestorage.googleapis.com/')) {
+        // Check if it's a URL
+        if (product.imageBase64.startsWith('http')) {
+            console.log("Base64 field contains a URL");
             return product.imageBase64;
         }
         
         // Check if it's raw base64
         const base64Pattern = /^[A-Za-z0-9+/=]+$/;
-        if (base64Pattern.test(product.imageBase64) && product.imageBase64.length > 100) {
-            // Detect image format
-            if (product.imageBase64.startsWith('/9j/')) {
+        if (base64Pattern.test(product.imageBase64)) {
+            console.log("Raw base64 detected, converting to data URL");
+            
+            // Try to detect image format from the first few characters
+            if (product.imageBase64.startsWith('/9j/') || product.imageBase64.startsWith('/9j/')) {
                 return `data:image/jpeg;base64,${product.imageBase64}`;
             } else if (product.imageBase64.startsWith('iVBORw0KGgo')) {
                 return `data:image/png;base64,${product.imageBase64}`;
@@ -319,40 +337,43 @@ function getProductImageSrc(product) {
             } else if (product.imageBase64.startsWith('UklGR')) {
                 return `data:image/webp;base64,${product.imageBase64}`;
             } else {
+                // Default to JPEG if format unknown
+                console.log("Unknown base64 format, defaulting to JPEG");
                 return `data:image/jpeg;base64,${product.imageBase64}`;
             }
         }
         
+        console.log("Base64 doesn't match expected patterns, using as-is");
         return product.imageBase64;
     }
     
     // Priority 2: Image URL
     if (product.imageUrl) {
+        console.log("Using imageUrl field");
         return product.imageUrl;
     }
     
     // Priority 3: Image field
     if (product.image) {
+        console.log("Using image field");
         return product.image;
     }
     
     // Default placeholder
+    console.log("No image found, using placeholder");
     return 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 }
 
-// Handle image loading errors
-function handleProductImageError(imgElement, product) {
-    imgElement.onerror = null;
+// Handle image loading errors - SIMPLIFIED VERSION
+function handleProductImageError(imgElement) {
+    console.error("Image failed to load");
+    imgElement.onerror = null; // Prevent infinite loop
     
-    if (product.imageUrl) {
-        imgElement.src = product.imageUrl;
-    } else if (product.image) {
-        imgElement.src = product.image;
-    } else {
-        imgElement.src = 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-        imgElement.style.objectFit = 'contain';
-        imgElement.style.padding = '20px';
-    }
+    // Fallback to placeholder
+    imgElement.src = 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+    imgElement.style.objectFit = 'contain';
+    imgElement.style.padding = '20px';
+    imgElement.style.backgroundColor = '#f5f5f5';
 }
 
 // Function to update store information
@@ -368,30 +389,32 @@ function updateStoreInfo(merchant) {
 // Function to show loading state
 function showLoadingState() {
     const container = document.querySelector('.container');
-    container.innerHTML = `
-        <div style="text-align: center; padding: 100px 20px;">
-            <div class="loading-spinner" style="
-                width: 60px;
-                height: 60px;
-                border: 5px solid #f3f3f3;
-                border-top: 5px solid #85BB65;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-                margin: 0 auto 20px;
-            "></div>
-            <h3 style="color: #333;">Loading Product Details...</h3>
-            <p style="color: #666;">Please wait while we fetch the product information.</p>
-        </div>
-    `;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(style);
+    if (container) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 100px 20px;">
+                <div class="loading-spinner" style="
+                    width: 60px;
+                    height: 60px;
+                    border: 5px solid #f3f3f3;
+                    border-top: 5px solid #85BB65;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 20px;
+                "></div>
+                <h3 style="color: #333;">Loading Product Details...</h3>
+                <p style="color: #666;">Please wait while we fetch the product information.</p>
+            </div>
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
 }
 
 function hideLoadingState() {
@@ -401,23 +424,25 @@ function hideLoadingState() {
 // Function to show error message
 function showError(message) {
     const container = document.querySelector('.container');
-    container.innerHTML = `
-        <div style="text-align: center; padding: 100px 20px;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: #ff6b6b; margin-bottom: 20px;"></i>
-            <h2 style="color: #ff6b6b;">Product Not Available</h2>
-            <p style="font-size: 18px; margin: 20px 0; color: #666;">${message}</p>
-            <div style="margin-top: 30px;">
-                <button onclick="window.history.back()" 
-                        style="background-color: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;">
-                    <i class="fas fa-arrow-left"></i> Go Back
-                </button>
-                <button onclick="window.location.href='homepage.html'" 
-                        style="background-color: #85BB65; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 16px;">
-                    <i class="fas fa-home"></i> Return to Homepage
-                </button>
+    if (container) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 100px 20px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: #ff6b6b; margin-bottom: 20px;"></i>
+                <h2 style="color: #ff6b6b;">Product Not Available</h2>
+                <p style="font-size: 18px; margin: 20px 0; color: #666;">${message}</p>
+                <div style="margin-top: 30px;">
+                    <button onclick="window.history.back()" 
+                            style="background-color: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;">
+                        <i class="fas fa-arrow-left"></i> Go Back
+                    </button>
+                    <button onclick="window.location.href='homepage.html'" 
+                            style="background-color: #85BB65; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                        <i class="fas fa-home"></i> Return to Homepage
+                    </button>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    }
 }
 
 // Update UI for logged in user
@@ -549,7 +574,7 @@ async function saveCartToFirestore() {
     }
 }
 
-// Function to add current product to cart (SAME AS HOMEPAGE)
+// Function to add current product to cart
 async function addProductToCart() {
     if (!currentProduct) {
         showNotification('Product data not loaded. Please try again.', 'error');
@@ -812,7 +837,7 @@ function setupEventListeners() {
         closeCartBtn.addEventListener('click', toggleCartPreview);
     }
     
-    // View cart button - redirect to homepage (or create dedicated cart page)
+    // View cart button
     const viewCartBtn = document.querySelector('.view-cart-btn');
     if (viewCartBtn) {
         viewCartBtn.addEventListener('click', () => {
