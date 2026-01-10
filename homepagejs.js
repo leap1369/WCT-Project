@@ -1120,6 +1120,7 @@ function filterByCategory(category) {
     renderProducts(filteredProducts);
 }
 
+
 function renderProducts(productsToShow) {
     const container = document.getElementById('productsContainer');
     
@@ -1143,17 +1144,17 @@ function renderProducts(productsToShow) {
                     <h3 class="product-title">${product.name || 'Unnamed Product'}</h3>
                     <div class="product-price">$${parseFloat(product.price || 0).toFixed(2)}</div>
                     ${product.description ? `
-                        <div class="product-description" style="font-size: 12px; color: #666; margin-top: 5px; line-height: 1.3;">
-                            ${product.description.length > 80 ? product.description.substring(0, 80) + '...' : product.description}
+                        <div class="product-description" style="font-size: 11px; color: #666; margin-top: 3px; line-height: 1.2; height: 28px; overflow: hidden;">
+                            ${product.description.length > 60 ? product.description.substring(0, 60) + '...' : product.description}
                         </div>
                     ` : ''}
                     ${product.category ? `
-                        <div class="product-category" style="font-size: 11px; color: #888; margin-top: 8px; background: #f5f5f5; padding: 3px 8px; border-radius: 10px; display: inline-block;">
+                        <div class="product-category" style="font-size: 10px; color: #888; margin-top: 6px; background: #f5f5f5; padding: 2px 6px; border-radius: 8px; display: inline-block;">
                             ${product.category}
                         </div>
                     ` : ''}
                     ${product.stockQty !== undefined ? `
-                        <div class="product-stock" style="font-size: 11px; color: ${product.stockQty > 10 ? '#28a745' : product.stockQty > 0 ? '#ffc107' : '#dc3545'}; margin-top: 8px;">
+                        <div class="product-stock" style="font-size: 10px; color: ${product.stockQty > 10 ? '#28a745' : product.stockQty > 0 ? '#ffc107' : '#dc3545'}; margin-top: 6px;">
                             ${product.stockQty > 0 ? `${product.stockQty} in stock` : 'Out of stock'}
                         </div>
                     ` : ''}
