@@ -270,9 +270,10 @@ button:focus {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
             top: 0;
             z-index: 100;
+            width: 100%;
+            margin-bottom: 10px;
         }
         
         .merchant-profile {
@@ -369,6 +370,7 @@ button:focus {
             padding: 40px 5% 20px;
             background: linear-gradient(135deg, #85BB65, #85BB65);
             color: white;
+            width: 100%;
         }
 
         .search-container {
