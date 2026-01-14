@@ -80,7 +80,7 @@
 
                 <!-- Statistics -->
                 <div class="stats-grid" id="statsGrid">
-                    <div class="loading">
+                    <div class="loading"><!-- Recent Activity -->
                         <i class="fas fa-spinner fa-spin"></i>
                         <p>Loading statistics...</p>
                     </div>
@@ -89,9 +89,14 @@
                 <!-- Recent Activity -->
                 <div class="quick-actions">
                     <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                    <div style="color: #666; padding: 20px; text-align: center;">
-                        <i class="fas fa-clock" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;"></i>
-                        <p>Activity log will appear here</p>
+                    
+                    <!-- Add this ID so we can find it easily -->
+                    <div id="activityContainer" style="min-height: 200px;">
+                        <!-- Loading will appear here -->
+                        <div style="color: #666; padding: 20px; text-align: center;">
+                            <i class="fas fa-clock" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;"></i>
+                            <p>Activity log will appear here</p>
+                        </div>
                     </div>
                 </div>
             </div>

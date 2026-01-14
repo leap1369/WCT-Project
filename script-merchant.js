@@ -113,6 +113,7 @@
                     // Load initial data
                     loadProducts(db);
                     loadStatistics(db);
+                    loadRecentActivity(db);
                     
                 } catch (error) {
                     console.error("❌ Error loading merchant:", error);
@@ -277,6 +278,290 @@
                     }
                 }
             }
+
+                        // ==================== SIMPLE RECENT ACTIVITY ====================
+
+            // ==================== SIMPLE RECENT ACTIVITY ====================
+
+            async function loadRecentActivity(db) {
+                console.log("🔔 Loading recent activity...");
+                
+                // Find the activity container using the ID
+                const activityContainer = document.getElementById('activityContainer');
+                if (!activityContainer) {
+                    console.error("❌ Could not find #activityContainer");
+                    return;
+                }
+                
+                try {
+                    // Show loading
+                    activityContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 32px; margin-bottom: 15px; color: #85BB65;"></i>
+                            <p>Loading activity...</p>
+                        </div>
+                    `;
+                    
+                    // 1. Get recent orders (last 5)
+                    let recentOrders = [];
+                    try {
+                        const ordersSnapshot = await db.collection("order_history")
+                            .orderBy("orderDate", "desc")
+                            .limit(5)
+                            .get();
+                        
+                        recentOrders = ordersSnapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                    } catch (orderError) {
+                        console.log("Could not load orders:", orderError);
+                    }
+                    
+                    // 2. Get low stock products
+                    let lowStockProducts = [];
+                    if (currentMerchantId) {
+                        try {
+                            const productsSnapshot = await db.collection("product_list")
+                                .where("merchantId", "==", currentMerchantId)
+                                .where("stockQty", "<", 10)
+                                .where("stockQty", ">", 0)
+                                .limit(3)
+                                .get();
+                            
+                            lowStockProducts = productsSnapshot.docs.map(doc => ({
+                                id: doc.id,
+                                ...doc.data()
+                            }));
+                        } catch (productError) {
+                            console.log("Could not load low stock:", productError);
+                        }
+                    }
+                    
+                    // 3. Render the activity
+                    displayActivity(recentOrders, lowStockProducts, activityContainer);
+                    
+                } catch (error) {
+                    console.error("❌ Activity error:", error);
+                    activityContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 32px; margin-bottom: 15px; color: #dc3545;"></i>
+                            <p>Could not load activity</p>
+                            <small style="color: #999;">${error.message}</small>
+                        </div>
+                    `;
+                }
+            }
+
+function displayActivity(orders, lowStock, container) {
+    let html = '';
+    
+    // Show orders if we have any
+    if (orders.length > 0) {
+        html += '<div style="margin-bottom: 20px;">';
+        html += '<h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px; display: flex; align-items: center; gap: 8px;">';
+        html += '<i class="fas fa-shopping-cart"></i> Recent Orders';
+        html += `</h4>`;
+        
+        orders.forEach(order => {
+            const date = order.orderDate?.toDate ? order.orderDate.toDate() : new Date();
+            const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const dayStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            
+            // Get status color
+            let statusColor = '#6c757d';
+            if (order.status === 'pending') statusColor = '#ffc107';
+            if (order.status === 'processing') statusColor = '#17a2b8';
+            if (order.status === 'shipped') statusColor = '#28a745';
+            if (order.status === 'delivered') statusColor = '#6c757d';
+            if (order.status === 'cancelled') statusColor = '#dc3545';
+            
+            html += `
+                <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid ${statusColor}; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-weight: 600; color: #333; margin-bottom: 4px;">${order.customerName || 'Customer'}</div>
+                            <div style="font-size: 13px; color: #666;">
+                                ${order.items?.length || 0} item(s) • $${order.total?.toFixed(2) || '0.00'}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 12px; color: #888; margin-bottom: 4px;">${dayStr} ${timeStr}</div>
+                            <span style="background: ${statusColor}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                ${order.status || 'pending'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+    }
+    
+    // Show low stock alerts
+    if (lowStock.length > 0) {
+        html += '<div style="margin-bottom: 15px;">';
+        html += '<h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px; display: flex; align-items: center; gap: 8px;">';
+        html += '<i class="fas fa-exclamation-triangle"></i> Low Stock Alerts';
+        html += `</h4>`;
+        
+        lowStock.forEach(product => {
+            html += `
+                <div style="background: #fff3cd; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #ffc107;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 600; color: #856404;">${product.name}</div>
+                        <span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600;">
+                            ${product.stockQty} left
+                        </span>
+                    </div>
+                    <div style="font-size: 13px; color: #856404; margin-top: 5px;">
+                        <a href="#" onclick="openEditProductModal('${product.id}', window.firebaseDb); return false;" style="color: #007bff; text-decoration: none;">
+                            <i class="fas fa-edit"></i> Restock now
+                        </a>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+    }
+    
+    // If no activity at all
+    if (orders.length === 0 && lowStock.length === 0) {
+        html = `
+            <div style="text-align: center; padding: 40px 20px;">
+                <i class="fas fa-check-circle" style="font-size: 48px; color: #85BB65; margin-bottom: 15px; opacity: 0.5;"></i>
+                <h4 style="color: #666; margin-bottom: 10px;">No Recent Activity</h4>
+                <p style="color: #888; font-size: 14px; max-width: 300px; margin: 0 auto;">
+                    Everything looks good! New orders and alerts will appear here automatically.
+                </p>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+            // Helper: Get recent orders
+            async function getRecentOrders(db) {
+                try {
+                    const snapshot = await db.collection("order_history")
+                        .orderBy("orderDate", "desc")
+                        .limit(5)
+                        .get();
+                    
+                    return snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } catch (error) {
+                    console.log("Could not load orders:", error);
+                    return [];
+                }
+            }
+
+            // Helper: Get low stock products
+            async function getLowStockProducts(db) {
+                if (!currentMerchantId) return [];
+                
+                try {
+                    const snapshot = await db.collection("product_list")
+                        .where("merchantId", "==", currentMerchantId)
+                        .where("stockQty", "<", 10)
+                        .where("stockQty", ">", 0)
+                        .limit(3)
+                        .get();
+                    
+                    return snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } catch (error) {
+                    console.log("Could not load low stock:", error);
+                    return [];
+                }
+            }
+
+            // Helper: Render activity
+            function renderActivity(orders, lowStock, container) {
+                let html = '<div style="padding: 10px;">';
+                
+                // Show orders
+                if (orders.length > 0) {
+                    html += '<h4 style="margin: 15px 0 10px 0; color: #333;"><i class="fas fa-shopping-cart"></i> Recent Orders</h4>';
+                    
+                    orders.forEach(order => {
+                        const date = order.orderDate?.toDate ? order.orderDate.toDate() : new Date();
+                        const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        
+                        html += `
+                            <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #85BB65;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong style="color: #333;">${order.customerName || 'Customer'}</strong>
+                                    <span style="font-size: 12px; color: #888;">${timeStr}</span>
+                                </div>
+                                <div style="font-size: 13px; color: #666; margin-top: 5px;">
+                                    ${order.items?.length || 0} item(s) • $${order.total?.toFixed(2) || '0.00'}
+                                </div>
+                                <div style="margin-top: 8px;">
+                                    <span style="background: ${getStatusColor(order.status)}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px;">
+                                        ${order.status || 'pending'}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Show low stock alerts
+                if (lowStock.length > 0) {
+                    html += '<h4 style="margin: 20px 0 10px 0; color: #333;"><i class="fas fa-exclamation-triangle"></i> Low Stock Alerts</h4>';
+                    
+                    lowStock.forEach(product => {
+                        html += `
+                            <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #ffc107;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <strong style="color: #856404;">${product.name}</strong>
+                                    <span style="background: #dc3545; color: white; padding: 2px 6px; border-radius: 10px; font-size: 11px;">
+                                        ${product.stockQty} left
+                                    </span>
+                                </div>
+                                <div style="font-size: 13px; color: #856404; margin-top: 5px;">
+                                    Running low on stock • <a href="#" onclick="openEditProductModal('${product.id}', window.firebaseDb); return false;" style="color: #007bff;">Restock now</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // If no activity
+                if (orders.length === 0 && lowStock.length === 0) {
+                    html += `
+                        <div style="text-align: center; padding: 30px 20px;">
+                            <i class="fas fa-check-circle" style="font-size: 48px; color: #85BB65; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <h4 style="color: #666;">No Recent Activity</h4>
+                            <p style="color: #888; font-size: 14px;">Everything looks good! New orders and alerts will appear here.</p>
+                        </div>
+                    `;
+                }
+                
+                html += '</div>';
+                container.innerHTML = html;
+            }
+
+            // Helper: Get status color
+            function getStatusColor(status) {
+                const colors = {
+                    'pending': '#ffc107',
+                    'processing': '#17a2b8',
+                    'shipped': '#28a745',
+                    'delivered': '#6c757d',
+                    'cancelled': '#dc3545'
+                };
+                return colors[status] || '#6c757d';
+            }
+
             
             async function loadStatistics(db) {
                 console.log("📊 Loading statistics for merchant:", currentMerchantId);
@@ -1184,123 +1469,187 @@ ${error.stack || 'No stack trace'}
     }
 }
 
-function renderMerchantOrders(orders, container) {
-    if (orders.length === 0) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 60px; color: #666;">
-                <i class="fas fa-shopping-cart" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
-                <h3>No Orders Yet</h3>
-                <p>When customers purchase your products, their orders will show up here.</p>
-                <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                    <h4><i class="fas fa-lightbulb"></i> Tips to get orders:</h4>
-                    <ul style="text-align: left; margin-top: 10px;">
-                        <li>Add attractive product images</li>
-                        <li>Write clear product descriptions</li>
-                        <li>Set competitive prices</li>
-                        <li>Ensure products are in stock</li>
-                    </ul>
-                </div>
-            </div>
-        `;
-        return;
-    }
-    
-    // Create table structure
-    container.innerHTML = `
-        <div class="table-header">
-            <div style="flex: 2;">Order Details</div>
-            <div style="flex: 1.5;">Customer</div>
-            <div style="flex: 1;">Date</div>
-            <div style="flex: 1;">Total</div>
-            <div style="flex: 1;">Status</div>
-            <div style="flex: 1;">Actions</div>
-        </div>
-        <div id="merchantOrdersList"></div>
-    `;
-    
-    const ordersList = document.getElementById('merchantOrdersList');
-    
-    orders.forEach(order => {
-        const orderDate = order.orderDate?.toDate ? order.orderDate.toDate() : 
-                         order.orderDate?.seconds ? new Date(order.orderDate.seconds * 1000) : 
-                         new Date();
-        
-        const formattedDate = orderDate.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-        
-        const statusBadge = getOrderStatusBadge(order.status);
-        
-        const orderItem = document.createElement('div');
-        orderItem.className = 'order-row';
-        orderItem.innerHTML = `
-            <div style="flex: 2;">
-                <div style="font-weight: bold; margin-bottom: 5px; color: #333;">
-                    ${order.orderNumber}
-                </div>
-                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-                    <i class="fas fa-box"></i> ${order.totalItems} item(s) from your store
-                </div>
-                <div style="font-size: 11px; color: #888;">
-                    ${order.merchantItems.length > 0 ? order.merchantItems[0].name : 'Product'} ${order.merchantItems.length > 1 ? `+ ${order.merchantItems.length - 1} more` : ''}
-                </div>
-            </div>
-            <div style="flex: 1.5;">
-                <div style="font-weight: 600; margin-bottom: 3px;">${order.customerName}</div>
-                <div style="font-size: 11px; color: #666; margin-bottom: 2px;">${order.customerEmail}</div>
-                <div style="font-size: 11px; color: #666;">${order.customerPhone || 'No phone'}</div>
-            </div>
-            <div style="flex: 1; font-size: 14px; color: #555;">
-                ${formattedDate}
-            </div>
-            <div style="flex: 1;">
-                <div style="font-weight: bold; color: #333;">$${order.merchantTotal.toFixed(2)}</div>
-                <div style="font-size: 11px; color: #666;">Your earnings</div>
-            </div>
-            <div style="flex: 1;">
-                <div class="status-badge ${statusBadge.class}" style="display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                    ${statusBadge.text}
-                </div>
-            </div>
-            <div style="flex: 1;">
-                <button class="btn btn-small view-order-btn" data-order-id="${order.id}" style="padding: 8px 12px; font-size: 12px;">
-                    <i class="fas fa-eye"></i> View
-                </button>
-                ${order.status === 'pending' || order.status === 'processing' ? `
-                    <button class="btn btn-small update-status-btn" data-order-id="${order.id}" style="padding: 8px 12px; font-size: 12px; margin-top: 5px; background: #6c757d;">
-                        <i class="fas fa-edit"></i> Update
-                    </button>
-                ` : ''}
-            </div>
-        `;
-        
-        ordersList.appendChild(orderItem);
-    });
-    
-    // Add event listeners for view buttons
-    document.querySelectorAll('.view-order-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const orderId = this.getAttribute('data-order-id');
-            const order = orders.find(o => o.id === orderId);
-            if (order) {
-                showOrderDetailsModal(order, db);
+        function renderMerchantOrders(orders, container) {
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px; color: #666;">
+                        <i class="fas fa-shopping-cart" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+                        <h3>No Orders Yet</h3>
+                        <p>When customers purchase your products, their orders will show up here.</p>
+                        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                            <h4><i class="fas fa-lightbulb"></i> Tips to get orders:</h4>
+                            <ul style="text-align: left; margin-top: 10px;">
+                                <li>Add attractive product images</li>
+                                <li>Write clear product descriptions</li>
+                                <li>Set competitive prices</li>
+                                <li>Ensure products are in stock</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                return;
             }
-        });
-    });
-    
-    // Add event listeners for update buttons
-    document.querySelectorAll('.update-status-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const orderId = this.getAttribute('data-order-id');
-            const order = orders.find(o => o.id === orderId);
-            if (order) {
-                showUpdateStatusModal(order, db);
-            }
-        });
-    });
-}
+            
+            // Create table structure
+            container.innerHTML = `
+                <div class="table-header">
+                    <div style="flex: 2;">Order Details</div>
+                    <div style="flex: 1.5;">Customer</div>
+                    <div style="flex: 1;">Date</div>
+                    <div style="flex: 1;">Total</div>
+                    <div style="flex: 1;">Status</div>
+                    <div style="flex: 1;">Actions</div>
+                </div>
+                <div id="merchantOrdersList"></div>
+            `;
+            
+            const ordersList = document.getElementById('merchantOrdersList');
+            
+            orders.forEach(order => {
+                const orderDate = order.orderDate?.toDate ? order.orderDate.toDate() : 
+                                order.orderDate?.seconds ? new Date(order.orderDate.seconds * 1000) : 
+                                new Date();
+                
+                const formattedDate = orderDate.toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                
+                const statusBadge = getOrderStatusBadge(order.status);
+                
+                const orderItem = document.createElement('div');
+                orderItem.className = 'order-row';
+                orderItem.innerHTML = `
+                    <div style="flex: 2;">
+                        <div style="font-weight: bold; margin-bottom: 5px; color: #333;">
+                            ${order.orderNumber}
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                            <i class="fas fa-box"></i> ${order.totalItems} item(s) from your store
+                        </div>
+                        <div style="font-size: 11px; color: #888;">
+                            ${order.merchantItems.length > 0 ? order.merchantItems[0].name : 'Product'} ${order.merchantItems.length > 1 ? `+ ${order.merchantItems.length - 1} more` : ''}
+                        </div>
+                    </div>
+                    <div style="flex: 1.5;">
+                        <div style="font-weight: 600; margin-bottom: 3px;">${order.customerName}</div>
+                        <div style="font-size: 11px; color: #666; margin-bottom: 2px;">${order.customerEmail}</div>
+                        <div style="font-size: 11px; color: #666;">${order.customerPhone || 'No phone'}</div>
+                    </div>
+                    <div style="flex: 1; font-size: 14px; color: #555;">
+                        ${formattedDate}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; color: #333;">$${order.merchantTotal.toFixed(2)}</div>
+                        <div style="font-size: 11px; color: #666;">Your earnings</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="status-badge ${statusBadge.class}" style="display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                            ${statusBadge.text}
+                        </div>
+                    </div>
+                    <div style="flex: 1;">
+                        <button class="btn btn-small view-order-btn" data-order-id="${order.id}" style="padding: 8px 12px; font-size: 12px;">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        ${order.status === 'pending' || order.status === 'processing' ? `
+                            <button class="btn btn-small update-status-btn" data-order-id="${order.id}" style="padding: 8px 12px; font-size: 12px; margin-top: 5px; background: #6c757d;">
+                                <i class="fas fa-edit"></i> Update
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-danger btn-small delete-order-btn" data-order-id="${order.id}" style="padding: 8px 12px; font-size: 12px; margin-top: 5px; background: #dc3545;">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                
+                ordersList.appendChild(orderItem);
+            });
+            
+            // Add event listeners for view buttons
+            document.querySelectorAll('.view-order-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    const order = orders.find(o => o.id === orderId);
+                    if (order) {
+                        showOrderDetailsModal(order, db);
+                    }
+                });
+            });
+            
+            // Add event listeners for update buttons
+            document.querySelectorAll('.update-status-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    const order = orders.find(o => o.id === orderId);
+                    if (order) {
+                        showUpdateStatusModal(order, db);
+                    }
+                });
+            });
+
+            // Add event listeners for delete buttons
+            document.querySelectorAll('.delete-order-btn').forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.stopPropagation(); // Prevent event bubbling
+                    
+                    const orderId = this.getAttribute('data-order-id');
+                    const order = orders.find(o => o.id === orderId);
+                    
+                    if (!order) return;
+                    
+                    // Confirm deletion
+                    const confirmDelete = confirm(`Are you sure you want to delete order #${order.orderNumber}?\n\nThis will remove:\n• Customer: ${order.customerName}\n• Amount: $${order.merchantTotal.toFixed(2)}\n\nThis action cannot be undone!`);
+                    
+                    if (!confirmDelete) return;
+                    
+                    // Show loading on the button
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+                    this.disabled = true;
+                    
+                    try {
+                        // Get db instance
+                        const db = window.firebaseDb;
+                        if (!db) throw new Error("Database not available");
+                        
+                        // Delete the order from Firestore
+                        await db.collection("order_history").doc(orderId).delete();
+                        
+                        // Show success message
+                        alert(`✅ Order #${order.orderNumber} deleted successfully!`);
+                        
+                        // Reload orders
+                        loadMerchantOrders(db);
+                        
+                    } catch (error) {
+                        console.error("❌ Error deleting order:", error);
+                        alert(`❌ Failed to delete order: ${error.message}`);
+                        
+                        // Restore button
+                        this.innerHTML = originalHTML;
+                        this.disabled = false;
+                    }
+                });
+            });
+
+            document.querySelectorAll('.delete-order-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    if (confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
+                        try {
+                            const db = window.firebaseDb;
+                            await db.collection("order_history").doc(orderId).delete();
+                            alert("Order deleted successfully!");
+                            loadMerchantOrders(db);
+                        } catch (error) {
+                            alert("Error deleting order: " + error.message);
+                        }
+                    }
+                });
+            });
+        }
 
 function getOrderStatusBadge(status) {
     const badges = {
@@ -1713,7 +2062,6 @@ async function exportOrders() {
         alert('Error exporting orders: ' + error.message);
     }
 }
-
             
             // ==================== GLOBAL EXPORTS ====================
             window.exportOrders = exportOrders;
