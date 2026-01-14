@@ -162,6 +162,8 @@
             function initializeDashboard() {
                 console.log("📊 Initializing dashboard tabs");
                 
+                const db = window.firebaseDb; // Get db instance
+                
                 // Tab switching
                 document.querySelectorAll('.tab').forEach(tab => {
                     tab.addEventListener('click', function() {
@@ -175,6 +177,11 @@
                         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
                         const content = document.getElementById(tabId);
                         if (content) content.classList.add('active');
+                        
+                        // Load data for specific tabs
+                        if (tabId === 'orders' && db) {
+                            loadMerchantOrders(db);
+                        }
                     });
                 });
             }
@@ -967,14 +974,13 @@
                 }
             }
 
-             // ==================== ORDER MANAGEMENT ====================
-async function loadMerchantOrders(db) {
+    async function loadMerchantOrders(db) {
     console.log("📦 Loading orders for merchant:", currentMerchantId);
     
     const ordersContainer = document.querySelector('.orders-table');
     if (!ordersContainer) return;
     
-    // Update placeholder to show loading
+    // Show loading state
     ordersContainer.innerHTML = `
         <div style="text-align: center; padding: 60px; color: #666;">
             <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px;"></i>
@@ -984,7 +990,7 @@ async function loadMerchantOrders(db) {
     `;
     
     try {
-        // First, get all products from this merchant to get product IDs
+        // First, get all products from this merchant
         const productsSnapshot = await db.collection("product_list")
             .where("merchantId", "==", currentMerchantId)
             .get();
@@ -1003,64 +1009,103 @@ async function loadMerchantOrders(db) {
             return;
         }
         
+        // Get merchant's product data
+        const merchantProducts = {};
         const merchantProductIds = [];
+        const merchantProductNames = new Set();
+        
         productsSnapshot.forEach(doc => {
+            const product = doc.data();
+            merchantProducts[doc.id] = product;
             merchantProductIds.push(doc.id);
+            merchantProductNames.add(product.name?.toLowerCase().trim());
         });
         
-        console.log("Merchant product IDs:", merchantProductIds);
+        console.log("Merchant products:", {
+            count: merchantProductIds.length,
+            ids: merchantProductIds,
+            names: Array.from(merchantProductNames)
+        });
         
-        // Now fetch orders from order_history collection
-        const ordersSnapshot = await db.collection("order_history")
-            .where("status", "in", ["pending", "processing", "shipped", "delivered", "cancelled"])
-            .orderBy("orderDate", "desc")
-            .limit(50) // Limit for performance
-            .get();
+        // Now fetch ALL orders
+        const ordersSnapshot = await db.collection("order_history").get();
         
         if (ordersSnapshot.empty) {
             ordersContainer.innerHTML = `
                 <div style="text-align: center; padding: 60px; color: #666;">
                     <i class="fas fa-shopping-cart" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
                     <h3>No Orders Yet</h3>
-                    <p>Orders from customers will appear here</p>
-                    <p style="font-size: 14px; margin-top: 10px; opacity: 0.7;">
-                        When customers purchase your products, their orders will show up here.
-                    </p>
+                    <p>No orders found in the system</p>
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <p style="font-size: 14px;">Check if orders exist in Firebase Firestore:</p>
+                        <p style="font-size: 12px; color: #888;">Collection: order_history</p>
+                    </div>
                 </div>
             `;
             return;
         }
         
+        console.log(`Total orders in system: ${ordersSnapshot.size}`);
+        
+        // Debug: Show first few orders
+        ordersSnapshot.docs.slice(0, 3).forEach(doc => {
+            const order = doc.data();
+            console.log(`Sample order ${doc.id}:`, {
+                items: order.items?.length || 0,
+                firstItem: order.items?.[0] || 'none',
+                customer: order.customerName
+            });
+        });
+        
         // Filter orders to only include those with merchant's products
         let merchantOrders = [];
-        let orderId = 1;
+        let orderCount = 1;
         
         ordersSnapshot.forEach(doc => {
             const order = doc.data();
             const orderItems = order.items || [];
             
-            // Check if any item in this order belongs to this merchant
-            const merchantOrderItems = orderItems.filter(item => 
-                item.productId && merchantProductIds.includes(item.productId)
-            );
+            // Find items that belong to this merchant
+            const merchantOrderItems = [];
+            
+            orderItems.forEach(item => {
+                // Method 1: Check by productId
+                if (item.productId && merchantProductIds.includes(item.productId)) {
+                    merchantOrderItems.push(item);
+                }
+                // Method 2: Check by product name (if productId is not available)
+                else if (item.name) {
+                    const itemName = item.name.toLowerCase().trim();
+                    if (merchantProductNames.has(itemName)) {
+                        merchantOrderItems.push(item);
+                        console.log(`Found by name match: ${item.name}`);
+                    }
+                }
+                // Method 3: Check if item references this merchantId
+                else if (item.merchantId === currentMerchantId) {
+                    merchantOrderItems.push(item);
+                }
+            });
             
             if (merchantOrderItems.length > 0) {
-                // Calculate merchant's portion of the order
+                console.log(`✅ Order ${doc.id} contains ${merchantOrderItems.length} merchant items`);
+                
+                // Calculate merchant's portion
                 const merchantSubtotal = merchantOrderItems.reduce((sum, item) => 
-                    sum + (item.price * item.quantity), 0);
+                    sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1), 0);
                 
-                // Calculate merchant's share of shipping and tax proportionally
-                const totalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-                const merchantItems = merchantOrderItems.reduce((sum, item) => sum + item.quantity, 0);
-                const proportion = merchantItems / totalItems;
+                // Calculate proportions for shipping/tax
+                const totalItems = orderItems.reduce((sum, item) => sum + (parseInt(item.quantity) || 1), 0);
+                const merchantItems = merchantOrderItems.reduce((sum, item) => sum + (parseInt(item.quantity) || 1), 0);
+                const proportion = totalItems > 0 ? merchantItems / totalItems : 0;
                 
-                const merchantShipping = (order.shippingCost || 0) * proportion;
-                const merchantTax = (order.tax || 0) * proportion;
+                const merchantShipping = (parseFloat(order.shippingCost) || 0) * proportion;
+                const merchantTax = (parseFloat(order.tax) || 0) * proportion;
                 const merchantTotal = merchantSubtotal + merchantShipping + merchantTax;
                 
                 merchantOrders.push({
                     id: doc.id,
-                    orderNumber: order.orderId || `ORD-${orderId++}`,
+                    orderNumber: order.orderId || `ORD-${orderCount++}`,
                     originalOrder: order,
                     merchantItems: merchantOrderItems,
                     customerName: order.customerName || "Customer",
@@ -1069,7 +1114,7 @@ async function loadMerchantOrders(db) {
                     shippingAddress: order.shippingAddress || "Address not provided",
                     shippingCity: order.shippingCity || "",
                     shippingZip: order.shippingZip || "",
-                    orderDate: order.orderDate || order.createdAt,
+                    orderDate: order.orderDate || order.createdAt || new Date(),
                     status: order.status || "pending",
                     paymentMethod: order.paymentMethod || "cash_on_delivery",
                     paymentStatus: order.paymentStatus || "pending",
@@ -1078,14 +1123,47 @@ async function loadMerchantOrders(db) {
                     merchantTax: merchantTax,
                     merchantTotal: merchantTotal,
                     totalItems: merchantItems,
-                    allItems: orderItems // Keep all items for reference
+                    allItems: orderItems
                 });
+            } else {
+                console.log(`❌ Order ${doc.id} has no merchant items`);
             }
         });
         
         console.log(`Found ${merchantOrders.length} orders containing merchant's products`);
         
-        // Render orders
+        // If no orders found, show helpful message
+        if (merchantOrders.length === 0) {
+            ordersContainer.innerHTML = `
+                <div style="text-align: center; padding: 60px; color: #666;">
+                    <i class="fas fa-search" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+                    <h3>No Orders Found</h3>
+                    <p>We found ${ordersSnapshot.size} orders in the system, but none contain your products.</p>
+                    
+                    <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                        <h4><i class="fas fa-lightbulb"></i> Troubleshooting:</h4>
+                        <ul style="text-align: left; margin-top: 10px; font-size: 14px;">
+                            <li>Check if your product names match exactly in orders</li>
+                            <li>Orders might not have productId references yet</li>
+                            <li>Test with a new order from your products</li>
+                            <li>Contact support if issues persist</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button class="btn" onclick="debugOrderData()" style="margin: 5px;">
+                            <i class="fas fa-bug"></i> Debug Order Data
+                        </button>
+                        <button class="btn" onclick="createTestOrder()" style="margin: 5px;">
+                            <i class="fas fa-plus"></i> Create Test Order
+                        </button>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        // ✅ FIXED: Use ordersContainer instead of undefined "container"
         renderMerchantOrders(merchantOrders, ordersContainer);
         
     } catch (error) {
@@ -1094,7 +1172,10 @@ async function loadMerchantOrders(db) {
             <div style="text-align: center; padding: 60px; color: #666;">
                 <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px; color: #dc3545;"></i>
                 <h3>Error Loading Orders</h3>
-                <p>${error.message || "Please try again"}</p>
+                <p>${error.message || "Database error occurred"}</p>
+                <pre style="text-align: left; background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 20px 0; font-size: 12px; overflow: auto;">
+${error.stack || 'No stack trace'}
+                </pre>
                 <button class="btn" onclick="loadMerchantOrders(db)" style="margin-top: 20px;">
                     <i class="fas fa-redo"></i> Retry
                 </button>
