@@ -36,12 +36,14 @@
             justify-content: center;
             color: white;
             font-weight: bold;
+            cursor: pointer;
         }
 
         .profile-pic img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            border-radius: 50%;
         }
 
         .auth-buttons {
@@ -82,6 +84,9 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .merchant-profile:hover {
@@ -104,6 +109,7 @@
             width: 80px;
             height: 80px;
             object-fit: contain;
+            border-radius: 10px;
         }
 
         /* Welcome Message Styles */
@@ -199,32 +205,98 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
-        .product-image {
+        .product-image-section {
             flex: 1;
-    min-width: 300px;
-    max-width: 500px;
-    min-height: 400px; /* Add minimum height */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    overflow: hidden;
+            min-width: 300px;
+            max-width: 500px;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
         }
 
         .product-image img {
             width: 100%;
-    height: auto;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    min-height: 300px;
-    object-fit: cover;
-    background-color: #f5f5f5;
+            height: 100%;
+            object-fit: contain;
+            padding: 20px;
+            background-color: white;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+            color: #999;
+            font-size: 18px;
+        }
+
+        .product-thumbnails {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail.active {
+            border-color: #85BB65;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .product-info {
             flex: 1;
             min-width: 300px;
+        }
+
+        /* Product Status */
+        .product-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-out-of-stock {
+            background-color: #fff3cd;
+            color: #856404;
         }
 
         /* Discount Badge */
@@ -274,6 +346,84 @@
             color: #666;
             font-size: 16px;
             margin: 0;
+        }
+
+        /* Stock Info */
+        .stock-info {
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .stock-available {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .stock-low {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .stock-out {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Quantity Selector */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 25px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .quantity-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            border: 2px solid #85BB65;
+            color: #85BB65;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background-color: #85BB65;
+            color: white;
+        }
+
+        .quantity-input {
+            width: 60px;
+            height: 40px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
         }
 
         /* Shipping Info */
@@ -372,10 +522,11 @@
         .action-buttons {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 20px;
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid #eee;
+            flex-wrap: wrap;
         }
 
         .add-to-cart {
@@ -388,10 +539,39 @@
             font-size: 18px;
             font-weight: bold;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .add-to-cart:hover {
+        .add-to-cart:hover:not(:disabled) {
             background-color: #3a5a80;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-to-cart:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .buy-now {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .buy-now:hover {
+            background-color: #ff5252;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
@@ -444,13 +624,270 @@
             padding-left: 10px;
         }
 
-        /* Responsive Design */
+        /* Floating Shopping Cart */
+        .floating-cart {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .cart-icon-container {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            background-color: #85BB65;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .cart-icon-container:hover {
+            background-color: #3a5a80;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .cart-icon-container i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Cart Preview Modal */
+        .cart-preview {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 350px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            max-height: 500px;
+            overflow: hidden;
+            z-index: 1001;
+        }
+
+        .cart-preview.show {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        .cart-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #85BB65;
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .cart-preview-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .close-cart-preview {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .cart-items-container {
+            padding: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-cart-message i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
+        .empty-cart-message p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .cart-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+        }
+
+        .cart-item-title {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .cart-item-price {
+            color: #85BB65;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .quantity-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .remove-item {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .cart-preview-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .total-amount {
+            color: #85BB65;
+        }
+
+        .view-cart-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #85BB65;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .view-cart-btn:hover {
+            background-color: #3a5a80;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 4px 15px rgba(133, 187, 101, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(133, 187, 101, 0.7);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(133, 187, 101, 0.4);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .product-container {
                 flex-direction: column;
             }
             
-            .product-image, .product-info {
+            .product-image-section, .product-info {
                 max-width: 100%;
             }
             
@@ -466,7 +903,7 @@
                 align-items: stretch;
             }
             
-            .add-to-cart {
+            .add-to-cart, .buy-now {
                 width: 100%;
             }
             
@@ -474,286 +911,349 @@
                 flex-direction: column;
                 gap: 10px;
             }
+            
+            .floating-cart {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .cart-preview {
+                width: 300px;
+                right: -10px;
+            }
         }
 
-        /* Floating Shopping Cart */
-.floating-cart {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 1000;
-}
+        @media (max-width: 480px) {
+            .cart-preview {
+                width: 280px;
+                right: -20px;
+            }
+            
+            .product-image {
+                height: 300px;
+            }
+        }
 
-.cart-icon-container {
-    position: relative;
-    width: 60px;
-    height: 60px;
-    background-color: #85BB65;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    animation: pulse 2s infinite;
-}
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
 
-.cart-icon-container:hover {
-    background-color: #3a5a80;
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
+        .loading-spinner {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #85BB65;
+        }
 
-.cart-icon-container i {
-    font-size: 24px;
-    color: white;
-}
+        /* Error State */
+        .error-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #dc3545;
+        }
 
-.cart-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: #ff6b6b;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-}
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #dc3545;
+        }
 
-/* Cart Preview Modal */
-.cart-preview {
-    position: absolute;
-    bottom: 70px;
-    right: 0;
-    width: 350px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    display: none;
-    flex-direction: column;
-    max-height: 500px;
-    overflow: hidden;
-}
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #85BB65;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
 
-.cart-preview.show {
-    display: flex;
-    animation: slideUp 0.3s ease;
-}
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
 
-.cart-preview-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #85BB65;
-    color: white;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-}
+        /* Payment Method Modal Styles */
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            padding: 20px;
+        }
 
-.cart-preview-header h3 {
-    margin: 0;
-    font-size: 18px;
-}
+        .payment-modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
 
-.close-cart-preview {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    line-height: 1;
-}
+        .payment-modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
 
-.cart-items-container {
-    padding: 15px;
-    flex-grow: 1;
-    overflow-y: auto;
-    max-height: 300px;
-}
+        .payment-modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.empty-cart-message {
-    text-align: center;
-    padding: 40px 20px;
-    color: #999;
-}
+        .payment-modal-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 22px;
+        }
 
-.empty-cart-message i {
-    font-size: 48px;
-    margin-bottom: 15px;
-    color: #ddd;
-}
+        .close-payment-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #666;
+            cursor: pointer;
+            line-height: 1;
+        }
 
-.empty-cart-message p {
-    margin: 0;
-    font-size: 16px;
-}
+        .payment-modal-body {
+            padding: 20px;
+        }
 
-.cart-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-}
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
 
-.cart-item:last-child {
-    border-bottom: none;
-}
+        .payment-method-option {
+            border: 2px solid #eee;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
 
-.cart-item-image {
-    width: 60px;
-    height: 60px;
-    border-radius: 5px;
-    overflow: hidden;
-    margin-right: 15px;
-}
+        .payment-method-option.selected {
+            border-color: #85BB65;
+            background-color: #f0f8f0;
+        }
 
-.cart-item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+        .payment-method-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
 
-.cart-item-details {
-    flex-grow: 1;
-}
+        .payment-method-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
 
-.cart-item-title {
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 5px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
+        .payment-method-desc {
+            font-size: 12px;
+            color: #666;
+        }
 
-.cart-item-price {
-    color: #85BB65;
-    font-weight: bold;
-    font-size: 14px;
-}
+        .payment-details-section {
+            margin-top: 20px;
+            display: none;
+        }
 
-.cart-item-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 5px;
-}
+        .card-details {
+            display: grid;
+            gap: 10px;
+        }
 
-.quantity-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: #f0f0f0;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-}
+        .khqr-details {
+            text-align: center;
+        }
 
-.remove-item {
-    background-color: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 12px;
-    cursor: pointer;
-}
+        .qr-code-container {
+            display: none;
+            margin: 20px 0;
+        }
 
-.cart-preview-footer {
-    padding: 15px 20px;
-    border-top: 1px solid #eee;
-    background-color: #f9f9f9;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
+        .qr-code {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
 
-.cart-total {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    font-size: 18px;
-    font-weight: bold;
-}
+        .payment-instructions {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f5e8;
+            border-radius: 6px;
+            text-align: left;
+        }
 
-.total-amount {
-    color: #85BB65;
-}
+        .payment-instruction-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
 
-.view-cart-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #85BB65;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+        .payment-instruction-number {
+            color: #85BB65;
+            margin-right: 8px;
+            font-weight: bold;
+        }
 
-.view-cart-btn:hover {
-    background-color: #3a5a80;
-}
+        .payment-modal-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
 
-/* Animations */
-@keyframes pulse {
-    0% {
-        box-shadow: 0 4px 15px rgba(133, 187, 101, 0.4);
-    }
-    50% {
-        box-shadow: 0 4px 20px rgba(133, 187, 101, 0.7);
-    }
-    100% {
-        box-shadow: 0 4px 15px rgba(133, 187, 101, 0.4);
-    }
-}
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .floating-cart {
-        bottom: 20px;
-        right: 20px;
-    }
-    
-    .cart-preview {
-        width: 300px;
-        right: -10px;
-    }
-}
+        .order-summary {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
 
-@media (max-width: 480px) {
-    .cart-preview {
-        width: 280px;
-        right: -20px;
-    }
-}
+        .order-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .order-summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            font-weight: bold;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+            margin-top: 15px;
+        }
+
+        .order-summary-total span:last-child {
+            color: #85BB65;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .payment-methods-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-modal-content {
+                width: 95%;
+            }
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-spinner-large {
+            font-size: 64px;
+            color: #85BB65;
+        }
     </style>
 </head>
 <body>
+    <!-- Header (same as homepage) -->
+    <header>
+        <div class="user-section">
+            <div class="profile-pic" id="profilePic" onclick="handleProfileClick()">
+                <i class="fas fa-user" style="font-size: 1.5em;"></i>
+            </div>
+            <div class="auth-buttons" id="authButtons">
+                <button class="btn sign-in" onclick="window.location.href='login.html';">Sign In</button>
+                <button class="btn register" onclick="window.location.href='register.html';">Register</button>
+            </div>
+        </div>
+        <div class="name" onclick="window.location.href='homepage.html'">
+            <img src="asset/logo.jpeg" alt="Logo" class="logo-img">
+        </div>
+        <div class="merchant-profile" id="become-merchant-btn" onclick="handleMerchantClick()">
+            Become Merchant
+            <i class="fa-solid fa-store" style="font-size: 1.2em;"></i>
+        </div>
+    </header>
 
     <div class="container">
         <!-- Back Button -->
@@ -763,119 +1263,290 @@
 
         <!-- Product Title -->
         <div class="product-header">
-            <h1 id="productTitle">Product Title</h1>
+            <h1 id="productTitle">Loading Product...</h1>
         </div>
 
-        <!-- Main Product Content -->
-        <div class="product-container">
-            <div class="product-image">
-                <img id="productImage" src="" alt="Product Image">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p>Loading product details...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>Product Not Found</h3>
+            <p>The product you're looking for doesn't exist or has been removed.</p>
+            <button class="back-button" onclick="window.location.href='homepage.html'">
+                <i class="fas fa-home"></i> Back to Homepage
+            </button>
+        </div>
+
+        <!-- Main Product Content (hidden by default) -->
+        <div id="productContent" style="display: none;">
+            <div class="product-container">
+                <div class="product-image-section">
+                    <div class="product-image" id="mainProductImage">
+                        <div class="image-placeholder">
+                            <i class="fas fa-box"></i>
+                            <span>No Image Available</span>
+                        </div>
+                    </div>
+                    <div class="product-thumbnails" id="productThumbnails">
+                        <!-- Thumbnails will be added dynamically -->
+                    </div>
+                </div>
+                
+                <div class="product-info">
+                    <!-- Product Status -->
+                    <div id="productStatus" class="product-status"></div>
+                    
+                    <!-- Discount Badge -->
+                    <div class="discount-badge">
+                        <span class="local-returns">Local returns</span>
+                        <span id="productCategoryBadge" style="background-color: #6c757d; color: white; padding: 8px 15px; border-radius: 4px; font-weight: bold; font-size: 14px;">Category</span>
+                    </div>
+                    
+                    <!-- Price Section -->
+                    <div class="price-section">
+                        <p class="price" id="productPrice">$0.00</p>
+                        <p class="sold-count" id="soldCount">0 sold</p>
+                    </div>
+                    
+                    <!-- Stock Info -->
+                    <div id="stockInfo" class="stock-info"></div>
+                    
+                    <!-- Quantity Selector -->
+                    <div class="quantity-selector">
+                        <div class="quantity-label">Quantity:</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" id="decreaseQuantity">-</button>
+                            <input type="number" id="quantityInput" class="quantity-input" value="1" min="1" max="999">
+                            <button class="quantity-btn" id="increaseQuantity">+</button>
+                        </div>
+                        <div id="maxQuantityNote" style="font-size: 14px; color: #666;"></div>
+                    </div>
+                    
+                    <!-- Shipping Info -->
+                    <div class="shipping-info">
+                        <p>Standard Shipping within Cambodia</p>
+                        <p class="eta" id="shippingETA">ETA: 1-3 business days</p>
+                    </div>
+                    
+                    <!-- Store Info -->
+                    <div class="store-info">
+                        <div class="store-header">
+                            <h3 id="storeName">Store Name</h3>
+                            <button class="follow-btn">Follow</button>
+                        </div>
+                        <div class="store-certificate">
+                            <span id="storeDescription">Verified Store</span>
+                        </div>
+                        <div class="store-ratings">
+                            <div class="rating-item">
+                                <span class="rating-label">Store rating</span>
+                                <span class="rating-value">5 Good</span>
+                            </div>
+                            <div class="rating-item">
+                                <span class="rating-label">Service</span>
+                                <span class="rating-value">5 Good</span>
+                            </div>
+                            <div class="rating-item">
+                                <span class="rating-label">Item quality</span>
+                                <span class="rating-value">5 Good</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="add-to-cart" id="addToCartBtn">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                        <button class="buy-now" id="buyNowBtn">
+                            <i class="fas fa-bolt"></i> Buy Now
+                        </button>
+                        <p class="final-price" id="finalPrice">$0.00</p>
+                    </div>
+                </div>
             </div>
             
-            <div class="product-info">
-                <!-- Discount Badge -->
-                <div class="discount-badge">
-                    <span id="discountBadge">Up to 12% discount</span>
-                    <span class="local-returns">Local returns</span>
-                </div>
-                
-                <!-- Price Section -->
-                <div class="price-section">
-                    <p class="price" id="productPrice">$0.00</p>
-                    <p class="sold-count" id="soldCount">100+ sold</p>
-                </div>
-                
-                <!-- Shipping Info -->
-                <div class="shipping-info">
-                    <p>Standard Shipping within Cambodia</p>
-                    <p class="eta" id="shippingETA">ETA : 1 hour - 2 days</p>
-                </div>
-                
-                <!-- Store Info -->
-                <div class="store-info">
-                    <div class="store-header">
-                        <h3 id="storeName">Project Store</h3>
-                        <button class="follow-btn">Follow</button>
+            <!-- Product Details -->
+            <div class="product-details">
+                <h2>Item Details</h2>
+                <div class="details-content" id="productDetailsContent">
+                    <p><strong>Categories:</strong> <span id="productCategory">Loading...</span></p>
+                    <p><strong>Brand:</strong> <span id="productBrand">Loading...</span></p>
+                    <p><strong>SKU:</strong> <span id="productSKU">Loading...</span></p>
+                    <div id="productDescription">
+                        <!-- Description will be loaded here -->
                     </div>
-                    <div class="store-certificate">
-                        <span>[Store certificate]</span>
-                    </div>
-                    <div class="store-ratings">
-                        <div class="rating-item">
-                            <span class="rating-label">Store rating</span>
-                            <span class="rating-value">5 Good</span>
-                        </div>
-                        <div class="rating-item">
-                            <span class="rating-label">Service</span>
-                            <span class="rating-value">5 Good</span>
-                        </div>
-                        <div class="rating-item">
-                            <span class="rating-label">Item quality</span>
-                            <span class="rating-value">5 Good</span>
-                        </div>
+                    <div id="productSpecs">
+                        <!-- Specifications will be loaded here -->
                     </div>
                 </div>
-                
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <button class="add-to-cart">Add to cart</button>
-                    <p class="final-price" id="finalPrice">$0.00</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Product Details -->
-        <div class="product-details">
-            <h2>Item Details</h2>
-            <div class="details-content" id="productDetailsContent">
-                <p><strong>Categories:</strong> <span id="productCategory">Electronics</span></p>
-                <div id="productDescription">
-                    <!-- Description will be loaded here -->
-                </div>
-                <ul id="productSpecs">
-                    <!-- Specifications will be loaded here -->
-                </ul>
             </div>
         </div>
     </div>
 
     <!-- Shopping Cart Icon -->
-<div class="floating-cart">
-    <div class="cart-icon-container" onclick="toggleCartPreview()">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-count">0</span>
-    </div>
-    
-    <!-- Cart Preview Modal -->
-    <div class="cart-preview">
-        <div class="cart-preview-header">
-            <h3>Your Cart</h3>
-            <button class="close-cart-preview" onclick="toggleCartPreview()">&times;</button>
+    <div class="floating-cart">
+        <div class="cart-icon-container" onclick="toggleCartPreview()">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count">0</span>
         </div>
-        <div class="cart-items-container">
-            <!-- Cart items will be dynamically added here -->
-            <div class="empty-cart-message">
-                <i class="fas fa-shopping-basket"></i>
-                <p>Your cart is empty</p>
+        
+        <!-- Cart Preview Modal -->
+        <div class="cart-preview" id="cartPreview">
+            <div class="cart-preview-header">
+                <h3>Your Cart</h3>
+                <button class="close-cart-preview" onclick="toggleCartPreview()">&times;</button>
+            </div>
+            <div class="cart-items-container" id="cartItemsContainer">
+                <div class="empty-cart-message">
+                    <i class="fas fa-shopping-basket"></i>
+                    <p>Your cart is empty</p>
+                </div>
+            </div>
+            <div class="cart-preview-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span class="total-amount">$0.00</span>
+                </div>
+                <button class="view-cart-btn" onclick="confirmAndCheckout()">Proceed to Checkout</button>
             </div>
         </div>
-        <div class="cart-preview-footer">
-            <div class="cart-total">
-                <span>Total:</span>
-                <span class="total-amount">$0.00</span>
-            </div>
-            <button class="view-cart-btn" onclick="window.location.href='cart.html'">View Cart</button>
-        </div>
     </div>
-</div>
-    <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
-<!-- Firebase Configuration -->
-<script src="firebase-config.js"></script>
-<script src="product-details.js"></script>
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div style="text-align: center;">
+            <i class="fas fa-spinner fa-spin loading-spinner-large"></i>
+            <p style="margin-top: 20px; font-size: 18px; color: #333;" id="loadingText">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Payment Method Modal -->
+    <div class="payment-modal" id="paymentMethodModal">
+        <div class="payment-modal-content">
+            <div class="payment-modal-header">
+                <h3><i class="fas fa-credit-card"></i> Select Payment Method</h3>
+                <button class="close-payment-modal" onclick="closePaymentMethodModal()">&times;</button>
+            </div>
+            
+            <div class="payment-modal-body">
+                <!-- Order Summary -->
+                <div class="order-summary" id="orderSummaryContainer">
+                    <!-- Will be populated dynamically -->
+                </div>
+                
+                <!-- Payment Methods -->
+                <h4 style="margin: 0 0 15px 0; color: #444;">Select Payment Method</h4>
+                <div class="payment-methods-grid" id="paymentMethods">
+                    <!-- Payment methods will be added dynamically -->
+                </div>
+                
+                <!-- Card Details -->
+                <div class="payment-details-section" id="cardDetails">
+                    <h5 style="margin: 20px 0 15px 0; color: #444;">Card Details</h5>
+                    <div class="card-details">
+                        <input type="text" id="cardNumber" placeholder="Card Number" style="padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <input type="text" id="cardExpiry" placeholder="MM/YY" style="padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                            <input type="text" id="cardCVC" placeholder="CVC" style="padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                        </div>
+                        <input type="text" id="cardName" placeholder="Name on Card" style="padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                </div>
+                
+                <!-- KHQR Details -->
+                <div class="payment-details-section" id="khqrDetails">
+                    <div class="khqr-details">
+                        <h5 style="margin: 20px 0 15px 0; color: #444;">KHQR Payment</h5>
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-weight: bold; font-size: 16px; color: #333; margin-bottom: 5px;">Scan KHQR Code to Pay</div>
+                            <div style="font-size: 14px; color: #666;">Use any banking app with KHQR support</div>
+                        </div>
+                        
+                        <div class="qr-code-container" id="qrCodeContainer">
+                            <div class="qr-code">
+                                <img src="asset/Qr.jpeg" alt="QR Code" style="width: 200px; height: 200px; object-fit: cover; border-radius: 4px;">
+                                <div id="transactionInfo" style="margin-top: 10px; font-size: 12px; color: #666;"></div>
+                            </div>
+                        </div>
+                        
+                        <button id="showQrBtn" onclick="showKHQRCode()" style="background-color: #85BB65; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-qrcode"></i> Show KHQR Code
+                        </button>
+                        
+                        <div class="payment-instructions">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #2e7d32;">Payment Instructions:</div>
+                            <div class="payment-instruction-item">
+                                <span class="payment-instruction-number">1.</span>
+                                <span>Click "Show KHQR Code" button above</span>
+                            </div>
+                            <div class="payment-instruction-item">
+                                <span class="payment-instruction-number">2.</span>
+                                <span>Open your banking app (ABA, Wing, etc.)</span>
+                            </div>
+                            <div class="payment-instruction-item">
+                                <span class="payment-instruction-number">3.</span>
+                                <span>Scan the displayed QR code</span>
+                            </div>
+                            <div class="payment-instruction-item">
+                                <span class="payment-instruction-number">4.</span>
+                                <span>Confirm payment and save the receipt</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 12px; background-color: #fff8e1; border-radius: 6px; border-left: 4px solid #ffb300;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-info-circle" style="color: #ff9800; font-size: 16px;"></i>
+                                <div style="font-size: 13px; color: #666;">
+                                    <strong>Note:</strong> After payment, please upload proof of payment below
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <label style="display: block; font-size: 14px; margin-bottom: 8px; color: #555; text-align: left;">
+                                <i class="fas fa-upload"></i> Upload Payment Proof
+                            </label>
+                            <input type="file" id="khqrPaymentProof" accept="image/*,.pdf" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                            <div style="font-size: 12px; color: #888; margin-top: 5px; text-align: left;">
+                                Accepted: JPG, PNG, PDF (Max: 5MB)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="payment-modal-footer">
+                <button class="btn-secondary" onclick="closePaymentMethodModal()">Cancel</button>
+                <button class="btn" id="confirmPaymentBtn" onclick="processCheckoutPayment()" style="background-color: #85BB65; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    Confirm & Place Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Product Details Script -->
+    <script src="product-details.js"></script>
 </body>
 </html>
