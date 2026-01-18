@@ -264,43 +264,139 @@
   }
 
   function showPaymentMethodModal() {
-      console.log("💳 Showing payment method modal");
-      
-      // Calculate order summary
-      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const shippingCost = 5.99;
-      const tax = subtotal * 0.07;
-      const total = subtotal + shippingCost + tax;
-      
-      // Update order summary
-      const orderSummaryHTML = `
-          <h4 style="margin: 0 0 15px 0; color: #444;">Order Summary</h4>
-          <div class="order-summary-item">
-              <span>Items (${cart.reduce((sum, item) => sum + item.quantity, 0)})</span>
-              <span>$${subtotal.toFixed(2)}</span>
-          </div>
-          <div class="order-summary-item">
-              <span>Shipping</span>
-              <span>$${shippingCost.toFixed(2)}</span>
-          </div>
-          <div class="order-summary-item">
-              <span>Tax</span>
-              <span>$${tax.toFixed(2)}</span>
-          </div>
-          <div class="order-summary-total">
-              <span>Total</span>
-              <span>$${total.toFixed(2)}</span>
-          </div>
-      `;
-      
-      document.getElementById('orderSummaryContainer').innerHTML = orderSummaryHTML;
-      
-      // Setup payment methods
-      setupPaymentMethods();
-      
-      // Show modal
-      document.getElementById('paymentMethodModal').classList.add('show');
-  }
+    console.log("💳 Showing payment method modal");
+    
+    // Calculate order summary
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shippingCost = 5.99;
+    const tax = subtotal * 0.07;
+    const total = subtotal + shippingCost + tax;
+    
+    // Get current user data for pre-filling
+    const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    
+    // Update order summary and add shipping form
+    const orderSummaryHTML = `
+        <!-- Shipping Information Form -->
+        <div class="shipping-form-section" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #eee;">
+            <h4 style="margin: 0 0 15px 0; color: #444; font-size: 16px; font-weight: 600;">
+                <i class="fas fa-map-marker-alt" style="margin-right: 8px; color: #85BB65;"></i> Shipping Information
+            </h4>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                <!-- Full Name -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 14px; margin-bottom: 8px; color: #555; font-weight: 500;">
+                        Full Name <span style="color: #ff6b6b;">*</span>
+                    </label>
+                    <input type="text" id="shippingName" placeholder="Enter your full name" 
+                           style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;"
+                           value="${userData.displayName || ''}">
+                </div>
+                
+                <!-- Phone Number -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 14px; margin-bottom: 8px; color: #555; font-weight: 500;">
+                        Phone Number <span style="color: #ff6b6b;">*</span>
+                    </label>
+                    <input type="tel" id="shippingPhone" placeholder="Enter your phone number (e.g., 012 345 678)" 
+                           style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;"
+                           value="${userData.phone || ''}">
+                    <div style="font-size: 12px; color: #888; margin-top: 5px;">
+                        Format: 012 345 678 or +855 12 345 678
+                    </div>
+                </div>
+                
+                <!-- Address -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 14px; margin-bottom: 8px; color: #555; font-weight: 500;">
+                        Delivery Address <span style="color: #ff6b6b;">*</span>
+                    </label>
+                    <textarea id="shippingAddress" placeholder="Enter your full address (Street, House number, District)" 
+                              rows="3" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; resize: vertical;">${userData.address || ''}</textarea>
+                </div>
+                
+                <!-- City -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 14px; margin-bottom: 8px; color: #555; font-weight: 500;">
+                        City <span style="color: #ff6b6b;">*</span>
+                    </label>
+                    <select id="shippingCity" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                        <option value="Phnom Penh" ${(userData.city === 'Phnom Penh') ? 'selected' : ''}>Phnom Penh</option>
+                        <option value="Siem Reap" ${(userData.city === 'Siem Reap') ? 'selected' : ''}>Siem Reap</option>
+                        <option value="Sihanoukville" ${(userData.city === 'Sihanoukville') ? 'selected' : ''}>Sihanoukville</option>
+                        <option value="Battambang" ${(userData.city === 'Battambang') ? 'selected' : ''}>Battambang</option>
+                        <option value="Kampong Cham" ${(userData.city === 'Kampong Cham') ? 'selected' : ''}>Kampong Cham</option>
+                        <option value="Kampong Thom" ${(userData.city === 'Kampong Thom') ? 'selected' : ''}>Kampong Thom</option>
+                        <option value="Kampot" ${(userData.city === 'Kampot') ? 'selected' : ''}>Kampot</option>
+                        <option value="Kep" ${(userData.city === 'Kep') ? 'selected' : ''}>Kep</option>
+                        <option value="Other" ${(!userData.city) ? 'selected' : ''}>Other City/Province</option>
+                    </select>
+                </div>
+                
+                <!-- Zip Code -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 14px; margin-bottom: 8px; color: #555; font-weight: 500;">
+                        Zip/Postal Code
+                    </label>
+                    <input type="text" id="shippingZip" placeholder="Zip/Postal Code" 
+                           style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;"
+                           value="${userData.zipCode || ''}">
+                </div>
+                
+                <!-- Location Map Button -->
+                <div style="margin-top: 15px; padding: 12px; background-color: #fff8e1; border-radius: 6px; border-left: 4px solid #ffb300;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-map-marked-alt" style="color: #ff9800; font-size: 16px;"></i>
+                        <div style="font-size: 13px; color: #666;">
+                            <strong>Need precise location?</strong> 
+                            <button type="button" onclick="openGoogleMapForLocation()" 
+                                    style="background: none; border: none; color: #85BB65; font-weight: bold; cursor: pointer; margin-left: 5px; text-decoration: underline;">
+                                Click here to mark location on Google Maps
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Special Instructions -->
+                <div style="margin-top: 15px;">
+                    <label style="display: block; font-size: 14px; margin-bottom: 8px; color: #555;">
+                        <i class="fas fa-sticky-note"></i> Special Instructions (Optional)
+                    </label>
+                    <textarea id="shippingNotes" placeholder="Any special instructions for delivery? (e.g., call before arrival, leave at door, etc.)" 
+                              rows="2" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <h4 style="margin: 0 0 15px 0; color: #444;">Order Summary</h4>
+        <div class="order-summary-item">
+            <span>Items (${cart.reduce((sum, item) => sum + item.quantity, 0)})</span>
+            <span>$${subtotal.toFixed(2)}</span>
+        </div>
+        <div class="order-summary-item">
+            <span>Shipping</span>
+            <span>$${shippingCost.toFixed(2)}</span>
+        </div>
+        <div class="order-summary-item">
+            <span>Tax</span>
+            <span>$${tax.toFixed(2)}</span>
+        </div>
+        <div class="order-summary-total">
+            <span>Total</span>
+            <span>$${total.toFixed(2)}</span>
+        </div>
+    `;
+    
+    document.getElementById('orderSummaryContainer').innerHTML = orderSummaryHTML;
+    
+    // Setup payment methods
+    setupPaymentMethods();
+    
+    // Show modal
+    document.getElementById('paymentMethodModal').classList.add('show');
+}
 
   function setupPaymentMethods() {
       const paymentMethodsHTML = `
@@ -406,173 +502,225 @@
   }
 
   async function processCheckoutPayment() {
-      if (isProcessingOrder) return;
-      
-      if (cart.length === 0) {
-          showNotification('Your cart is empty', 'error');
-          return;
-      }
-      
-      if (!currentUser) {
-          showNotification('Please login to checkout', 'error');
-          window.location.href = 'login.html';
-          return;
-      }
-      
-      // Validate KHQR payment proof
-      if (selectedPaymentMethod === 'khqr') {
-          const paymentProofInput = document.getElementById('khqrPaymentProof');
-          if (!paymentProofInput.files.length) {
-              showNotification('Please upload proof of payment for KHQR', 'error');
-              return;
-          }
-      }
-      
-      // Start processing
-      isProcessingOrder = true;
-      showLoadingOverlay('Processing your order...');
-      
-      try {
-          const auth = window.firebaseAuth;
-          const db = window.firebaseDb;
-          const FieldValue = firebase.firestore.FieldValue;
-          
-          // Get user data
-          const userDoc = await db.collection('users').doc(currentUser.uid).get();
-          const userData = userDoc.exists ? userDoc.data() : {};
-          
-          // Calculate totals
-          const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-          const shippingCost = 5.99;
-          const tax = subtotal * 0.07;
-          const total = subtotal + shippingCost + tax;
-          
-          // Generate order ID
-          const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-          const orderDate = new Date();
-          
-          // Determine payment status
-          let paymentStatus = 'pending';
-          if (selectedPaymentMethod === 'cash_on_delivery') {
-              paymentStatus = 'pending';
-          } else if (selectedPaymentMethod === 'card' || selectedPaymentMethod === 'paypal') {
-              paymentStatus = 'paid';
-          } else if (selectedPaymentMethod === 'khqr') {
-              paymentStatus = 'pending';
-          }
-          
-          // Determine order status
-          let orderStatus = 'pending';
-          if (paymentStatus === 'paid') {
-              orderStatus = 'processing';
-          }
-          
-          // Create order data
-          const orderData = {
-              orderId: orderId,
-              customerName: userData.displayName || currentUser.displayName || currentUser.email.split('@')[0],
-              customerEmail: currentUser.email,
-              customerPhone: userData.phone || 'Not provided',
-              shippingAddress: userData.address || 'Not provided',
-              shippingCity: userData.city || 'Phnom Penh',
-              shippingZip: userData.zipCode || '12000',
-              shippingCost: shippingCost,
-              items: cart.map(item => ({
-                  name: item.name,
-                  price: item.price,
-                  quantity: item.quantity,
-                  productId: item.id,
-                  image: item.image || '',
-                  merchantId: getProductMerchantId(item.id) // We need to get merchant ID from product
-              })),
-              subtotal: subtotal,
-              tax: tax,
-              total: total,
-              paymentMethod: selectedPaymentMethod,
-              paymentStatus: paymentStatus,
-              status: orderStatus,
-              orderDate: firebase.firestore.Timestamp.fromDate(orderDate),
-              createdAt: firebase.firestore.Timestamp.fromDate(orderDate),
-              updatedAt: firebase.firestore.Timestamp.fromDate(orderDate),
-              userId: currentUser.uid
-          };
-          
-          // Add KHQR payment proof info if applicable
-          if (selectedPaymentMethod === 'khqr') {
-              const paymentProofInput = document.getElementById('khqrPaymentProof');
-              if (paymentProofInput && paymentProofInput.files.length) {
-                  // In a real app, you would upload to Firebase Storage
-                  // For demo, we'll just store the filename
-                  orderData.khqrPaymentProof = paymentProofInput.files[0].name;
-                  orderData.khqrPaymentDate = new Date();
-              }
-          }
-          
-          console.log("Creating order:", orderData);
-          
-          // 1. Save to order_history collection
-          await db.collection('order_history').doc(orderId).set(orderData);
-          console.log("✓ Order saved to order_history");
-          
-          // 2. Save to user's personal order history
-          await db.collection('users').doc(currentUser.uid)
-              .collection('my_orders').doc(orderId).set(orderData);
-          console.log("✓ Order saved to user's my_orders");
-          
-          // 3. Clear the cart
-          cart = [];
-          
-          // 4. Update Firestore cart to empty
-          await db.collection('carts').doc(currentUser.uid).set({
-              userId: currentUser.uid,
-              items: [],
-              updatedAt: FieldValue.serverTimestamp(),
-              totalItems: 0,
-              totalAmount: 0,
-              status: 'empty'
-          }, { merge: true });
-          
-          // 5. Update local cart
-          saveGuestCart();
-          updateCartCount();
-          renderCartPreview();
-          
-          // 6. Close modals
-          closePaymentMethodModal();
-          toggleCartPreview();
-          
-          // 7. Show success message
-          let successMessage = `✅ Order #${orderId} created successfully!`;
-          if (selectedPaymentMethod === 'cash_on_delivery') {
-              successMessage += ' Please prepare cash for delivery.';
-          } else if (selectedPaymentMethod === 'khqr') {
-              successMessage += ' KHQR payment submitted. We will verify your payment shortly.';
-          } else if (selectedPaymentMethod === 'card' || selectedPaymentMethod === 'paypal') {
-              successMessage += ' Payment processed successfully!';
-          }
-          
-          showNotification(successMessage, 'success');
-          
-          // 8. Redirect to order confirmation or homepage
-          setTimeout(() => {
-              // You could redirect to an order confirmation page
-              // window.location.href = `order-confirmation.html?order=${orderId}`;
-              
-              // Or just show a message and stay on page
-              hideLoadingOverlay();
-              
-              // Optionally, redirect to homepage
-              // window.location.href = 'homepage.html';
-          }, 2000);
-          
-      } catch (error) {
-          console.error("❌ Error during checkout:", error);
-          showNotification(`Error processing checkout: ${error.message}`, 'error');
-      } finally {
-          isProcessingOrder = false;
-          hideLoadingOverlay();
-      }
-  }
+    if (isProcessingOrder) return;
+    
+    if (cart.length === 0) {
+        showNotification('Your cart is empty', 'error');
+        return;
+    }
+    
+    if (!currentUser) {
+        showNotification('Please login to checkout', 'error');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // Validate shipping information
+    const shippingName = document.getElementById('shippingName')?.value.trim();
+    const shippingPhone = document.getElementById('shippingPhone')?.value.trim();
+    const shippingAddress = document.getElementById('shippingAddress')?.value.trim();
+    const shippingCity = document.getElementById('shippingCity')?.value;
+    const shippingZip = document.getElementById('shippingZip')?.value.trim();
+    const shippingNotes = document.getElementById('shippingNotes')?.value.trim();
+    
+    if (!shippingName || !shippingPhone || !shippingAddress || !shippingCity) {
+        showNotification('Please fill in all required shipping information', 'error');
+        return;
+    }
+    
+    // Validate phone number format
+    const phoneRegex = /^(\+?855|0)[1-9][0-9]{7,8}$/;
+    const cleanPhone = shippingPhone.replace(/\s+/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+        showNotification('Please enter a valid Cambodian phone number (e.g., 012 345 678 or +855 12 345 678)', 'error');
+        return;
+    }
+    
+    // Validate KHQR payment proof
+    if (selectedPaymentMethod === 'khqr') {
+        const paymentProofInput = document.getElementById('khqrPaymentProof');
+        if (!paymentProofInput.files.length) {
+            showNotification('Please upload proof of payment for KHQR', 'error');
+            return;
+        }
+    }
+    
+    // Start processing
+    isProcessingOrder = true;
+    showLoadingOverlay('Processing your order...');
+    
+    try {
+        const auth = window.firebaseAuth;
+        const db = window.firebaseDb;
+        const FieldValue = firebase.firestore.FieldValue;
+        
+        // Get user data
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        const userData = userDoc.exists ? userDoc.data() : {};
+        
+        // Calculate totals
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const shippingCost = 5.99;
+        const tax = subtotal * 0.07;
+        const total = subtotal + shippingCost + tax;
+        
+        // Generate order ID
+        const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+        const orderDate = new Date();
+        
+        // Determine payment status
+        let paymentStatus = 'pending';
+        if (selectedPaymentMethod === 'cash_on_delivery') {
+            paymentStatus = 'pending';
+        } else if (selectedPaymentMethod === 'card' || selectedPaymentMethod === 'paypal') {
+            paymentStatus = 'paid';
+        } else if (selectedPaymentMethod === 'khqr') {
+            paymentStatus = 'pending';
+        }
+        
+        // Determine order status
+        let orderStatus = 'pending';
+        if (paymentStatus === 'paid') {
+            orderStatus = 'processing';
+        }
+        
+        // Create order data
+        const orderData = {
+            orderId: orderId,
+            customerName: shippingName,
+            customerEmail: currentUser.email,
+            customerPhone: shippingPhone,
+            shippingAddress: shippingAddress,
+            shippingCity: shippingCity,
+            shippingZip: shippingZip || '',
+            shippingNotes: shippingNotes || '',
+            shippingCost: shippingCost,
+            items: cart.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                productId: item.id,
+                image: item.image || '',
+                merchantId: getProductMerchantId(item.id)
+            })),
+            subtotal: subtotal,
+            tax: tax,
+            total: total,
+            paymentMethod: selectedPaymentMethod,
+            paymentStatus: paymentStatus,
+            status: orderStatus,
+            orderDate: firebase.firestore.Timestamp.fromDate(orderDate),
+            createdAt: firebase.firestore.Timestamp.fromDate(orderDate),
+            updatedAt: firebase.firestore.Timestamp.fromDate(orderDate),
+            userId: currentUser.uid
+        };
+        
+        // Add KHQR payment proof info if applicable
+        if (selectedPaymentMethod === 'khqr') {
+            const paymentProofInput = document.getElementById('khqrPaymentProof');
+            if (paymentProofInput && paymentProofInput.files.length) {
+                orderData.khqrPaymentProof = paymentProofInput.files[0].name;
+                orderData.khqrPaymentDate = new Date();
+            }
+        }
+        
+        console.log("Creating order:", orderData);
+        
+        // 1. Save to order_history collection
+        await db.collection('order_history').doc(orderId).set(orderData);
+        console.log("✓ Order saved to order_history");
+        
+        // 2. Save to user's personal order history
+        await db.collection('users').doc(currentUser.uid)
+            .collection('my_orders').doc(orderId).set(orderData);
+        console.log("✓ Order saved to user's my_orders");
+        
+        // 3. Update user's profile with shipping info
+        await db.collection('users').doc(currentUser.uid).update({
+            phone: shippingPhone,
+            address: shippingAddress,
+            city: shippingCity,
+            zipCode: shippingZip || userData.zipCode || '',
+            updatedAt: FieldValue.serverTimestamp()
+        });
+        
+        // 4. Clear the cart
+        cart = [];
+        
+        // 5. Update Firestore cart to empty
+        await db.collection('carts').doc(currentUser.uid).set({
+            userId: currentUser.uid,
+            items: [],
+            updatedAt: FieldValue.serverTimestamp(),
+            totalItems: 0,
+            totalAmount: 0,
+            status: 'empty'
+        }, { merge: true });
+        
+        // 6. Update local cart
+        saveGuestCart();
+        updateCartCount();
+        renderCartPreview();
+        
+        // 7. Close modals
+        closePaymentMethodModal();
+        toggleCartPreview();
+        
+        // 8. Show success message
+        let successMessage = `✅ Order #${orderId} created successfully!`;
+        if (selectedPaymentMethod === 'cash_on_delivery') {
+            successMessage += ' Please prepare cash for delivery.';
+        } else if (selectedPaymentMethod === 'khqr') {
+            successMessage += ' KHQR payment submitted. We will verify your payment shortly.';
+        } else if (selectedPaymentMethod === 'card' || selectedPaymentMethod === 'paypal') {
+            successMessage += ' Payment processed successfully!';
+        }
+        
+        showNotification(successMessage, 'success');
+        
+        // 9. Hide loading overlay
+        hideLoadingOverlay();
+        
+    } catch (error) {
+        console.error("❌ Error during checkout:", error);
+        showNotification(`Error processing checkout: ${error.message}`, 'error');
+        hideLoadingOverlay();
+    } finally {
+        isProcessingOrder = false;
+    }
+}
+
+// Open Google Maps for location selection
+function openGoogleMapForLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                window.open(googleMapsUrl, '_blank');
+                
+                // Update address field with coordinates
+                const addressField = document.getElementById('shippingAddress');
+                if (addressField) {
+                    const currentAddress = addressField.value;
+                    addressField.value = currentAddress + ` (Location: ${lat.toFixed(6)}, ${lng.toFixed(6)})`;
+                    showNotification('Google Maps opened with your current location. Please copy the exact address from Maps.', 'success');
+                }
+            },
+            (error) => {
+                console.error('Error getting location:', error);
+                // Fallback to general Google Maps
+                window.open('https://www.google.com/maps', '_blank');
+                showNotification('Google Maps opened. Please find and copy your exact address.', 'info');
+            }
+        );
+    } else {
+        // Fallback if geolocation is not supported
+        window.open('https://www.google.com/maps', '_blank');
+        showNotification('Google Maps opened. Please find and copy your exact address.', 'info');
+    }
+}
 
   function getProductMerchantId(productId) {
       // This function would need to fetch the product to get its merchantId
@@ -1033,3 +1181,4 @@
   window.showKHQRCode = showKHQRCode;
   window.closePaymentMethodModal = closePaymentMethodModal;
   window.processCheckoutPayment = processCheckoutPayment;
+  window.openGoogleMapForLocation = openGoogleMapForLocation;
