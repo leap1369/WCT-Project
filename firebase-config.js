@@ -1,4 +1,4 @@
-// firebase-config.js
+ // firebase-config.js
 // SHARED CONFIG FOR ALL PAGES
 
 // Firebase Configuration (v10.7.1)

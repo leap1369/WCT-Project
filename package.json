@@ -1,0 +1,20 @@
+{
+  "name": "jeahluy-ecommerce",
+  "version": "1.0.0",
+  "description": "E-commerce platform with merchant dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "ai-test": "node test-ai.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
