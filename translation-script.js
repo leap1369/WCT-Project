@@ -276,6 +276,7 @@ function createFloatingButton() {
             font-family: Arial, sans-serif;
             font-size: 14px;
             transition: all 0.3s ease;
+            display: none;
         ">
             <i class="fas fa-language"></i> Translate
         </button>

@@ -43,6 +43,46 @@ app.get('/api/test-ai', async (req, res) => {
     }
 });
 
+app.post('/api/ai/analyze-page', async (req, res) => {
+  try {
+      const { pageUrl } = req.body;
+      
+      res.json({
+          success: true,
+          data: {
+              analyzedAt: new Date().toISOString(),
+              pageUrl: pageUrl,
+              context: {
+                  pageType: 'checkout', // This would be determined dynamically
+                  commonFields: {
+                      zipCode: {
+                          description: 'Zip or postal code for your address',
+                          examples: ['12000 (Phnom Penh)', '10000 (Siem Reap)'],
+                          required: false,
+                          help: 'If you don\'t know your zip code, you can usually find it online or leave blank for local delivery'
+                      },
+                      address: {
+                          description: 'Complete delivery address',
+                          examples: ['Street name, House number, District'],
+                          required: true
+                      },
+                      phone: {
+                          description: 'Contact phone number for delivery',
+                          format: 'Cambodian format: 012 345 678',
+                          required: true
+                      }
+                  }
+              }
+          }
+      });
+  } catch (error) {
+      res.status(500).json({
+          success: false,
+          error: error.message
+      });
+  }
+});
+
 // Serve HTML files
 const routes = [
   '/',

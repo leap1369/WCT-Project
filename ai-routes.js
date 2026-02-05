@@ -9,7 +9,7 @@ const aiAssistant = getAIAssistant();
 // AI query endpoint
 router.post('/query', async (req, res) => {
     try {
-        const { message, currentPage = '/' } = req.body;
+        const { message, currentPage = '/', pageDetails = null } = req.body;
         
         if (!message || typeof message !== 'string') {
             return res.status(400).json({
@@ -18,9 +18,10 @@ router.post('/query', async (req, res) => {
             });
         }
         
-        console.log(`AI Query received: "${message.substring(0, 50)}..."`);
+        console.log(`AI Query received: "${message.substring(0, 50)}..." on ${currentPage}`);
         
-        const response = await aiAssistant.processQuery(message, currentPage);
+        // Pass pageDetails to the assistant
+        const response = await aiAssistant.processQuery(message, currentPage, pageDetails);
         
         res.json({
             success: true,
@@ -36,6 +37,7 @@ router.post('/query', async (req, res) => {
         });
     }
 });
+
 
 // Test endpoint
 router.get('/status', (req, res) => {

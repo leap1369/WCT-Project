@@ -1,0 +1,252 @@
+{
+  "websiteMap": [
+    {
+      "page": "Homepage",
+      "url": "/homepage.html",
+      "description": "Main landing page with featured products, categories, and search functionality.",
+      "elements": [
+        {
+          "id": "authButtons",
+          "type": "container",
+          "description": "Sign In and Register buttons"
+        },
+        {
+          "id": "profilePic",
+          "type": "button",
+          "description": "User profile picture - opens side profile"
+        },
+        {
+          "id": "become-merchant-btn",
+          "type": "button",
+          "description": "Become Merchant button - navigates to merchant registration"
+        },
+        {
+          "id": "searchInput",
+          "type": "input",
+          "description": "Search bar for products"
+        },
+        {
+          "id": "categoriesContainer",
+          "type": "container",
+          "description": "Product categories filter"
+        },
+        {
+          "id": "productsContainer",
+          "type": "container",
+          "description": "Grid of product cards"
+        },
+        {
+          "id": "cartPreview",
+          "type": "modal",
+          "description": "Shopping cart preview modal"
+        },
+        {
+          "selector": ".cart-icon-container",
+          "type": "button",
+          "description": "Floating cart icon"
+        }
+      ]
+    },
+    {
+      "page": "Login",
+      "url": "/login.html",
+      "description": "User authentication page for signing in.",
+      "elements": [
+        {
+          "id": "email",
+          "type": "input",
+          "description": "Email input field"
+        },
+        {
+          "id": "password",
+          "type": "input",
+          "description": "Password input field"
+        },
+        {
+          "id": "loginBtn",
+          "type": "button",
+          "description": "Login button"
+        },
+        {
+          "selector": ".register-link",
+          "type": "link",
+          "description": "Link to registration page"
+        },
+        {
+          "selector": ".forgot-password",
+          "type": "link",
+          "description": "Link to password reset"
+        }
+      ]
+    },
+    {
+      "page": "Registration",
+      "url": "/register",
+      "description": "New user registration page.",
+      "elements": [
+        {
+          "id": "email",
+          "type": "input",
+          "description": "Email input field"
+        },
+        {
+          "id": "password",
+          "type": "input",
+          "description": "Password input field"
+        },
+        {
+          "id": "confirmPassword",
+          "type": "input",
+          "description": "Confirm password field"
+        },
+        {
+          "id": "registerBtn",
+          "type": "button",
+          "description": "Register button"
+        },
+        {
+          "selector": ".login-link",
+          "type": "link",
+          "description": "Link to login page"
+        }
+      ]
+    },
+    {
+      "page": "Product Details",
+      "url": "/product-details.html",
+      "description": "Product details page with images, description, and purchase options.",
+      "elements": [
+        {
+          "id": "addToCartBtn",
+          "type": "button",
+          "description": "Add product to cart"
+        },
+        {
+          "id": "buyNowBtn",
+          "type": "button",
+          "description": "Buy now button"
+        },
+        {
+          "selector": ".product-images",
+          "type": "container",
+          "description": "Product image gallery"
+        },
+        {
+          "selector": ".product-title",
+          "type": "text",
+          "description": "Product name"
+        },
+        {
+          "selector": ".product-price",
+          "type": "text",
+          "description": "Product price"
+        }
+      ]
+    },
+    {
+      "page": "Merchant Dashboard",
+      "url": "/merchant",
+      "description": "Merchant interface for managing products and orders.",
+      "elements": [
+        {
+          "id": "addProductBtn",
+          "type": "button",
+          "description": "Add new product"
+        },
+        {
+          "id": "productList",
+          "type": "container",
+          "description": "List of merchant's products"
+        },
+        {
+          "id": "orderList",
+          "type": "container",
+          "description": "List of merchant's orders"
+        },
+        {
+          "id": "logoutBtn",
+          "type": "button",
+          "description": "Logout button for merchants"
+        }
+      ]
+    },
+    {
+      "page": "User Profile",
+      "description": "Side profile panel accessible from profile picture.",
+      "elements": [
+        {
+          "selector": "#profileContent",
+          "type": "container",
+          "description": "Profile content area"
+        },
+        {
+          "selector": "#sideProfile",
+          "type": "panel",
+          "description": "Side profile panel"
+        },
+        {
+          "selector": ".menu-item",
+          "type": "button",
+          "description": "Profile menu items"
+        }
+      ]
+    },
+    {
+      "page": "Forget",
+      "url": "/forget.html",
+      "description": "Auto-detected page with 6 elements",
+      "elements": []
+    },
+    {
+      "page": "Merchant register-information",
+      "url": "/merchant-register-information.html",
+      "description": "Auto-detected page with 30 elements",
+      "elements": []
+    },
+    {
+      "page": "Translation widget",
+      "url": "/translation-widget.html",
+      "description": "Auto-detected page with 1 elements",
+      "elements": []
+    }
+  ],
+  "userJourneys": [
+    {
+      "scenario": "New user wants to shop",
+      "steps": [
+        "Go to homepage",
+        "Browse products",
+        "Add to cart",
+        "Checkout",
+        "Login/Register if needed"
+      ]
+    },
+    {
+      "scenario": "User wants to become merchant",
+      "steps": [
+        "Login first",
+        "Click 'Become Merchant' button",
+        "Fill registration form",
+        "Access merchant dashboard"
+      ]
+    },
+    {
+      "scenario": "User wants to track order",
+      "steps": [
+        "Click profile picture",
+        "Select 'Order History' or specific tab",
+        "View order details"
+      ]
+    }
+  ],
+  "commonTasks": [
+    "Search for products",
+    "Filter by category",
+    "Add to cart",
+    "View cart",
+    "Proceed to checkout",
+    "Track orders",
+    "Update profile",
+    "Contact support"
+  ]
+}
